@@ -15,6 +15,9 @@ export const profile = {
   nickname: 'Pun',
   role: 'Graphic & Visual Designer',
   direction: 'growing into UI and web',
+  availability: 'Open to work · Visual, Graphic & UI/Web roles',
+  heroSummary:
+    'I design key visuals, brand identities, infographics, motion graphics, and web interfaces — crafting campaigns for S2O & K2O, MollageBKK / Netflix Thailand, and Binance TH.',
   // About text verbatim from Frame 1
   about: [
     "My name is Tutphong Mungkalakul, but you can call me Pun.",
