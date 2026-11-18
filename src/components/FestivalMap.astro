@@ -8,7 +8,7 @@
 //   - pins: hover/tap shows what each one is
 //   - full screen: zoom and pan (wheel, drag, pinch, +/- buttons)
 import Placeholder from './Placeholder.astro';
-import { hasPublic } from '../lib/media';
+import { assetUrl, hasPublic } from '../lib/media';
 import data from '../data/k2o-map.json';
 
 interface Props {
@@ -18,8 +18,8 @@ interface Props {
 const { name, label } = Astro.props;
 const ready = hasPublic(`${name}-aw-1200.webp`);
 const src = (layer: string) => ({
-  src: `/media/${name}-${layer}-1200.webp`,
-  srcset: `/media/${name}-${layer}-1200.webp 1200w, /media/${name}-${layer}-2400.webp 2400w`,
+  src: assetUrl(`media/${name}-${layer}-1200.webp`),
+  srcset: `${assetUrl(`media/${name}-${layer}-1200.webp`)} 1200w, ${assetUrl(`media/${name}-${layer}-2400.webp`)} 2400w`,
 });
 const mapLayers = data.layers.filter((l) => l.id !== 'headline');
 const steps = data.layers.length; // the headline (last layer) lives in the panel
@@ -78,8 +78,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <div class="fm-panel">
         <img
           class="fm-headline"
-          src={`/media/${name}-headline-480.webp`}
-          srcset={`/media/${name}-headline-480.webp 480w, /media/${name}-headline-960.webp 960w`}
+          src={assetUrl(`media/${name}-headline-480.webp`)}
+          srcset={`${assetUrl(`media/${name}-headline-480.webp`)} 480w, ${assetUrl(`media/${name}-headline-960.webp`)} 960w`}
           sizes="(min-width: 1200px) 26vw, 90vw"
           width={data.headline.w}
           height={data.headline.h}
@@ -120,7 +120,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             {data.categories.map((c) => (
               <li>
                 <button type="button" class="fm-key" data-key={c.id} data-kind={c.kind} aria-pressed="false">
-                  <span class="fm-ico" style={`--i:${c.icon};background-image:url(/media/${name}-icons.webp)`} aria-hidden="true" />
+                  <span class="fm-ico" style={`--i:${c.icon};background-image:url(${assetUrl(`media/${name}-icons.webp`)})`} aria-hidden="true" />
                   <span class="fm-name">{c.label}</span>
                   {c.count != null && <span class="fm-count">{c.count}</span>}
                 </button>

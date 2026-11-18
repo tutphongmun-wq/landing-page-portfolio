@@ -2,6 +2,7 @@
 // Responsive <picture> fed by src/data/media-manifest.json (npm run assets).
 // Renders a labelled placeholder if the asset has not been exported yet.
 import manifest from '../data/media-manifest.json';
+import { assetUrl } from '../lib/media';
 import Placeholder from './Placeholder.astro';
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 }
 const { name, alt, sizes = '100vw', eager = false, class: className } = Astro.props;
 const entry = (manifest as Record<string, { width: number; height: number; sizes: number[] }>)[name];
-const srcset = (fmt: string) => entry?.sizes.map((w) => `/media/${name}-${w}.${fmt} ${w}w`).join(', ');
+const srcset = (fmt: string) => entry?.sizes.map((w) => `${assetUrl(`media/${name}-${w}.${fmt}`)} ${w}w`).join(', ');
 const largest = entry ? Math.max(...entry.sizes) : 0;
 const height = entry ? Math.round((entry.height / entry.width) * largest) : 0;
 ---
@@ -24,7 +25,7 @@ const height = entry ? Math.round((entry.height / entry.width) * largest) : 0;
       <source type="image/avif" srcset={srcset('avif')} sizes={sizes} />
       <source type="image/webp" srcset={srcset('webp')} sizes={sizes} />
       <img
-        src={`/media/${name}-${entry.sizes[0]}.webp`}
+        src={assetUrl(`media/${name}-${entry.sizes[0]}.webp`)}
         alt={alt}
         width={largest}
         height={height}

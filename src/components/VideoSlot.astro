@@ -3,7 +3,7 @@
 // scrolled near the viewport. With prefers-reduced-motion it shows controls
 // instead of autoplaying. Falls back to a labelled placeholder.
 import Placeholder from './Placeholder.astro';
-import { hasPublic, imageEntry, posterUrl } from '../lib/media';
+import { assetUrl, hasPublic, imageEntry, posterUrl } from '../lib/media';
 
 interface Props {
   name: string;
@@ -29,8 +29,8 @@ const ratio = poster && imageEntry(poster) ? `${imageEntry(poster)!.width} / ${i
       aria-label={label}
       style={`aspect-ratio: ${ratio}`}
     >
-      {webm && <source data-src={`/media/${name}.webm`} type="video/webm" />}
-      {mp4 && <source data-src={`/media/${name}.mp4`} type="video/mp4" />}
+      {webm && <source data-src={assetUrl(`media/${name}.webm`)} type="video/webm" />}
+      {mp4 && <source data-src={assetUrl(`media/${name}.mp4`)} type="video/mp4" />}
     </video>
   ) : (
     <Placeholder kind="video" label={label} file={`${name}.mp4`} />

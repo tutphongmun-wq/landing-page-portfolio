@@ -3,7 +3,7 @@
 // is only fetched once the slot scrolls into view; the poster image shows
 // until then. Falls back to a labelled placeholder when no GLB exists.
 import Placeholder from './Placeholder.astro';
-import { hasPublic, posterUrl } from '../lib/media';
+import { assetUrl, hasPublic, posterUrl } from '../lib/media';
 
 interface Props {
   name: string;
@@ -13,13 +13,14 @@ interface Props {
 const { name, label, poster } = Astro.props;
 const glb = hasPublic(`${name}.glb`);
 const posterSrc = posterUrl(poster);
+const dracoBase = assetUrl('draco/');
 ---
 
 {
   glb ? (
-    <div class="model-slot" data-model-slot>
+    <div class="model-slot" data-model-slot data-draco={dracoBase}>
       <model-viewer
-        src={`/media/${name}.glb`}
+        src={assetUrl(`media/${name}.glb`)}
         poster={posterSrc}
         alt={label}
         camera-controls
@@ -38,14 +39,15 @@ const posterSrc = posterUrl(poster);
 }
 
 <script>
-  const slots = document.querySelectorAll('[data-model-slot]');
+  const slots = document.querySelectorAll<HTMLElement>('[data-model-slot]');
   if (slots.length) {
+    const dracoDecoderLocation = slots[0].dataset.draco || '/draco/';
     const io = new IntersectionObserver(
       (entries, obs) => {
         if (entries.some((e) => e.isIntersecting)) {
           obs.disconnect();
           // self-hosted Draco decoder (scripts/copy-draco.mjs); must be set before the import
-          (self as any).ModelViewerElement = { dracoDecoderLocation: '/draco/' };
+          (self as any).ModelViewerElement = { dracoDecoderLocation };
           import('@google/model-viewer');
         }
       },
