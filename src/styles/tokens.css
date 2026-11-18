@@ -1,23 +1,23 @@
 /*
- * Theme: dark-first. Light applies when the OS prefers light (and the
- * visitor hasn't picked dark) or when the toggle sets data-theme="light".
+ * Theme: light-first (default). Dark applies when the visitor clicks the
+ * toggle and sets data-theme="dark".
  * The red hero and contact blocks stay red in both themes.
  */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Color — dark */
-  --c-bg: #1c1c1c;
-  --c-bg-raised: #242424;
-  --c-line: #3a3a3a;
-  --c-fg: #f2f2f2;
-  --c-fg-soft: #d8d8d8; /* running copy */
-  --c-muted: #a9a9a9;
-  --c-accent: #ff2a2a; /* 4.56:1 on --c-bg */
-  --c-ph-a: #222; /* placeholder stripes */
-  --c-ph-b: #1f1f1f;
-  --c-shadow: rgb(0 0 0 / 0.55);
-  --c-shadow-soft: rgb(0 0 0 / 0.35);
+  /* Color — light (default) */
+  --c-bg: #f2efea;
+  --c-bg-raised: #ffffff;
+  --c-line: #d9d3cb;
+  --c-fg: #171514;
+  --c-fg-soft: #3b3732;
+  --c-muted: #6b655e;
+  --c-accent: #c8121b; /* 5.1:1 on --c-bg */
+  --c-ph-a: #e9e4dd;
+  --c-ph-b: #e2ddd5;
+  --c-shadow: rgb(40 20 10 / 0.22);
+  --c-shadow-soft: rgb(40 20 10 / 0.14);
 
   /* Fixed colors (same in both themes) */
   --c-hero: #e8222b;
@@ -45,36 +45,19 @@
   --focus: 0 0 0 3px var(--c-bg), 0 0 0 6px var(--c-fg);
 }
 
-/* Color — light (same values in both blocks so the toggle wins either way) */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) {
-    color-scheme: light;
-    --c-bg: #f2efea;
-    --c-bg-raised: #ffffff;
-    --c-line: #d9d3cb;
-    --c-fg: #171514;
-    --c-fg-soft: #3b3732;
-    --c-muted: #6b655e;
-    --c-accent: #c8121b; /* 5.1:1 on --c-bg */
-    --c-ph-a: #e9e4dd;
-    --c-ph-b: #e2ddd5;
-    --c-shadow: rgb(40 20 10 / 0.22);
-    --c-shadow-soft: rgb(40 20 10 / 0.14);
-  }
-}
-:root[data-theme='light'] {
-  color-scheme: light;
-  --c-bg: #f2efea;
-  --c-bg-raised: #ffffff;
-  --c-line: #d9d3cb;
-  --c-fg: #171514;
-  --c-fg-soft: #3b3732;
-  --c-muted: #6b655e;
-  --c-accent: #c8121b;
-  --c-ph-a: #e9e4dd;
-  --c-ph-b: #e2ddd5;
-  --c-shadow: rgb(40 20 10 / 0.22);
-  --c-shadow-soft: rgb(40 20 10 / 0.14);
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-bg: #1c1c1c;
+  --c-bg-raised: #242424;
+  --c-line: #3a3a3a;
+  --c-fg: #f2f2f2;
+  --c-fg-soft: #d8d8d8; /* running copy */
+  --c-muted: #a9a9a9;
+  --c-accent: #ff2a2a; /* 4.56:1 on --c-bg */
+  --c-ph-a: #222; /* placeholder stripes */
+  --c-ph-b: #1f1f1f;
+  --c-shadow: rgb(0 0 0 / 0.55);
+  --c-shadow-soft: rgb(0 0 0 / 0.35);
 }
 
 @media (max-width: 640px) {

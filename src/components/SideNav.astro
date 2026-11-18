@@ -1,8 +1,7 @@
 ---
 // Desktop left sidebar navigation (>= 1200px). Slides in once the visitor
-// scrolls past Hero and hides over the red Contact section. Highlights the
-// active section / project via scrollspy and includes quick contact + GitHub
-// + theme toggle actions at the bottom.
+// scrolls past Hero and hides over the red Contact section. Clean, monochrome,
+// and borderless with typography-only scrollspy + quick action icons.
 import { projects } from '../data/projects';
 import { contact, profile } from '../data/site';
 import ThemeToggle from './ThemeToggle.astro';
@@ -17,23 +16,16 @@ import ThemeToggle from './ThemeToggle.astro';
   <nav class="side-scroll" aria-label="Sections & Projects">
     <ul class="nav-tree" role="list">
       <li>
-        <a class="nav-link" href="#top" data-spy-target="top">
-          <span class="tick" aria-hidden="true"></span>
-          <span>Intro</span>
-        </a>
+        <a class="nav-link" href="#top" data-spy-target="top">Intro</a>
       </li>
 
       <li class="nav-group">
-        <a class="nav-link" href="#work" data-spy-target="work" data-spy-branch="work">
-          <span class="tick" aria-hidden="true"></span>
-          <span>Work</span>
-        </a>
+        <a class="nav-link" href="#work" data-spy-target="work" data-spy-branch="work">Work</a>
         <ul class="sub-list" role="list">
           {
             projects.map((p) => (
               <li>
-                <a class="sub-link" href={`#${p.slug}`} data-spy-target={p.slug} style={`--dot:${p.spine.bg}`}>
-                  <span class="sub-dot" aria-hidden="true" />
+                <a class="sub-link" href={`#${p.slug}`} data-spy-target={p.slug}>
                   <span class="sub-no">{p.no}</span>
                   <span class="sub-label">{p.spine.label}</span>
                 </a>
@@ -44,22 +36,13 @@ import ThemeToggle from './ThemeToggle.astro';
       </li>
 
       <li>
-        <a class="nav-link" href="#about" data-spy-target="about">
-          <span class="tick" aria-hidden="true"></span>
-          <span>About</span>
-        </a>
+        <a class="nav-link" href="#about" data-spy-target="about">About</a>
       </li>
       <li>
-        <a class="nav-link" href="#experience" data-spy-target="experience">
-          <span class="tick" aria-hidden="true"></span>
-          <span>Experience</span>
-        </a>
+        <a class="nav-link" href="#experience" data-spy-target="experience">Experience</a>
       </li>
       <li>
-        <a class="nav-link" href="#contact" data-spy-target="contact">
-          <span class="tick" aria-hidden="true"></span>
-          <span>Contact</span>
-        </a>
+        <a class="nav-link" href="#contact" data-spy-target="contact">Contact</a>
       </li>
     </ul>
   </nav>
@@ -204,33 +187,31 @@ import ThemeToggle from './ThemeToggle.astro';
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 20px;
-      padding: 26px 14px 18px 18px;
-      background: color-mix(in srgb, var(--c-bg) 92%, transparent);
-      backdrop-filter: blur(14px) saturate(1.2);
-      -webkit-backdrop-filter: blur(14px) saturate(1.2);
-      border-right: 1px solid var(--c-line);
+      gap: 24px;
+      padding: 28px 16px 20px 22px;
+      background: color-mix(in srgb, var(--c-bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       transform: translateX(-104%);
       transition:
         transform 0.35s cubic-bezier(0.3, 0.7, 0.2, 1),
-        background-color 0.3s ease,
-        border-color 0.3s ease;
+        background-color 0.3s ease;
     }
     .side-nav.is-visible {
       transform: translateX(0);
     }
 
     .side-head {
-      padding-left: 4px;
+      padding-left: 2px;
     }
     .brand {
       display: inline-block;
       font-family: var(--f-display);
-      font-size: 1.55rem;
+      font-size: 1.45rem;
       line-height: 1;
       letter-spacing: -0.02em;
       text-decoration: none;
-      color: var(--c-accent);
+      color: var(--c-fg);
     }
     .role {
       margin-top: 6px;
@@ -249,33 +230,22 @@ import ThemeToggle from './ThemeToggle.astro';
     }
     .nav-tree {
       display: grid;
-      gap: 4px;
+      gap: 6px;
       margin: 0;
     }
     .nav-group {
       display: grid;
-      gap: 2px;
+      gap: 4px;
     }
 
     .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 8px 6px 4px;
-      border-radius: 6px;
+      display: block;
+      padding: 4px 2px;
       font-size: 0.875rem;
       font-weight: 500;
       color: var(--c-muted);
       text-decoration: none;
-      transition: color 0.2s ease, background-color 0.2s ease;
-    }
-    .tick {
-      width: 14px;
-      height: 1.5px;
-      border-radius: 99px;
-      background: currentColor;
-      opacity: 0.45;
-      transition: width 0.22s ease, opacity 0.22s ease, background-color 0.22s ease;
+      transition: color 0.18s ease;
     }
     .nav-link:hover {
       color: var(--c-fg);
@@ -285,47 +255,30 @@ import ThemeToggle from './ThemeToggle.astro';
       color: var(--c-fg);
       font-weight: 700;
     }
-    .nav-link.is-active .tick,
-    .nav-link.is-branch-active .tick {
-      width: 24px;
-      opacity: 1;
-      background: var(--c-accent);
-    }
 
     .sub-list {
       display: grid;
-      gap: 2px;
+      gap: 3px;
       margin: 2px 0 6px;
-      padding: 0 0 0 20px;
+      padding: 0 0 0 12px;
       list-style: none;
     }
     .sub-link {
       display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 5px 8px;
-      border-radius: 6px;
+      align-items: baseline;
+      gap: 8px;
+      padding: 4px 2px;
       font-size: 0.8rem;
       font-weight: 500;
       color: var(--c-muted);
       text-decoration: none;
-      transition: color 0.18s ease, background-color 0.18s ease;
-    }
-    .sub-dot {
-      flex: none;
-      width: 6px;
-      height: 6px;
-      border-radius: 99px;
-      background: var(--dot, var(--c-accent));
-      opacity: 0.45;
-      transform: scale(0.85);
-      transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      transition: color 0.18s ease;
     }
     .sub-no {
       flex: none;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-variant-numeric: tabular-nums;
-      opacity: 0.65;
+      opacity: 0.55;
     }
     .sub-label {
       min-width: 0;
@@ -335,24 +288,12 @@ import ThemeToggle from './ThemeToggle.astro';
     }
     .sub-link:hover {
       color: var(--c-fg);
-      background: color-mix(in srgb, var(--c-fg) 5%, transparent);
-    }
-    .sub-link:hover .sub-dot {
-      opacity: 0.9;
-      transform: scale(1);
     }
     .sub-link.is-active {
       color: var(--c-fg);
       font-weight: 700;
-      background: color-mix(in srgb, var(--c-fg) 7%, transparent);
-    }
-    .sub-link.is-active .sub-dot {
-      opacity: 1;
-      transform: scale(1.15);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot, var(--c-accent)) 30%, transparent);
     }
     .sub-link.is-active .sub-no {
-      color: var(--c-accent);
       opacity: 1;
     }
 
@@ -361,8 +302,7 @@ import ThemeToggle from './ThemeToggle.astro';
       align-items: center;
       justify-content: space-between;
       gap: 4px;
-      padding-top: 12px;
-      border-top: 1px solid var(--c-line);
+      padding-top: 8px;
     }
     .ico-btn {
       display: inline-grid;
@@ -372,18 +312,16 @@ import ThemeToggle from './ThemeToggle.astro';
       border-radius: 8px;
       color: var(--c-muted);
       text-decoration: none;
-      transition: color 0.2s ease, background-color 0.2s ease;
+      transition: color 0.18s ease, background-color 0.18s ease;
     }
     .ico-btn:hover {
       color: var(--c-fg);
-      background: color-mix(in srgb, var(--c-fg) 8%, transparent);
+      background: color-mix(in srgb, var(--c-fg) 6%, transparent);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .side-nav,
-    .tick,
-    .sub-dot {
+    .side-nav {
       transition: none;
     }
   }
