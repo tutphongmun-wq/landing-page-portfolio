@@ -21,6 +21,7 @@ const total = String(projects.length).padStart(2, '0');
       <ul role="list">
         <li><a href="#work">Work</a></li>
         <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
         <li><a href="#contact">Contact</a></li>
         <li><ThemeToggle /></li>
       </ul>
@@ -170,6 +171,11 @@ const total = String(projects.length).padStart(2, '0');
     /* phones: brand, current project, theme switch */
     nav li:not(:last-child),
     .now-back {
+      display: none;
+    }
+  }
+  @media (min-width: 1200px) {
+    .sticky-nav {
       display: none;
     }
   }

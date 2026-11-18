@@ -7,20 +7,24 @@ import ProjectSection from '../components/ProjectSection.astro';
 import Experience from '../components/Experience.astro';
 import Contact from '../components/Contact.astro';
 import StickyNav from '../components/StickyNav.astro';
+import SideNav from '../components/SideNav.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { projects } from '../data/projects';
 ---
 
 <Base>
   <StickyNav />
+  <SideNav />
   <Hero />
   <main id="main">
-    <ProjectIndex />
-    <section aria-label="Projects">
-      {projects.map((project) => <ProjectSection project={project} />)}
-    </section>
-    <About />
-    <Experience />
+    <div class="with-sidebar">
+      <ProjectIndex />
+      <section aria-label="Projects">
+        {projects.map((project) => <ProjectSection project={project} />)}
+      </section>
+      <About />
+      <Experience />
+    </div>
     <Contact />
   </main>
   <Lightbox />

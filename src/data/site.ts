@@ -29,6 +29,7 @@ export const contact = {
   email: 'tutphong.mun@gmail.com',
   linkedin: { label: 'linkedin.com/in/tutphong', href: 'https://www.linkedin.com/in/tutphong/' },
   behance: { label: 'behance.net/tutphong', href: 'https://www.behance.net/tutphong' },
+  github: { label: 'github.com/tutphongmun-wq', href: 'https://github.com/tutphongmun-wq' },
   // Phone is intentionally not published. Pun must approve before adding it.
 };
 

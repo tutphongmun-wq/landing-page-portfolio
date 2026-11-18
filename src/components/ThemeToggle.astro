@@ -1,15 +1,26 @@
 ---
 // Dark / light switch. Without a saved choice the page follows the OS
 // setting; a click saves the choice (localStorage, per visitor).
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
 ---
 
-<button class="theme-toggle" type="button" role="switch" aria-checked="true" aria-label="Dark mode">
-  <span class="track" aria-hidden="true">
-    <span class="thumb">
-      <svg class="i-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"></path></svg>
-      <svg class="i-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.5" fill="currentColor"></circle><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+<button class:list={['theme-toggle', { 'is-compact': compact }]} type="button" role="switch" aria-checked="true" aria-label="Dark mode">
+  {compact ? (
+    <span class="compact-ico" aria-hidden="true">
+      <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"></path></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="4.5" fill="currentColor"></circle><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
     </span>
-  </span>
+  ) : (
+    <span class="track" aria-hidden="true">
+      <span class="thumb">
+        <svg class="i-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"></path></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.5" fill="currentColor"></circle><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+      </span>
+    </span>
+  )}
 </button>
 
 <script>
@@ -64,9 +75,27 @@
     color: var(--c-ink-display);
     transition: transform 0.3s cubic-bezier(0.3, 0.7, 0.2, 1);
   }
-  .thumb svg {
+  .thumb svg,
+  .compact-ico svg {
     grid-area: 1 / 1;
     transition: opacity 0.2s ease;
+  }
+  .compact-ico {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    color: var(--c-muted);
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  .theme-toggle.is-compact {
+    min-width: 34px;
+    min-height: 40px;
+  }
+  .theme-toggle.is-compact:hover .compact-ico {
+    color: var(--c-fg);
+    background: color-mix(in srgb, var(--c-fg) 8%, transparent);
   }
   /* checked = dark: thumb right with moon; unchecked = light: thumb left with sun */
   .theme-toggle[aria-checked='true'] .thumb {
@@ -80,5 +109,9 @@
     outline: none;
     box-shadow: 0 0 0 3px var(--c-hero), 0 0 0 6px #000;
     border-radius: 999px;
+  }
+  .theme-toggle.is-compact:focus-visible {
+    box-shadow: var(--focus);
+    border-radius: 8px;
   }
 </style>

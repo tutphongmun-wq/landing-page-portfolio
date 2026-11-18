@@ -4,7 +4,7 @@ import ThemeToggle from './ThemeToggle.astro';
 import HeroShapes from './HeroShapes';
 ---
 
-<header class="hero">
+<header class="hero" id="top">
   <div class="shapes"><HeroShapes client:load /></div>
   <nav class="hero-nav container" aria-label="Primary">
     <a class="brand" href="#top" aria-label="Pun, back to top">PUN</a>
@@ -16,7 +16,7 @@ import HeroShapes from './HeroShapes';
     </ul>
   </nav>
 
-  <div class="hero-body container" id="top">
+  <div class="hero-body container">
     <p class="wordmark display" aria-hidden="true">
       <span data-shape-obstacle>Port</span><span data-shape-obstacle>folio</span>
     </p>
