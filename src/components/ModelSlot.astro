@@ -1,7 +1,10 @@
 ---
-// 3D model (Draco-compressed GLB) via <model-viewer>. The model-viewer library
-// is only fetched once the slot scrolls into view; the poster image shows
-// until then. Falls back to a labelled placeholder when no GLB exists.
+// Interactive 3D viewer for Draco-compressed GLB models using Three.js.
+// Features:
+//   - Deep Atlantic Blue gradient backdrop (#020612 -> #051634 -> #0c2b59)
+//   - Real-time Neon Bloom post-processing (UnrealBloomPass) on the K2O neon glow
+//   - Animated procedural water surface with real-time mirror reflection below the logo
+//   - Fullscreen modal / expand button with zoom (+ / - / reset) and orbit controls
 import Placeholder from './Placeholder.astro';
 import { assetUrl, hasPublic, posterUrl } from '../lib/media';
 
@@ -14,24 +17,59 @@ const { name, label, poster } = Astro.props;
 const glb = hasPublic(`${name}.glb`);
 const posterSrc = posterUrl(poster);
 const dracoBase = assetUrl('draco/');
+const modelSrc = assetUrl(`media/${name}.glb`);
 ---
 
 {
   glb ? (
-    <div class="model-slot" data-model-slot data-draco={dracoBase}>
-      <model-viewer
-        src={assetUrl(`media/${name}.glb`)}
-        poster={posterSrc}
-        alt={label}
-        camera-controls
-        auto-rotate
-        interaction-prompt="none"
-        loading="lazy"
-        reveal="auto"
-        shadow-intensity="0.6"
-      >
-        {posterSrc && <img slot="poster" src={posterSrc} alt="" loading="lazy" decoding="async" />}
-      </model-viewer>
+    <div
+      class="model-slot"
+      data-model-slot
+      data-src={modelSrc}
+      data-draco={dracoBase}
+      role="region"
+      aria-label={label}
+    >
+      <div class="m3d-stage" data-stage>
+        {posterSrc && (
+          <img
+            class="m3d-poster"
+            data-poster
+            src={posterSrc}
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <canvas class="m3d-canvas" data-canvas aria-label={label} />
+
+        <div class="m3d-badge" aria-hidden="true">
+          <span class="m3d-dot" />
+          <span>3D · Drag to rotate</span>
+        </div>
+
+        <div class="m3d-tools">
+          <button type="button" class="m3d-btn m3d-zoom-btn" data-zoom-in aria-label="Zoom in" title="Zoom in">
+            +
+          </button>
+          <button type="button" class="m3d-btn m3d-zoom-btn" data-zoom-out aria-label="Zoom out" title="Zoom out">
+            −
+          </button>
+          <button type="button" class="m3d-btn m3d-zoom-btn" data-reset aria-label="Reset camera" title="Reset view">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+              <path d="M4 10a6 6 0 1 0 2-4.5M4 3v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button type="button" class="m3d-btn" data-expand aria-label="Expand 3D logo full screen" title="Full screen">
+            <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true">
+              <path d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button type="button" class="m3d-btn m3d-close-btn" data-close aria-label="Close full screen" title="Close full screen">
+            ×
+          </button>
+        </div>
+      </div>
     </div>
   ) : (
     <Placeholder kind="3d" label={label} file={`${name}.glb`} />
@@ -40,15 +78,425 @@ const dracoBase = assetUrl('draco/');
 
 <script>
   const slots = document.querySelectorAll<HTMLElement>('[data-model-slot]');
+
+  async function bootSlot(slot: HTMLElement) {
+    if (slot.dataset.booted) return;
+    slot.dataset.booted = '1';
+
+    const src = slot.dataset.src!;
+    const dracoPath = slot.dataset.draco || '/draco/';
+    const canvas = slot.querySelector<HTMLCanvasElement>('[data-canvas]')!;
+    const poster = slot.querySelector<HTMLElement>('[data-poster]');
+    const expandBtn = slot.querySelector<HTMLButtonElement>('[data-expand]');
+    const closeBtn = slot.querySelector<HTMLButtonElement>('[data-close]');
+    const zoomInBtn = slot.querySelector<HTMLButtonElement>('[data-zoom-in]');
+    const zoomOutBtn = slot.querySelector<HTMLButtonElement>('[data-zoom-out]');
+    const resetBtn = slot.querySelector<HTMLButtonElement>('[data-reset]');
+
+    const [
+      THREE,
+      { GLTFLoader },
+      { DRACOLoader },
+      { OrbitControls },
+      { RoomEnvironment },
+      { EffectComposer },
+      { RenderPass },
+      { UnrealBloomPass },
+      { OutputPass },
+      { Water },
+    ] = await Promise.all([
+      import('three'),
+      import('three/examples/jsm/loaders/GLTFLoader.js'),
+      import('three/examples/jsm/loaders/DRACOLoader.js'),
+      import('three/examples/jsm/controls/OrbitControls.js'),
+      import('three/examples/jsm/environments/RoomEnvironment.js'),
+      import('three/examples/jsm/postprocessing/EffectComposer.js'),
+      import('three/examples/jsm/postprocessing/RenderPass.js'),
+      import('three/examples/jsm/postprocessing/UnrealBloomPass.js'),
+      import('three/examples/jsm/postprocessing/OutputPass.js'),
+      import('three/examples/jsm/objects/Water.js'),
+    ]);
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: false,
+      powerPreference: 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const scene = new THREE.Scene();
+
+    // Deep blue gradient dome background so both the viewport and water reflection share the gradient
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.width = 4;
+    bgCanvas.height = 512;
+    const bctx = bgCanvas.getContext('2d')!;
+    const grad = bctx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0.0, '#02091c');
+    grad.addColorStop(0.32, '#061d46');
+    grad.addColorStop(0.54, '#0d3674');
+    grad.addColorStop(0.75, '#07224e');
+    grad.addColorStop(1.0, '#020b1f');
+    bctx.fillStyle = grad;
+    bctx.fillRect(0, 0, 4, 512);
+    const bgTex = new THREE.CanvasTexture(bgCanvas);
+    bgTex.colorSpace = THREE.SRGBColorSpace;
+    scene.background = bgTex;
+    const darkBg = new THREE.Color(0x000000);
+    scene.fog = new THREE.FogExp2(0x051839, 0.11);
+
+    // Metallic reflections environment
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmrem.dispose();
+
+    const camera = new THREE.PerspectiveCamera(34, 1, 0.05, 35);
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.enablePan = false;
+    controls.minDistance = 0.85;
+    controls.maxDistance = 4.8;
+    // Keep camera above the water surface
+    controls.maxPolarAngle = Math.PI * 0.495;
+    controls.minPolarAngle = Math.PI * 0.18;
+    controls.autoRotate = !reduceMotion;
+    controls.autoRotateSpeed = 1.15;
+
+    // Dramatic underwater neon + rim lighting
+    const ambient = new THREE.AmbientLight(0x2864b8, 1.45);
+    scene.add(ambient);
+
+    const cyanRim = new THREE.DirectionalLight(0x00f2ff, 2.3);
+    cyanRim.position.set(-2.4, 2.2, -1.6);
+    scene.add(cyanRim);
+
+    const keyLight = new THREE.DirectionalLight(0xd9ecff, 2.1);
+    keyLight.position.set(2.0, 2.8, 2.5);
+    scene.add(keyLight);
+
+    const neonFill = new THREE.PointLight(0xff1e38, 2.8, 3.8, 1.6);
+    neonFill.position.set(0, 0.08, 0.45);
+    scene.add(neonFill);
+
+    // Procedural tileable water normal map (no external network texture needed)
+    function makeWaterNormalTexture() {
+      const size = 256;
+      const data = new Uint8Array(size * size * 4);
+      const tau = Math.PI * 2;
+      const hAt = (u: number, v: number) =>
+        Math.sin(u * tau * 3 + v * tau * 2) * 0.35 +
+        Math.cos(u * tau * 5 - v * tau * 4) * 0.25 +
+        Math.sin(u * tau * 9 + v * tau * 7) * 0.15 +
+        Math.cos(u * tau * 14 + v * tau * 11) * 0.08;
+
+      const eps = 1 / size;
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const u = x / size;
+          const v = y / size;
+          const dx = (hAt(u + eps, v) - hAt(u - eps, v)) * 2.2;
+          const dy = (hAt(u, v + eps) - hAt(u, v - eps)) * 2.2;
+          const nz = 1.0;
+          const len = Math.hypot(dx, dy, nz);
+          const idx = (y * size + x) * 4;
+          data[idx] = Math.round(((-dx / len) * 0.5 + 0.5) * 255);
+          data[idx + 1] = Math.round(((-dy / len) * 0.5 + 0.5) * 255);
+          data[idx + 2] = Math.round(((nz / len) * 0.5 + 0.5) * 255);
+          data[idx + 3] = 255;
+        }
+      }
+      const tex = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    const waterGeometry = new THREE.PlaneGeometry(22, 22);
+    const water = new Water(waterGeometry, {
+      textureWidth: 512,
+      textureHeight: 512,
+      waterNormals: makeWaterNormalTexture(),
+      sunDirection: new THREE.Vector3(0.15, 0.75, 0.6).normalize(),
+      sunColor: 0x38b6ff,
+      waterColor: 0x041a3d,
+      distortionScale: 0.32,
+      fog: true,
+    });
+    water.rotation.x = -Math.PI / 2;
+    water.position.y = -0.36;
+    if (water.material.uniforms.size) {
+      water.material.uniforms.size.value = 18.0;
+    }
+    scene.add(water);
+
+    // Selective Bloom Composer: renders only the glowing neon + water reflection over black, then additively blends onto the main scene
+    const [{ ShaderPass }] = await Promise.all([
+      import('three/examples/jsm/postprocessing/ShaderPass.js'),
+    ]);
+
+    const bloomComposer = new EffectComposer(renderer);
+    bloomComposer.renderToScreen = false;
+    const renderScenePass = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.78, 0.45, 0.15);
+    bloomComposer.addPass(renderScenePass);
+    bloomComposer.addPass(bloomPass);
+
+    const mixPass = new ShaderPass(
+      new THREE.ShaderMaterial({
+        uniforms: {
+          baseTexture: { value: null },
+          bloomTexture: { value: bloomComposer.renderTarget2.texture },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D baseTexture;
+          uniform sampler2D bloomTexture;
+          varying vec2 vUv;
+          void main() {
+            vec4 base = texture2D(baseTexture, vUv);
+            vec4 bloom = texture2D(bloomTexture, vUv);
+            gl_FragColor = vec4(base.rgb + bloom.rgb * 0.85, 1.0);
+          }
+        `,
+      }),
+      'baseTexture',
+    );
+    mixPass.needsSwap = true;
+
+    const finalComposer = new EffectComposer(renderer);
+    finalComposer.addPass(renderScenePass);
+    finalComposer.addPass(mixPass);
+    finalComposer.addPass(new OutputPass());
+
+    let modelRoot: any = null;
+    let baseY = 0.04;
+    const nonBloomMats = new Map<any, any>();
+    const darkMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+
+    // Fit camera so the 1-unit-wide model + water reflection below both sit nicely in any aspect ratio
+    function fitCamera(w: number, h: number, resetAngle = false) {
+      const aspect = Math.max(w / Math.max(h, 1), 0.4);
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+
+      const vFov = (camera.fov * Math.PI) / 180;
+      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+      const spanW = 1.26;
+      const spanH = 1.12;
+      const distW = spanW / 2 / Math.tan(hFov / 2);
+      const distH = spanH / 2 / Math.tan(vFov / 2);
+      const dist = Math.max(distW, distH, 1.45);
+
+      if (resetAngle || !slot.dataset.camInit) {
+        slot.dataset.camInit = '1';
+        controls.target.set(0, -0.06, 0);
+        camera.position.set(0.18 * dist, 0.11 * dist, dist);
+        controls.update();
+      }
+    }
+
+    function resize() {
+      const rect = slot.getBoundingClientRect();
+      const w = Math.max(Math.round(rect.width), 200);
+      const h = Math.max(Math.round(rect.height), 200);
+      renderer.setSize(w, h, false);
+      bloomComposer.setSize(w, h);
+      finalComposer.setSize(w, h);
+      bloomPass.resolution.set(w, h);
+      fitCamera(w, h, false);
+    }
+
+    // Load GLB
+    const draco = new DRACOLoader();
+    draco.setDecoderPath(dracoPath);
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(draco);
+
+    loader.load(
+      src,
+      (gltf) => {
+        modelRoot = gltf.scene;
+        modelRoot.traverse((child: any) => {
+          if (child.isMesh && child.material) {
+            const mat = child.material;
+            if (mat.name === 'K2O Neon') {
+              mat.emissive = new THREE.Color(0xff1e33);
+              mat.emissiveIntensity = 2.6;
+              child.userData.bloom = true;
+            } else if (mat.name === 'K2O Metal' && mat.emissiveMap) {
+              mat.emissive = new THREE.Color(0xff2034);
+              mat.emissiveIntensity = 1.45;
+              child.userData.bloom = true;
+            }
+          }
+        });
+
+        const box = new THREE.Box3().setFromObject(modelRoot);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        modelRoot.position.sub(center);
+
+        // Place water plane slightly below the bottom of the logo
+        const bottomY = -size.y * 0.5;
+        water.position.y = bottomY - 0.045;
+        baseY = 0.02;
+        modelRoot.position.y = baseY;
+
+        scene.add(modelRoot);
+        resize();
+        fitCamera(canvas.clientWidth || 400, canvas.clientHeight || 400, true);
+        if (poster) poster.classList.add('is-hidden');
+      },
+      undefined,
+      (err) => {
+        console.error('Failed to load 3D model:', err);
+      },
+    );
+
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(slot);
+
+    // Zoom & Reset buttons
+    zoomInBtn?.addEventListener('click', () => {
+      const dir = new THREE.Vector3().subVectors(camera.position, controls.target);
+      dir.multiplyScalar(0.8);
+      if (dir.length() >= controls.minDistance) {
+        camera.position.copy(controls.target).add(dir);
+        controls.update();
+      }
+    });
+
+    zoomOutBtn?.addEventListener('click', () => {
+      const dir = new THREE.Vector3().subVectors(camera.position, controls.target);
+      dir.multiplyScalar(1.25);
+      if (dir.length() <= controls.maxDistance) {
+        camera.position.copy(controls.target).add(dir);
+        controls.update();
+      }
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      const rect = slot.getBoundingClientRect();
+      fitCamera(rect.width, rect.height, true);
+    });
+
+    // Fullscreen dialog (same pattern as FestivalMap so it works on iOS + desktop)
+    let dialog: HTMLDialogElement | null = null;
+    let placeholderNode: Comment | null = null;
+
+    function openFull() {
+      if (dialog) return;
+      dialog = document.createElement('dialog');
+      dialog.className = 'm3d-dialog';
+      dialog.setAttribute('aria-label', slot.getAttribute('aria-label') || '3D model full screen');
+      placeholderNode = document.createComment('model-slot');
+      slot.before(placeholderNode);
+      dialog.append(slot);
+      document.body.append(dialog);
+      slot.classList.add('is-full');
+      dialog.showModal();
+      resize();
+      fitCamera(window.innerWidth, window.innerHeight, true);
+      closeBtn?.focus();
+      dialog.addEventListener('close', closeFull, { once: true });
+    }
+
+    function closeFull() {
+      if (!dialog) return;
+      const d = dialog;
+      dialog = null;
+      slot.classList.remove('is-full');
+      placeholderNode?.replaceWith(slot);
+      placeholderNode = null;
+      if (d.open) d.close();
+      d.remove();
+      resize();
+      fitCamera(slot.clientWidth, slot.clientHeight, true);
+      expandBtn?.focus();
+    }
+
+    expandBtn?.addEventListener('click', openFull);
+    closeBtn?.addEventListener('click', closeFull);
+
+    // Pause render loop when off-screen
+    let inView = true;
+    const visIo = new IntersectionObserver(
+      (entries) => {
+        inView = entries.some((e) => e.isIntersecting) || slot.classList.contains('is-full');
+      },
+      { rootMargin: '150px 0px' },
+    );
+    visIo.observe(slot);
+
+    let lastTime = performance.now();
+    function animate(now: number) {
+      requestAnimationFrame(animate);
+      if (!inView && !slot.classList.contains('is-full')) return;
+
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      if (!reduceMotion) {
+        if (water.material.uniforms.time) {
+          water.material.uniforms.time.value += dt * 0.55;
+        }
+        if (modelRoot) {
+          modelRoot.position.y = baseY + Math.sin(now * 0.0016) * 0.014;
+        }
+      }
+
+      controls.update();
+
+      // 1) Bloom pass: black background, hide water & non-emissive meshes so only the red neon glows
+      scene.background = darkBg;
+      water.visible = false;
+      if (modelRoot) {
+        modelRoot.traverse((child: any) => {
+          if (child.isMesh && !child.userData.bloom) {
+            nonBloomMats.set(child, child.material);
+            child.material = darkMat;
+          }
+        });
+      }
+      bloomComposer.render();
+
+      // 2) Final pass: restore deep blue gradient background, water reflection, and all materials
+      scene.background = bgTex;
+      water.visible = true;
+      if (modelRoot) {
+        modelRoot.traverse((child: any) => {
+          if (nonBloomMats.has(child)) {
+            child.material = nonBloomMats.get(child);
+          }
+        });
+        nonBloomMats.clear();
+      }
+      finalComposer.render();
+    }
+    requestAnimationFrame(animate);
+  }
+
   if (slots.length) {
-    const dracoDecoderLocation = slots[0].dataset.draco || '/draco/';
     const io = new IntersectionObserver(
       (entries, obs) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          obs.disconnect();
-          // self-hosted Draco decoder (scripts/copy-draco.mjs); must be set before the import
-          (self as any).ModelViewerElement = { dracoDecoderLocation };
-          import('@google/model-viewer');
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            obs.unobserve(entry.target);
+            bootSlot(entry.target as HTMLElement);
+          }
         }
       },
       { rootMargin: '300px 0px' },
@@ -59,25 +507,151 @@ const dracoBase = assetUrl('draco/');
 
 <style>
   .model-slot {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
     aspect-ratio: 1;
     border-radius: var(--radius);
-    background: radial-gradient(circle at 50% 40%, var(--c-line), var(--c-bg-raised));
+    background: linear-gradient(180deg, #020714 0%, #061838 48%, #0b2958 68%, #030c1e 100%);
     overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgb(0 242 255 / 0.16);
   }
-  model-viewer {
+  .m3d-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .m3d-canvas {
     display: block;
     width: 100%;
     height: 100%;
-    --poster-color: transparent;
+    cursor: grab;
+    touch-action: none;
   }
-  model-viewer img {
+  .m3d-canvas:active {
+    cursor: grabbing;
+  }
+  .m3d-poster {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    padding: 12%;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
   }
-  @media (prefers-reduced-motion: reduce) {
-    model-viewer {
-      --auto-rotate: none;
-    }
+  .m3d-poster.is-hidden {
+    opacity: 0;
+  }
+  .m3d-badge {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgb(0 242 255 / 0.24);
+    background: rgb(3 12 28 / 0.72);
+    backdrop-filter: blur(8px);
+    color: #d6ecff;
+    font: 600 11px / 1 var(--f-body);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .m3d-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff2a44;
+    box-shadow: 0 0 8px #ff2a44;
+  }
+  .m3d-tools {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 4;
+    display: flex;
+    gap: 6px;
+  }
+  .m3d-btn {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid rgb(0 242 255 / 0.25);
+    border-radius: 10px;
+    background: rgb(4 16 38 / 0.76);
+    backdrop-filter: blur(8px);
+    color: #eef6ff;
+    font: 500 20px / 1 var(--f-body);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  .m3d-btn:hover {
+    border-color: #00f2ff;
+    color: #00f2ff;
+  }
+  .m3d-btn:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #020816,
+      0 0 0 4px #00f2ff;
+  }
+  .m3d-zoom-btn,
+  .m3d-close-btn {
+    display: none;
+  }
+
+  /* Fullscreen dialog */
+  :global(.m3d-dialog) {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #020714;
+  }
+  :global(.m3d-dialog::backdrop) {
+    background: rgb(1 5 14 / 0.82);
+  }
+  .model-slot.is-full {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+  .model-slot.is-full .m3d-zoom-btn,
+  .model-slot.is-full .m3d-close-btn {
+    display: grid;
+  }
+  .model-slot.is-full [data-expand] {
+    display: none;
+  }
+  .model-slot.is-full .m3d-tools {
+    top: 18px;
+    right: 18px;
+    gap: 8px;
+  }
+  .model-slot.is-full .m3d-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .model-slot.is-full .m3d-badge {
+    left: 20px;
+    bottom: 20px;
+    font-size: 12px;
+    padding: 7px 14px;
   }
 </style>

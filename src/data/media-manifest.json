@@ -409,10 +409,20 @@
     ]
   },
   "about-portrait": {
-    "width": 660,
-    "height": 660,
+    "width": 920,
+    "height": 920,
     "sizes": [
-      660
+      660,
+      800,
+      920
+    ]
+  },
+  "01-k2o-planb-poster": {
+    "width": 1400,
+    "height": 400,
+    "sizes": [
+      800,
+      1400
     ]
   }
 }

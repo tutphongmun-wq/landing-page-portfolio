@@ -28,6 +28,22 @@ const imageByName = (name: string) => {
   return m as Extract<Media, { kind: 'image' }>;
 };
 
+const videoByName = (name: string) => {
+  const m = media.get(name + ':video');
+  if (!m) throw new Error(`layouts.ts: "${name}" is not a video in project ${p.no}`);
+  return m as Extract<Media, { kind: 'video' }>;
+};
+const modelByName = (name: string) => {
+  const m = media.get(name + ':model');
+  if (!m) throw new Error(`layouts.ts: "${name}" is not a model in project ${p.no}`);
+  return m as Extract<Media, { kind: 'model' }>;
+};
+const mapByName = (name: string) => {
+  const m = media.get(name + ':map');
+  if (!m) throw new Error(`layouts.ts: "${name}" is not a map in project ${p.no}`);
+  return m as Extract<Media, { kind: 'map' }>;
+};
+
 type Item =
   | { type: 'image'; m: Extract<Media, { kind: 'image' }>; box: Box }
   | { type: 'video'; m: Extract<Media, { kind: 'video' }>; box: Box }
@@ -40,13 +56,19 @@ type Slide = { intro: boolean; region: Box; items: Item[] };
 const toItem = (it: LayoutItem): Item =>
   'name' in it
     ? { type: 'image', m: imageByName(it.name), box: it.box }
-    : 'palette' in it
-      ? { type: 'palette', box: it.box }
-      : { type: 'label', label: it.label, sub: it.sub, box: it.box };
+    : 'video' in it
+      ? { type: 'video', m: videoByName(it.video), box: it.box }
+      : 'model' in it
+        ? { type: 'model', m: modelByName(it.model), box: it.box }
+        : 'map' in it
+          ? { type: 'map', m: mapByName(it.map), box: it.box }
+          : 'palette' in it
+            ? { type: 'palette', box: it.box }
+            : { type: 'label', label: it.label, sub: it.sub, box: it.box };
 
 const slides: Slide[] = (layouts[p.slug] ?? []).map((s, i) => ({
   intro: i === 0,
-  region: i === 0 ? INTRO_REGION : FULL_REGION,
+  region: s.region ?? (i === 0 ? INTRO_REGION : FULL_REGION),
   items: s.items.map(toItem),
 }));
 if (!slides.length) throw new Error(`layouts.ts: no slides for project ${p.no} (${p.slug})`);
@@ -56,16 +78,20 @@ const placed = new Set(slides.flatMap((s) => s.items.flatMap((it) => (it.type ==
 const unplaced = p.media.filter((m) => m.kind === 'image' && !placed.has(m.name));
 if (unplaced.length) throw new Error(`layouts.ts: project ${p.no} images not placed: ${unplaced.map((m) => (m as { name: string }).name).join(', ')}`);
 
-// generated motion page: interactive map (or video) + 3D model
-const videos = p.media.filter((m): m is Extract<Media, { kind: 'video' }> => m.kind === 'video');
-const models = p.media.filter((m): m is Extract<Media, { kind: 'model' }> => m.kind === 'model');
-const maps = p.media.filter((m): m is Extract<Media, { kind: 'map' }> => m.kind === 'map');
+const placedVideos = new Set(slides.flatMap((s) => s.items.flatMap((it) => (it.type === 'video' ? [it.m.name] : []))));
+const placedModels = new Set(slides.flatMap((s) => s.items.flatMap((it) => (it.type === 'model' ? [it.m.name] : []))));
+const placedMaps = new Set(slides.flatMap((s) => s.items.flatMap((it) => (it.type === 'map' ? [it.m.name] : []))));
+
+// generated motion page: interactive map (or video) + 3D model (only for items not already placed on a slide)
+const videos = p.media.filter((m): m is Extract<Media, { kind: 'video' }> => m.kind === 'video' && !placedVideos.has(m.name));
+const models = p.media.filter((m): m is Extract<Media, { kind: 'model' }> => m.kind === 'model' && !placedModels.has(m.name));
+const maps = p.media.filter((m): m is Extract<Media, { kind: 'map' }> => m.kind === 'map' && !placedMaps.has(m.name));
 if (videos.length || models.length || maps.length) {
   const b = motionBoxes(videos.length + maps.length > 0, models.length > 0, maps.length > 0);
   const main: Item[] = maps.length
     ? [{ type: 'map', m: maps[0], box: b.main }]
     : videos.slice(0, 1).map((m) => ({ type: 'video' as const, m, box: b.main }));
-  const label = maps.length ? (models.length ? 'Festival map & 3D' : 'Festival map') : models.length && videos.length ? 'Motion & 3D' : models.length ? '3D' : 'Motion';
+  const label = maps.length ? (models.length ? 'Festival map & 3D' : 'Festival map (Interactive)') : models.length && videos.length ? 'Motion & 3D' : models.length ? '3D' : 'Motion';
   slides.push({
     intro: false,
     region: FULL_REGION,
@@ -115,6 +141,7 @@ const sizes = (box: Box) => `(min-width: 1200px) ${Math.round(((box[2] - box[0])
     slides.map((s, i) => (
       <section
         class:list={['slide', s.intro ? 'is-intro' : 'is-full']}
+        style={`--slide-ar:${s.region[2] - s.region[0]} / ${s.region[3] - s.region[1]}`}
         aria-label={i === 0 ? undefined : `${p.title}, page ${i + 1} of ${slides.length}`}
         aria-labelledby={i === 0 ? titleId : undefined}
       >
@@ -324,7 +351,7 @@ const sizes = (box: Box) => `(min-width: 1200px) ${Math.round(((box[2] - box[0])
       contain-intrinsic-size: auto 2400px;
     }
     .slide {
-      /* a 16:9 page that fits the viewport */
+      /* a 16:9 page (or custom --slide-ar banner) that fits the viewport */
       width: min(100% - var(--gutter) * 2, 1600px, (100svh - 56px) * 16 / 9);
       max-width: none;
       aspect-ratio: 16 / 9;
@@ -332,6 +359,9 @@ const sizes = (box: Box) => `(min-width: 1200px) ${Math.round(((box[2] - box[0])
       padding: 0;
       container-type: inline-size;
       position: relative;
+    }
+    .slide.is-full {
+      aspect-ratio: var(--slide-ar, 16 / 9);
     }
     .slide:last-child {
       padding-bottom: 0;

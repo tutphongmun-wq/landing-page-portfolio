@@ -11,11 +11,15 @@ export type Box = [number, number, number, number];
 
 export type LayoutItem =
   | { name: string; box: Box } // an image from the project's media list
+  | { video: string; box: Box } // an explicit video slot placed on a slide
+  | { model: string; box: Box } // an explicit 3D model slot placed on a slide
+  | { map: string; box: Box } // an explicit interactive map placed on a slide
   | { palette: true; box: Box }
   | { label: string; sub?: string; box: Box }; // section heading with a rule
 
 export interface SlideLayout {
   frame: string; // PDF page / frame id the boxes were traced from
+  region?: Box; // optional custom coordinate region (defaults to INTRO_REGION on slide 0, FULL_REGION otherwise)
   items: LayoutItem[];
 }
 
@@ -44,6 +48,14 @@ export const layouts: Record<string, SlideLayout[]> = {
       ],
     },
     {
+      frame: '4a-motion',
+      region: [0, 0, 1280, 435],
+      items: [
+        { label: 'OOH Motion', sub: '(Plan B Media)', box: [50, 16, 1243, 64] },
+        { video: '01-k2o-planb', box: [50, 82, 1243, 423] },
+      ],
+    },
+    {
       frame: '4b',
       items: [
         // order = reading order on mobile (each heading before its images)
@@ -53,8 +65,8 @@ export const layouts: Record<string, SlideLayout[]> = {
         { name: '01-k2o-merch-black', box: [313, 430, 563, 645] },
         { name: '01-k2o-merch-wristband', box: [575, 108, 768, 240] },
         { name: '01-k2o-merch-wristbands', box: [575, 253, 768, 645] },
-        { label: 'Festival map', box: [814, 40, 1226, 92] },
-        { name: '01-k2o-map', box: [810, 115, 1243, 653] },
+        { label: '3D Logo', sub: '(Interactive)', box: [814, 40, 1243, 92] },
+        { model: '01-k2o-logo', box: [810, 108, 1243, 645] },
       ],
     },
   ],
@@ -155,8 +167,8 @@ export const layouts: Record<string, SlideLayout[]> = {
 
 /** Page layout for the generated "Motion & 3D" slide (interactive map / video, 3D model). */
 export const motionBoxes = (hasMain: boolean, hasModel: boolean, isMap = false) => ({
-  label: [54, 40, 1226, 92] as Box,
+  label: [54, 40, 1243, 92] as Box,
   // the map is portrait (2000 x 2240) with its panel beside it, so it takes the full height
-  main: (isMap ? (hasModel ? [54, 112, 958, 688] : [140, 112, 1140, 688]) : hasModel ? [54, 120, 870, 579] : [200, 120, 1080, 615]) as Box,
+  main: (isMap ? (hasModel ? [54, 112, 958, 688] : [50, 112, 1243, 688]) : hasModel ? [54, 120, 870, 579] : [200, 120, 1080, 615]) as Box,
   model: (isMap ? [978, 112, 1226, 688] : hasMain ? [890, 120, 1226, 579] : [380, 120, 900, 640]) as Box,
 });
