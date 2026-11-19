@@ -102,8 +102,8 @@ const modelSrc = assetUrl(`media/${name}.glb`);
       { EffectComposer },
       { RenderPass },
       { UnrealBloomPass },
+      { ShaderPass },
       { OutputPass },
-      { Water },
     ] = await Promise.all([
       import('three'),
       import('three/examples/jsm/loaders/GLTFLoader.js'),
@@ -113,8 +113,8 @@ const modelSrc = assetUrl(`media/${name}.glb`);
       import('three/examples/jsm/postprocessing/EffectComposer.js'),
       import('three/examples/jsm/postprocessing/RenderPass.js'),
       import('three/examples/jsm/postprocessing/UnrealBloomPass.js'),
+      import('three/examples/jsm/postprocessing/ShaderPass.js'),
       import('three/examples/jsm/postprocessing/OutputPass.js'),
-      import('three/examples/jsm/objects/Water.js'),
     ]);
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -127,28 +127,26 @@ const modelSrc = assetUrl(`media/${name}.glb`);
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.05;
 
     const scene = new THREE.Scene();
 
-    // Deep blue gradient dome background so both the viewport and water reflection share the gradient
+    // Deep blue gradient backdrop
     const bgCanvas = document.createElement('canvas');
     bgCanvas.width = 4;
     bgCanvas.height = 512;
     const bctx = bgCanvas.getContext('2d')!;
     const grad = bctx.createLinearGradient(0, 0, 0, 512);
     grad.addColorStop(0.0, '#02091c');
-    grad.addColorStop(0.32, '#061d46');
-    grad.addColorStop(0.54, '#0d3674');
-    grad.addColorStop(0.75, '#07224e');
-    grad.addColorStop(1.0, '#020b1f');
+    grad.addColorStop(0.38, '#061d46');
+    grad.addColorStop(0.68, '#0b2f66');
+    grad.addColorStop(1.0, '#030d24');
     bctx.fillStyle = grad;
     bctx.fillRect(0, 0, 4, 512);
     const bgTex = new THREE.CanvasTexture(bgCanvas);
     bgTex.colorSpace = THREE.SRGBColorSpace;
     scene.background = bgTex;
     const darkBg = new THREE.Color(0x000000);
-    scene.fog = new THREE.FogExp2(0x051839, 0.11);
 
     // Metallic reflections environment
     const pmrem = new THREE.PMREMGenerator(renderer);
@@ -162,89 +160,30 @@ const modelSrc = assetUrl(`media/${name}.glb`);
     controls.enablePan = false;
     controls.minDistance = 0.85;
     controls.maxDistance = 4.8;
-    // Keep camera above the water surface
-    controls.maxPolarAngle = Math.PI * 0.495;
-    controls.minPolarAngle = Math.PI * 0.18;
     controls.autoRotate = !reduceMotion;
     controls.autoRotateSpeed = 1.15;
 
-    // Dramatic underwater neon + rim lighting
-    const ambient = new THREE.AmbientLight(0x2864b8, 1.45);
+    // Subtle underwater neon + rim lighting
+    const ambient = new THREE.AmbientLight(0x2864b8, 1.35);
     scene.add(ambient);
 
-    const cyanRim = new THREE.DirectionalLight(0x00f2ff, 2.3);
+    const cyanRim = new THREE.DirectionalLight(0x00f2ff, 1.8);
     cyanRim.position.set(-2.4, 2.2, -1.6);
     scene.add(cyanRim);
 
-    const keyLight = new THREE.DirectionalLight(0xd9ecff, 2.1);
+    const keyLight = new THREE.DirectionalLight(0xd9ecff, 1.85);
     keyLight.position.set(2.0, 2.8, 2.5);
     scene.add(keyLight);
 
-    const neonFill = new THREE.PointLight(0xff1e38, 2.8, 3.8, 1.6);
-    neonFill.position.set(0, 0.08, 0.45);
+    const neonFill = new THREE.PointLight(0xff1e38, 1.6, 3.5, 1.6);
+    neonFill.position.set(0, 0.05, 0.45);
     scene.add(neonFill);
 
-    // Procedural tileable water normal map (no external network texture needed)
-    function makeWaterNormalTexture() {
-      const size = 256;
-      const data = new Uint8Array(size * size * 4);
-      const tau = Math.PI * 2;
-      const hAt = (u: number, v: number) =>
-        Math.sin(u * tau * 3 + v * tau * 2) * 0.35 +
-        Math.cos(u * tau * 5 - v * tau * 4) * 0.25 +
-        Math.sin(u * tau * 9 + v * tau * 7) * 0.15 +
-        Math.cos(u * tau * 14 + v * tau * 11) * 0.08;
-
-      const eps = 1 / size;
-      for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-          const u = x / size;
-          const v = y / size;
-          const dx = (hAt(u + eps, v) - hAt(u - eps, v)) * 2.2;
-          const dy = (hAt(u, v + eps) - hAt(u, v - eps)) * 2.2;
-          const nz = 1.0;
-          const len = Math.hypot(dx, dy, nz);
-          const idx = (y * size + x) * 4;
-          data[idx] = Math.round(((-dx / len) * 0.5 + 0.5) * 255);
-          data[idx + 1] = Math.round(((-dy / len) * 0.5 + 0.5) * 255);
-          data[idx + 2] = Math.round(((nz / len) * 0.5 + 0.5) * 255);
-          data[idx + 3] = 255;
-        }
-      }
-      const tex = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.needsUpdate = true;
-      return tex;
-    }
-
-    const waterGeometry = new THREE.PlaneGeometry(22, 22);
-    const water = new Water(waterGeometry, {
-      textureWidth: 512,
-      textureHeight: 512,
-      waterNormals: makeWaterNormalTexture(),
-      sunDirection: new THREE.Vector3(0.15, 0.75, 0.6).normalize(),
-      sunColor: 0x38b6ff,
-      waterColor: 0x041a3d,
-      distortionScale: 0.32,
-      fog: true,
-    });
-    water.rotation.x = -Math.PI / 2;
-    water.position.y = -0.36;
-    if (water.material.uniforms.size) {
-      water.material.uniforms.size.value = 18.0;
-    }
-    scene.add(water);
-
-    // Selective Bloom Composer: renders only the glowing neon + water reflection over black, then additively blends onto the main scene
-    const [{ ShaderPass }] = await Promise.all([
-      import('three/examples/jsm/postprocessing/ShaderPass.js'),
-    ]);
-
+    // Subtle Selective Bloom Composer: soft halo around the red neon tubes without blowing out details
     const bloomComposer = new EffectComposer(renderer);
     bloomComposer.renderToScreen = false;
     const renderScenePass = new RenderPass(scene, camera);
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.78, 0.45, 0.15);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.32, 0.35, 0.25);
     bloomComposer.addPass(renderScenePass);
     bloomComposer.addPass(bloomPass);
 
@@ -268,7 +207,7 @@ const modelSrc = assetUrl(`media/${name}.glb`);
           void main() {
             vec4 base = texture2D(baseTexture, vUv);
             vec4 bloom = texture2D(bloomTexture, vUv);
-            gl_FragColor = vec4(base.rgb + bloom.rgb * 0.85, 1.0);
+            gl_FragColor = vec4(base.rgb + bloom.rgb * 0.45, 1.0);
           }
         `,
       }),
@@ -282,11 +221,10 @@ const modelSrc = assetUrl(`media/${name}.glb`);
     finalComposer.addPass(new OutputPass());
 
     let modelRoot: any = null;
-    let baseY = 0.04;
     const nonBloomMats = new Map<any, any>();
     const darkMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
-    // Fit camera so the 1-unit-wide model + water reflection below both sit nicely in any aspect ratio
+    // Fit camera so the 1-unit-wide model sits centered in any aspect ratio
     function fitCamera(w: number, h: number, resetAngle = false) {
       const aspect = Math.max(w / Math.max(h, 1), 0.4);
       camera.aspect = aspect;
@@ -294,16 +232,16 @@ const modelSrc = assetUrl(`media/${name}.glb`);
 
       const vFov = (camera.fov * Math.PI) / 180;
       const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
-      const spanW = 1.26;
-      const spanH = 1.12;
+      const spanW = 1.24;
+      const spanH = 0.88;
       const distW = spanW / 2 / Math.tan(hFov / 2);
       const distH = spanH / 2 / Math.tan(vFov / 2);
       const dist = Math.max(distW, distH, 1.45);
 
       if (resetAngle || !slot.dataset.camInit) {
         slot.dataset.camInit = '1';
-        controls.target.set(0, -0.06, 0);
-        camera.position.set(0.18 * dist, 0.11 * dist, dist);
+        controls.target.set(0, 0, 0);
+        camera.position.set(0.16 * dist, 0.08 * dist, dist);
         controls.update();
       }
     }
@@ -334,26 +272,19 @@ const modelSrc = assetUrl(`media/${name}.glb`);
             const mat = child.material;
             if (mat.name === 'K2O Neon') {
               mat.emissive = new THREE.Color(0xff1e33);
-              mat.emissiveIntensity = 2.6;
+              mat.emissiveIntensity = 1.35;
               child.userData.bloom = true;
             } else if (mat.name === 'K2O Metal' && mat.emissiveMap) {
               mat.emissive = new THREE.Color(0xff2034);
-              mat.emissiveIntensity = 1.45;
+              mat.emissiveIntensity = 1.0;
               child.userData.bloom = true;
             }
           }
         });
 
         const box = new THREE.Box3().setFromObject(modelRoot);
-        const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
         modelRoot.position.sub(center);
-
-        // Place water plane slightly below the bottom of the logo
-        const bottomY = -size.y * 0.5;
-        water.position.y = bottomY - 0.045;
-        baseY = 0.02;
-        modelRoot.position.y = baseY;
 
         scene.add(modelRoot);
         resize();
@@ -441,28 +372,18 @@ const modelSrc = assetUrl(`media/${name}.glb`);
     );
     visIo.observe(slot);
 
-    let lastTime = performance.now();
     function animate(now: number) {
       requestAnimationFrame(animate);
       if (!inView && !slot.classList.contains('is-full')) return;
 
-      const dt = Math.min((now - lastTime) / 1000, 0.1);
-      lastTime = now;
-
-      if (!reduceMotion) {
-        if (water.material.uniforms.time) {
-          water.material.uniforms.time.value += dt * 0.55;
-        }
-        if (modelRoot) {
-          modelRoot.position.y = baseY + Math.sin(now * 0.0016) * 0.014;
-        }
+      if (!reduceMotion && modelRoot) {
+        modelRoot.position.y = Math.sin(now * 0.0015) * 0.012;
       }
 
       controls.update();
 
-      // 1) Bloom pass: black background, hide water & non-emissive meshes so only the red neon glows
+      // 1) Bloom pass: black background, hide non-emissive meshes so only the red neon glows softly
       scene.background = darkBg;
-      water.visible = false;
       if (modelRoot) {
         modelRoot.traverse((child: any) => {
           if (child.isMesh && !child.userData.bloom) {
@@ -473,9 +394,8 @@ const modelSrc = assetUrl(`media/${name}.glb`);
       }
       bloomComposer.render();
 
-      // 2) Final pass: restore deep blue gradient background, water reflection, and all materials
+      // 2) Final pass: restore deep blue gradient background and all materials
       scene.background = bgTex;
-      water.visible = true;
       if (modelRoot) {
         modelRoot.traverse((child: any) => {
           if (nonBloomMats.has(child)) {
