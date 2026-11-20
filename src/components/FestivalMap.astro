@@ -33,17 +33,33 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <div class="fm-stage" data-stage>
         <div class="fm-view" data-view role="img" aria-label={label}>
           {mapLayers.map((l, i) => (
-            <img
-              class={`fm-layer fm-${l.id}`}
-              data-step={i + 1}
-              {...src(l.id)}
-              sizes="(min-width: 1200px) 42vw, 100vw"
-              width="1200"
-              height={Math.round((1200 * data.height) / data.width)}
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
+            <>
+              <img
+                class={`fm-layer fm-${l.id}`}
+                data-step={i + 1}
+                {...src(l.id)}
+                sizes="(min-width: 1200px) 42vw, 100vw"
+                width="1200"
+                height={Math.round((1200 * data.height) / data.width)}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              {l.id === 'aw' && (
+                <div class="fm-layer fm-wet-zone" data-step={i + 1} aria-hidden="true">
+                  <canvas class="fm-wet-canvas" data-wet-canvas width="493" height="710" />
+                  <img
+                    class="fm-wet-fg"
+                    src={assetUrl(`media/${name}-wet-fg.webp`)}
+                    width="493"
+                    height="710"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              )}
+            </>
           ))}
           <div class="fm-veil" aria-hidden="true" />
           <img class="fm-top fm-top-pins" {...src('pins')} sizes="(min-width: 1200px) 42vw, 100vw" alt="" loading="lazy" decoding="async" style={`clip-path:url(#${uid}-clip)`} />
@@ -377,6 +393,127 @@ const pad = (n: number) => String(n).padStart(2, '0');
     $('[data-expand]').addEventListener('click', open);
     $('[data-close]').addEventListener('click', close);
     addEventListener('resize', () => apply());
+
+    // ---------- wet zone looping water ripple animation ----------
+    const wetCanvas = root.querySelector<HTMLCanvasElement>('[data-wet-canvas]');
+    if (wetCanvas) {
+      const ctx = wetCanvas.getContext('2d');
+      if (ctx) {
+        const W = 493;
+        const H = 710;
+        const CX = 258.37;
+        const CY = 478.04;
+        const RING_COUNT = 11;
+        const SEGMENTS = 96;
+        const TAU = Math.PI * 2;
+
+        // Precompute angle cosines/sines and the base Fourier harmonic shape from Pun's Illustrator file
+        const cosA = new Float32Array(SEGMENTS);
+        const sinA = new Float32Array(SEGMENTS);
+        const thA = new Float32Array(SEGMENTS);
+        const baseShape = new Float32Array(SEGMENTS);
+        for (let sIdx = 0; sIdx < SEGMENTS; sIdx++) {
+          const th = (sIdx / SEGMENTS) * TAU;
+          thA[sIdx] = th;
+          cosA[sIdx] = Math.cos(th);
+          sinA[sIdx] = Math.sin(th);
+          // Fourier harmonics fitted directly to Pun's Wet Zone vector rings
+          baseShape[sIdx] =
+            1.0 +
+            0.018 * Math.cos(2 * th - 0.03) +
+            0.011 * Math.cos(8 * th - 0.04) +
+            0.009 * Math.cos(13 * th + 1.47) +
+            0.006 * Math.cos(16 * th - 2.5);
+        }
+
+        function drawWetRipples(phase: number) {
+          if (!ctx) return;
+          // 1. Flat maroon Wet Zone floor
+          ctx.fillStyle = '#7e2032';
+          ctx.fillRect(0, 0, W, H);
+
+          ctx.lineJoin = 'round';
+          ctx.lineCap = 'round';
+
+          const pAngle = phase * TAU;
+
+          // Center pulsing core dot/ring
+          const coreR = 5.0 + phase * 11.0;
+          const coreAlpha = Math.max(0, 1 - phase * 0.85);
+          ctx.strokeStyle = `rgba(33, 229, 255, ${coreAlpha.toFixed(3)})`;
+          ctx.lineWidth = 11 * (1 - phase * 0.35);
+          ctx.beginPath();
+          ctx.arc(CX, CY, coreR, 0, TAU);
+          ctx.stroke();
+
+          // 2. Concentric expanding & undulating wavy cyan rings (seamless loop from phase 0 -> 1)
+          for (let k = 0; k < RING_COUNT; k++) {
+            const u = k + phase;
+            // Exact radial spacing progression measured from Pun's Illustrator file
+            const R = 12.0 + 37.5 * u + 1.15 * u * u;
+            if (R > 515) continue;
+
+            // Smooth fade-in near center and fade-out at far top corners
+            let alpha = 1.0;
+            if (k === 0) alpha = Math.min(1.0, phase * 1.4);
+            if (R > 468) alpha = Math.max(0.0, 1.0 - (R - 468) / 47);
+
+            // Stroke thickness tapers from ~21px near center to ~2.2px at the top of the Wet Zone
+            const t = Math.min(R / 505, 0.93);
+            const lw = Math.max(2.2, 22.0 * Math.pow(1.0 - t, 1.32));
+
+            ctx.strokeStyle = `rgba(33, 229, 255, ${alpha.toFixed(3)})`;
+            ctx.lineWidth = lw;
+            ctx.beginPath();
+
+            for (let sIdx = 0; sIdx < SEGMENTS; sIdx++) {
+              const th = thA[sIdx];
+              // Traveling wave undulation along the wavy crests (periodic in phase 0..1)
+              const ripple =
+                0.014 * Math.sin(8 * th - pAngle) +
+                0.01 * Math.cos(12 * th + pAngle);
+              const r = R * (baseShape[sIdx] + ripple);
+              const x = CX + r * cosA[sIdx];
+              const y = CY + r * sinA[sIdx];
+              if (sIdx === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+          }
+
+          // 3. Soft ambient multiply shadow behind the WET ZONE 3D text & T-stage
+          const grad = ctx.createRadialGradient(CX, CY - 32, 18, CX, CY - 32, 225);
+          grad.addColorStop(0, 'rgba(18, 0, 5, 0.46)');
+          grad.addColorStop(0.55, 'rgba(18, 0, 5, 0.24)');
+          grad.addColorStop(1, 'rgba(18, 0, 5, 0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, W, H);
+        }
+
+        // Draw initial static frame immediately
+        drawWetRipples(0);
+
+        if (!reduce) {
+          let mapInView = false;
+          new IntersectionObserver(
+            (entries) => {
+              mapInView = entries.some((e) => e.isIntersecting) || root.classList.contains('is-full');
+            },
+            { rootMargin: '150px 0px' },
+          ).observe(stage);
+
+          const loop = (now: number) => {
+            requestAnimationFrame(loop);
+            if (!mapInView && !root.classList.contains('is-full')) return;
+            // 1 cycle every 2.4 seconds -> continuous outward water ripple loop
+            const phase = (now * 0.00042) % 1;
+            drawWetRipples(phase);
+          };
+          requestAnimationFrame(loop);
+        }
+      }
+    }
   });
 </script>
 
@@ -413,7 +550,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     inset: 0;
     transform-origin: 0 0;
   }
-  .fm-view img {
+  .fm-view > img {
     position: absolute;
     inset: 0;
     display: block;
@@ -422,6 +559,30 @@ const pad = (n: number) => String(n).padStart(2, '0');
     max-width: none;
     pointer-events: none;
     -webkit-user-drag: none;
+  }
+  /* Animated Wet Zone overlay sitting on Layer 02 (aw) underneath pins */
+  .fm-wet-zone {
+    position: absolute;
+    left: 55.5417%;
+    top: 34.9702%;
+    width: 20.5417%;
+    height: 26.4137%;
+    border-radius: 0.86% / 0.6%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .fm-wet-canvas,
+  .fm-wet-fg {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    pointer-events: none;
+  }
+  .fm-wet-fg {
+    filter: drop-shadow(3px 7px 5px rgb(15 0 5 / 0.65));
   }
   .fm-layer {
     transition:
