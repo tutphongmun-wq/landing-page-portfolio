@@ -14,11 +14,13 @@ import FestivalMap from './FestivalMap.astro';
 import mapData from '../data/k2o-map.json';
 import ToolChips from './ToolChips.astro';
 import Palette from './Palette.astro';
+import EditorialCarouselProject from './EditorialCarouselProject.astro';
 
 interface Props {
   project: Project;
 }
 const { project: p } = Astro.props;
+const isEditorialCarousel = p.slug === 'infographic';
 const titleId = `${p.slug}-title`;
 
 const media = new Map(p.media.map((m) => [m.kind === 'embed' ? m.id : m.name + ':' + m.kind, m]));
@@ -136,86 +138,92 @@ const isWide = (box: Box, r: Box) => (box[2] - box[0]) / (r[2] - r[0]) > 0.55;
 const sizes = (box: Box) => `(min-width: 1200px) ${Math.round(((box[2] - box[0]) / 1280) * 100)}vw, (min-width: 560px) 50vw, 100vw`;
 ---
 
-<article class="project" id={p.slug} aria-labelledby={titleId}>
-  {
-    slides.map((s, i) => (
-      <section
-        class:list={['slide', s.intro ? 'is-intro' : 'is-full']}
-        style={`--slide-ar:${s.region[2] - s.region[0]} / ${s.region[3] - s.region[1]}`}
-        aria-label={i === 0 ? undefined : `${p.title}, page ${i + 1} of ${slides.length}`}
-        aria-labelledby={i === 0 ? titleId : undefined}
-      >
-        <div class="page">
-        {s.intro && (
-          <div class="info">
-            <p class="no display" aria-hidden="true">
-              {p.no}
-            </p>
-            <h3 id={titleId} class="title display">
-              <span class="visually-hidden">Project {p.no}: </span>
-              {p.title}
-            </h3>
+{
+  isEditorialCarousel ? (
+    <EditorialCarouselProject project={p} />
+  ) : (
+    <article class="project" id={p.slug} aria-labelledby={titleId}>
+      {
+        slides.map((s, i) => (
+          <section
+            class:list={['slide', s.intro ? 'is-intro' : 'is-full']}
+            style={`--slide-ar:${s.region[2] - s.region[0]} / ${s.region[3] - s.region[1]}`}
+            aria-label={i === 0 ? undefined : `${p.title}, page ${i + 1} of ${slides.length}`}
+            aria-labelledby={i === 0 ? titleId : undefined}
+          >
+            <div class="page">
+            {s.intro && (
+              <div class="info">
+                <p class="no display" aria-hidden="true">
+                  {p.no}
+                </p>
+                <h3 id={titleId} class="title display">
+                  <span class="visually-hidden">Project {p.no}: </span>
+                  {p.title}
+                </h3>
 
-            <h4>Description</h4>
-            {Array.isArray(p.description) ? (
-              <ul class="bullets">
-                {p.description.map((d) => (
-                  <li>{d}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>{p.description}</p>
+                <h4>Description</h4>
+                {Array.isArray(p.description) ? (
+                  <ul class="bullets">
+                    {p.description.map((d) => (
+                      <li>{d}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>{p.description}</p>
+                )}
+
+                <h4>My Role</h4>
+                <ul class="bullets">
+                  {p.role.map((r) => (
+                    <li>{r}</li>
+                  ))}
+                </ul>
+
+                <h4>Tools &amp; Software</h4>
+                <ToolChips ids={p.tools} />
+              </div>
             )}
 
-            <h4>My Role</h4>
-            <ul class="bullets">
-              {p.role.map((r) => (
-                <li>{r}</li>
-              ))}
-            </ul>
-
-            <h4>Tools &amp; Software</h4>
-            <ToolChips ids={p.tools} />
-          </div>
-        )}
-
-        <div class="canvas" style={`--ratio:${s.region[2] - s.region[0]} / ${s.region[3] - s.region[1]}`}>
-          {groupItems(s.items, s.region).map((g) => (
-            <div class:list={['group', { cols: !g.alone }]}>
-            {g.items.map((it) => (
-            <div class:list={['item', `item-${it.type}`]} style={place(it.box, s.region) + (it.type === 'map' ? `;--map-col:${mapCol(it.box)}` : '')}>
-              {it.type === 'image' &&
-                (posterUrl(it.m.name) ? (
-                  <button type="button" class="zoom" data-zoom={posterUrl(it.m.name)} data-zoom-alt={it.m.alt} aria-label={`View larger: ${it.m.alt}`}>
-                    <Picture name={it.m.name} alt="" sizes={sizes(it.box)} />
-                  </button>
-                ) : (
-                  <Picture name={it.m.name} alt={it.m.alt} sizes={sizes(it.box)} />
+            <div class="canvas" style={`--ratio:${s.region[2] - s.region[0]} / ${s.region[3] - s.region[1]}`}>
+              {groupItems(s.items, s.region).map((g) => (
+                <div class:list={['group', { cols: !g.alone }]}>
+                {g.items.map((it) => (
+                <div class:list={['item', `item-${it.type}`]} style={place(it.box, s.region) + (it.type === 'map' ? `;--map-col:${mapCol(it.box)}` : '')}>
+                  {it.type === 'image' &&
+                    (posterUrl(it.m.name) ? (
+                      <button type="button" class="zoom" data-zoom={posterUrl(it.m.name)} data-zoom-alt={it.m.alt} aria-label={`View larger: ${it.m.alt}`}>
+                        <Picture name={it.m.name} alt="" sizes={sizes(it.box)} />
+                      </button>
+                    ) : (
+                      <Picture name={it.m.name} alt={it.m.alt} sizes={sizes(it.box)} />
+                    ))}
+                  {it.type === 'video' && <VideoSlot name={it.m.name} label={it.m.label} poster={it.m.poster} />}
+                  {it.type === 'model' && <ModelSlot name={it.m.name} label={it.m.label} poster={it.m.poster} />}
+                  {it.type === 'map' && <FestivalMap name={it.m.name} label={it.m.label} />}
+                  {it.type === 'palette' && p.palette && (
+                    <Palette swatches={p.palette} variant="fill" vertical={it.box[3] - it.box[1] > it.box[2] - it.box[0]} />
+                  )}
+                  {it.type === 'label' && (
+                    <h4 class="slide-label">
+                      <span class="label-text">
+                        {it.label}
+                        {it.sub && <small>{it.sub}</small>}
+                      </span>
+                    </h4>
+                  )}
+                </div>
                 ))}
-              {it.type === 'video' && <VideoSlot name={it.m.name} label={it.m.label} poster={it.m.poster} />}
-              {it.type === 'model' && <ModelSlot name={it.m.name} label={it.m.label} poster={it.m.poster} />}
-              {it.type === 'map' && <FestivalMap name={it.m.name} label={it.m.label} />}
-              {it.type === 'palette' && p.palette && (
-                <Palette swatches={p.palette} variant="fill" vertical={it.box[3] - it.box[1] > it.box[2] - it.box[0]} />
-              )}
-              {it.type === 'label' && (
-                <h4 class="slide-label">
-                  <span class="label-text">
-                    {it.label}
-                    {it.sub && <small>{it.sub}</small>}
-                  </span>
-                </h4>
-              )}
+                </div>
+              ))}
             </div>
-            ))}
             </div>
-          ))}
-        </div>
-        </div>
-      </section>
-    ))
-  }
-</article>
+          </section>
+        ))
+      }
+    </article>
+  )
+}
 
 <style>
   .project {

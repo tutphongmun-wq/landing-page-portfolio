@@ -1,0 +1,579 @@
+---
+// Editorial single-screen project layout (Frame 117 design):
+//   - Top: Project counter (05 / 07), large display title, and Overview
+//   - Middle: Rounded showcase container with auto-scrolling (right-to-left)
+//     + mouse-draggable 6-card carousel and full-size expand button on each card
+//   - Bottom: 2-column footer (My Role on the left, Tools & Software on the right)
+import type { Media, Project } from '../data/projects';
+import { tools } from '../data/site';
+import { posterUrl } from '../lib/media';
+import Picture from './Picture.astro';
+
+interface Props {
+  project: Project;
+  totalProjects?: string;
+}
+const { project: p, totalProjects = '07' } = Astro.props;
+const titleId = `${p.slug}-title`;
+const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.kind === 'image');
+---
+
+<article class="project project-editorial" id={p.slug} aria-labelledby={titleId}>
+  <div class="ed-shell">
+    <!-- Top Header & Overview -->
+    <header class="ed-header">
+      <p class="ed-counter" aria-hidden="true">
+        {p.no} / {totalProjects}
+      </p>
+      <h3 id={titleId} class="ed-title display">
+        <span class="visually-hidden">Project {p.no}: </span>
+        {p.title}
+      </h3>
+
+      <div class="ed-overview">
+        <h4 class="ed-h4">Overview</h4>
+        {
+          Array.isArray(p.description) ? (
+            <ul class="ed-bullets">
+              {p.description.map((d) => (
+                <li>{d}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>{p.description}</p>
+          )
+        }
+      </div>
+    </header>
+
+    <!-- Middle Rounded Showcase Box (Auto-scroll Right-to-Left + Mouse Drag + Expand Button) -->
+    <div class="ed-showcase" data-ed-carousel aria-label={`${p.title} gallery (${images.length} images)`}>
+      <div class="ed-viewport" data-ed-viewport>
+        <div class="ed-track" data-ed-track>
+          {/* Set A: Original 6 cards (registered with Lightbox via data-zoom) */}
+          {
+            images.map((img, idx) => {
+              const zoomSrc = posterUrl(img.name);
+              return (
+                <div class="ed-card" data-ed-card data-card-origin={idx}>
+                  <div class="ed-card-media">
+                    <Picture name={img.name} alt={img.alt} sizes="(min-width: 1200px) 28vw, (min-width: 640px) 45vw, 80vw" />
+                  </div>
+                  <span class="ed-card-badge" aria-hidden="true">
+                    {String(idx + 1).padStart(2, '0')} / {String(images.length).padStart(2, '0')}
+                  </span>
+                  {zoomSrc && (
+                    <button
+                      type="button"
+                      class="ed-expand"
+                      data-zoom={zoomSrc}
+                      data-zoom-alt={img.alt}
+                      data-primary-zoom={idx}
+                      aria-label={`Expand full size (${idx + 1} of ${images.length}): ${img.alt}`}
+                      title="View full size"
+                    >
+                      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+                        <path
+                          d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          }
+
+          {/* Set B: Seamless infinite loop clone of the 6 cards (proxies zoom click to Set A so Lightbox keeps exact 1..6 count) */}
+          {
+            images.map((img, idx) => {
+              const zoomSrc = posterUrl(img.name);
+              return (
+                <div class="ed-card" data-ed-card data-card-clone={idx} aria-hidden="true">
+                  <div class="ed-card-media">
+                    <Picture name={img.name} alt="" sizes="(min-width: 1200px) 28vw, (min-width: 640px) 45vw, 80vw" />
+                  </div>
+                  <span class="ed-card-badge">
+                    {String(idx + 1).padStart(2, '0')} / {String(images.length).padStart(2, '0')}
+                  </span>
+                  {zoomSrc && (
+                    <button
+                      type="button"
+                      class="ed-expand"
+                      tabindex="-1"
+                      data-proxy-zoom={idx}
+                      aria-label={`Expand full size: ${img.alt}`}
+                      title="View full size"
+                    >
+                      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+                        <path
+                          d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom 2-Column Section: My Role & Tools & Software -->
+    <footer class="ed-footer">
+      <div class="ed-col">
+        <h4 class="ed-h4">My Role</h4>
+        <ul class="ed-bullets">
+          {p.role.map((r) => <li>{r}</li>)}
+        </ul>
+      </div>
+
+      <div class="ed-col">
+        <h4 class="ed-h4">Tools &amp; Software</h4>
+        <ul class="ed-tools" role="list" aria-label="Tools & Software">
+          {
+            p.tools.map((id) => (
+              <li class="ed-tool-row">
+                <span class="ed-tool-abbr" aria-hidden="true">
+                  {tools[id].abbr}
+                </span>
+                <span class="ed-tool-name">{tools[id].name}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </footer>
+  </div>
+</article>
+
+<script>
+  const carousels = document.querySelectorAll<HTMLElement>('[data-ed-carousel]');
+
+  carousels.forEach((root) => {
+    const viewport = root.querySelector<HTMLElement>('[data-ed-viewport]')!;
+    const track = root.querySelector<HTMLElement>('[data-ed-track]')!;
+    const firstClone = track.querySelector<HTMLElement>('[data-card-clone="0"]');
+    if (!viewport || !track || !firstClone) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let pos = 0;
+    let halfWidth = 0;
+    let isDragging = false;
+    let didDrag = false;
+    let startX = 0;
+    let startPos = 0;
+    let lastX = 0;
+    let lastDragTime = 0;
+    let velocity = 0;
+    let wheelPauseUntil = 0;
+    let buttonHover = false;
+    let inView = true;
+
+    // Auto-scroll speed in pixels per second (right-to-left movement)
+    const AUTO_SPEED = 42;
+
+    function measure() {
+      halfWidth = firstClone!.offsetLeft;
+      if (halfWidth > 0) {
+        pos = ((pos % halfWidth) + halfWidth) % halfWidth;
+      }
+    }
+
+    function render() {
+      if (halfWidth > 0) {
+        pos = ((pos % halfWidth) + halfWidth) % halfWidth;
+      }
+      track.style.transform = `translate3d(${-pos.toFixed(2)}px, 0, 0)`;
+    }
+
+    measure();
+    window.addEventListener('resize', measure);
+    const ro = new ResizeObserver(measure);
+    ro.observe(track);
+
+    // Pause auto-scroll when hovering specifically on an expand button so clicking it is effortless
+    root.querySelectorAll<HTMLElement>('.ed-expand').forEach((btn) => {
+      btn.addEventListener('pointerenter', () => (buttonHover = true));
+      btn.addEventListener('pointerleave', () => (buttonHover = false));
+    });
+
+    // Forward proxy zoom clicks from cloned cards to the primary Set A button
+    root.addEventListener('click', (e) => {
+      if (didDrag) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      const target = e.target as Element;
+      const proxyBtn = target.closest<HTMLButtonElement>('button[data-proxy-zoom]');
+      if (proxyBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const idx = proxyBtn.dataset.proxyZoom;
+        const primary = root.querySelector<HTMLButtonElement>(`button[data-primary-zoom="${idx}"]`);
+        primary?.click();
+        return;
+      }
+      // Also allow clicking anywhere on a card (when not dragging) to open full size
+      const card = target.closest<HTMLElement>('[data-ed-card]');
+      if (card && !target.closest('button[data-zoom]')) {
+        const idx = card.dataset.cardOrigin ?? card.dataset.cardClone;
+        if (idx !== undefined) {
+          const primary = root.querySelector<HTMLButtonElement>(`button[data-primary-zoom="${idx}"]`);
+          primary?.click();
+        }
+      }
+    }, true);
+
+    // Pointer drag (mouse + touch)
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      // Don't start drag if clicking directly on the expand button
+      if ((e.target as Element).closest('.ed-expand')) return;
+
+      measure();
+      isDragging = true;
+      didDrag = false;
+      startX = e.clientX;
+      lastX = e.clientX;
+      startPos = pos;
+      velocity = 0;
+      lastDragTime = performance.now();
+      viewport.classList.add('is-dragging');
+      viewport.setPointerCapture(e.pointerId);
+    });
+
+    viewport.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const now = performance.now();
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 6) didDrag = true;
+
+      const dt = Math.max(now - lastDragTime, 8);
+      const stepDx = e.clientX - lastX;
+      velocity = (-stepDx / dt) * 1000; // px/sec
+
+      lastX = e.clientX;
+      lastDragTime = now;
+      pos = startPos - dx;
+      render();
+    });
+
+    function endDrag(e: PointerEvent) {
+      if (!isDragging) return;
+      isDragging = false;
+      viewport.classList.remove('is-dragging');
+      if (viewport.hasPointerCapture(e.pointerId)) {
+        viewport.releasePointerCapture(e.pointerId);
+      }
+      // Clear didDrag after the click event phase
+      setTimeout(() => {
+        didDrag = false;
+      }, 60);
+    }
+
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+
+    // Horizontal wheel / Mac trackpad two-finger swipe
+    viewport.addEventListener(
+      'wheel',
+      (e) => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
+          e.preventDefault();
+          measure();
+          const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+          pos += delta;
+          velocity = 0;
+          wheelPauseUntil = performance.now() + 900;
+          render();
+        }
+      },
+      { passive: false },
+    );
+
+    const visIo = new IntersectionObserver(
+      (entries) => {
+        inView = entries.some((entry) => entry.isIntersecting);
+      },
+      { rootMargin: '200px 0px' },
+    );
+    visIo.observe(root);
+
+    let lastFrame = performance.now();
+    function tick(now: number) {
+      requestAnimationFrame(tick);
+      const dt = Math.min((now - lastFrame) / 1000, 0.08);
+      lastFrame = now;
+
+      if (!inView) return;
+      if (halfWidth <= 0) measure();
+
+      if (!isDragging) {
+        if (Math.abs(velocity) > 4) {
+          pos += velocity * dt;
+          velocity *= Math.pow(0.06, dt); // smooth friction decay
+          render();
+        } else if (!reduceMotion && !buttonHover && now > wheelPauseUntil) {
+          pos += AUTO_SPEED * dt;
+          render();
+        }
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+</script>
+
+<style>
+  .project-editorial {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 960px;
+  }
+  .project-editorial::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 14px;
+    background: var(--c-line);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14'%3E%3Cpath d='M0 7Q5 1.5 10 1.5T20 7T30 12.5T40 7' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")
+      repeat-x left center / 40px 14px;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14'%3E%3Cpath d='M0 7Q5 1.5 10 1.5T20 7T30 12.5T40 7' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")
+      repeat-x left center / 40px 14px;
+  }
+
+  .ed-shell {
+    width: 100%;
+    max-width: calc(var(--max-w) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding: clamp(28px, 3.5vw, 48px) var(--gutter) clamp(40px, 4.5vw, 64px);
+    display: grid;
+    gap: clamp(18px, 2vw, 24px);
+  }
+
+  /* ---- Top Header & Overview ---- */
+  .ed-header {
+    display: grid;
+    gap: 6px;
+  }
+  .ed-counter {
+    margin: 0;
+    color: var(--c-accent);
+    font: 400 clamp(0.82rem, 0.72rem + 0.35vw, 1rem) / 1 var(--f-heading);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ed-title {
+    margin: 0;
+    font-size: clamp(2.1rem, 1.4rem + 2.5vw, 3.2rem);
+    line-height: 0.96;
+    letter-spacing: 0.01em;
+  }
+  .ed-overview {
+    margin-top: 6px;
+    display: grid;
+    gap: 4px;
+    max-width: 66ch;
+  }
+  .ed-h4 {
+    margin: 0;
+    color: var(--c-accent);
+    font-size: clamp(0.98rem, 0.9rem + 0.22vw, 1.12rem);
+    font-weight: 700;
+  }
+  .ed-overview p,
+  .ed-bullets {
+    margin: 0;
+    color: var(--c-fg-soft);
+    font-size: clamp(0.88rem, 0.84rem + 0.16vw, 0.96rem);
+    line-height: 1.5;
+  }
+  .ed-bullets {
+    padding-left: 1.2em;
+  }
+  .ed-bullets li + li {
+    margin-top: 3px;
+  }
+
+  /* ---- Middle Rounded Showcase Carousel ---- */
+  .ed-showcase {
+    position: relative;
+    border-radius: 24px;
+    padding: clamp(14px, 1.8vw, 22px);
+    background: color-mix(in srgb, var(--c-fg) 7%, var(--c-bg-raised));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-fg) 8%, transparent);
+    overflow: hidden;
+  }
+  .ed-viewport {
+    overflow: hidden;
+    border-radius: 14px;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+  }
+  .ed-viewport.is-dragging {
+    cursor: grabbing;
+  }
+  .ed-track {
+    --ed-gap: clamp(14px, 1.5vw, 20px);
+    display: flex;
+    gap: var(--ed-gap);
+    will-change: transform;
+  }
+  .ed-card {
+    /* 3 cards visible on desktop inside the rounded showcase container */
+    flex: 0 0 calc((100% - var(--ed-gap) * 2) / 3);
+    position: relative;
+    aspect-ratio: 3 / 3.55;
+    max-height: 390px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--c-bg);
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.14);
+    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s ease;
+  }
+  .ed-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px rgb(0 0 0 / 0.22);
+  }
+  .ed-card-media {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .ed-card-media :global(picture),
+  .ed-card-media :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    -webkit-user-drag: none;
+  }
+  .ed-card-badge {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    z-index: 2;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgb(14 14 14 / 0.68);
+    backdrop-filter: blur(6px);
+    color: rgb(255 255 255 / 0.88);
+    font: 600 11px / 1 var(--f-body);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .ed-card:hover .ed-card-badge {
+    opacity: 1;
+  }
+  .ed-expand {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 0.24);
+    border-radius: 10px;
+    background: rgb(16 16 16 / 0.74);
+    backdrop-filter: blur(6px);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
+  }
+  .ed-expand:hover {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    transform: scale(1.06);
+  }
+  .ed-expand:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #000, 0 0 0 4px #fff;
+  }
+
+  /* ---- Bottom 2-Column Footer (My Role & Tools & Software) ---- */
+  .ed-footer {
+    display: grid;
+    gap: 28px;
+    align-items: start;
+  }
+  .ed-col {
+    display: grid;
+    gap: 10px;
+  }
+  .ed-tools {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    max-width: 340px;
+  }
+  .ed-tool-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-block: 10px;
+  }
+  .ed-tool-row:first-child {
+    padding-top: 2px;
+  }
+  .ed-tool-row + .ed-tool-row {
+    border-top: 1px solid var(--c-line);
+  }
+  .ed-tool-abbr {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid var(--c-fg);
+    border-radius: 11px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--c-fg);
+    flex: none;
+  }
+  .ed-tool-name {
+    font-size: clamp(0.9rem, 0.85rem + 0.15vw, 0.98rem);
+    color: var(--c-fg-soft);
+  }
+
+  @media (min-width: 760px) {
+    .ed-footer {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: clamp(32px, 5vw, 72px);
+    }
+  }
+  @media (max-width: 960px) {
+    .ed-card {
+      flex: 0 0 calc((100% - var(--ed-gap)) / 2);
+    }
+    .ed-card-badge {
+      opacity: 1;
+    }
+  }
+  @media (max-width: 560px) {
+    .ed-card {
+      flex: 0 0 82%;
+    }
+  }
+</style>

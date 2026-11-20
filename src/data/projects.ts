@@ -167,12 +167,12 @@ export const projects: Project[] = [
     ],
     tools: ['ps', 'ai'],
     media: [
+      { kind: 'image', name: '05-info-ev-sales', alt: 'Infographic comparing electric car prices and sales in Thailand' },
+      { kind: 'image', name: '05-info-pixar', alt: 'Infographic: nine business lessons from Pixar' },
       { kind: 'image', name: '05-info-bitcoin-timeline', alt: 'Long infographic: timeline of Bitcoin price events from 2020 to 2023' },
       { kind: 'image', name: '05-info-documentaries', alt: 'Infographic: five crypto documentaries worth watching' },
-      { kind: 'image', name: '05-info-ev-sales', alt: 'Infographic comparing electric car prices and sales in Thailand' },
       { kind: 'image', name: '05-info-ethereum', alt: 'Infographic: the five stages of the Ethereum roadmap' },
       { kind: 'image', name: '05-info-investing', alt: 'Infographic: a beginner\'s guide to investing' },
-      { kind: 'image', name: '05-info-pixar', alt: 'Infographic: nine business lessons from Pixar' },
     ],
   },
   {
