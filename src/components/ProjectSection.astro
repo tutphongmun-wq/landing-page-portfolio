@@ -136,6 +136,8 @@ const mapCol = (box: Box) => `${+((((box[3] - box[1]) / 1280) * 100 * mapData.wi
 const isWide = (box: Box, r: Box) => (box[2] - box[0]) / (r[2] - r[0]) > 0.55;
 // image sizes hint: box width as a share of a ~1360px slide
 const sizes = (box: Box) => `(min-width: 1200px) ${Math.round(((box[2] - box[0]) / 1280) * 100)}vw, (min-width: 560px) 50vw, 100vw`;
+const itemKey = (it: Item) =>
+  it.type === 'palette' ? 'palette' : it.type === 'label' ? `label:${it.label}` : it.m.name;
 ---
 
 {
@@ -153,7 +155,7 @@ const sizes = (box: Box) => `(min-width: 1200px) ${Math.round(((box[2] - box[0])
           >
             <div class="page">
             {s.intro && (
-              <div class="info">
+              <div class="info" data-ve-free={`${p.slug}:intro-info`} data-ve-label={`${p.no} Intro Text Column`}>
                 <p class="no display" aria-hidden="true">
                   {p.no}
                 </p>
@@ -185,11 +187,24 @@ const sizes = (box: Box) => `(min-width: 1200px) ${Math.round(((box[2] - box[0])
               </div>
             )}
 
-            <div class="canvas" style={`--ratio:${s.region[2] - s.region[0]} / ${s.region[3] - s.region[1]}`}>
+            <div
+              class="canvas"
+              data-ve-canvas={p.slug}
+              data-ve-slide={i}
+              data-ve-region={s.region.join(',')}
+              style={`--ratio:${s.region[2] - s.region[0]} / ${s.region[3] - s.region[1]}`}
+            >
               {groupItems(s.items, s.region).map((g) => (
                 <div class:list={['group', { cols: !g.alone }]}>
                 {g.items.map((it) => (
-                <div class:list={['item', `item-${it.type}`]} style={place(it.box, s.region) + (it.type === 'map' ? `;--map-col:${mapCol(it.box)}` : '')}>
+                <div
+                  class:list={['item', `item-${it.type}`]}
+                  data-ve-box={it.box.join(',')}
+                  data-ve-key={itemKey(it)}
+                  data-ve-project={p.slug}
+                  data-ve-slide={i}
+                  style={place(it.box, s.region) + (it.type === 'map' ? `;--map-col:${mapCol(it.box)}` : '')}
+                >
                   {it.type === 'image' &&
                     (posterUrl(it.m.name) ? (
                       <button type="button" class="zoom" data-zoom={posterUrl(it.m.name)} data-zoom-alt={it.m.alt} aria-label={`View larger: ${it.m.alt}`}>

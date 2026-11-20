@@ -1,0 +1,1059 @@
+---
+// Visual Editor Mode (Figma-like in-browser layout tool)
+// Toggle via:
+//   - Floating button "✦ Design Mode" (bottom-right)
+//   - Keyboard shortcut: Shift + E
+//   - URL parameter: ?edit=1
+---
+
+<!-- Floating Launcher Pill (when editor is closed) -->
+<div class="ve-launcher" data-ve-launcher>
+  <button type="button" class="ve-launch-btn" data-ve-toggle title="เปิดโหมดลากจัดหน้าเว็บ (Shift + E)">
+    <span class="ve-sparkle" aria-hidden="true">✦</span>
+    <span>Design Mode</span>
+    <kbd>Shift+E</kbd>
+  </button>
+</div>
+
+<!-- 12-Column Figma Grid Overlay -->
+<div class="ve-grid-overlay" data-ve-grid hidden aria-hidden="true">
+  <div class="ve-grid-inner">
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div class="ve-grid-col">
+        <span>{i + 1}</span>
+      </div>
+    ))}
+  </div>
+</div>
+
+<!-- Selection & Hover Overlay Box -->
+<div class="ve-hover-box" data-ve-hover hidden aria-hidden="true">
+  <span class="ve-hover-tag" data-ve-hover-tag></span>
+</div>
+
+<div class="ve-select-box" data-ve-select hidden>
+  <div class="ve-select-tag" data-ve-select-tag></div>
+  <span class="ve-handle ve-h-nw" data-ve-handle="nw"></span>
+  <span class="ve-handle ve-h-n" data-ve-handle="n"></span>
+  <span class="ve-handle ve-h-ne" data-ve-handle="ne"></span>
+  <span class="ve-handle ve-h-e" data-ve-handle="e"></span>
+  <span class="ve-handle ve-h-se" data-ve-handle="se"></span>
+  <span class="ve-handle ve-h-s" data-ve-handle="s"></span>
+  <span class="ve-handle ve-h-sw" data-ve-handle="sw"></span>
+  <span class="ve-handle ve-h-w" data-ve-handle="w"></span>
+</div>
+
+<!-- Floating Bottom Inspector Dock (when editor is active) -->
+<aside class="ve-dock" data-ve-dock hidden aria-label="Visual Layout Editor">
+  <div class="ve-dock-top">
+    <div class="ve-brand">
+      <span class="ve-dot"></span>
+      <strong>Visual Editor</strong>
+      <span class="ve-sub">คลิกที่กล่อง/รูปเพื่อลากขยับ หรือดึงมุมเพื่อย่อ-ขยาย (ลูกศร = ขยับ 1px, Shift+ลูกศร = 10px)</span>
+    </div>
+    <div class="ve-actions">
+      <button type="button" class="ve-btn" data-ve-grid-btn title="เปิด/ปิดตาราง Grid 12 คอลัมน์ (กด G)">
+        # Grid 12 Col
+      </button>
+      <button type="button" class="ve-btn" data-ve-reset-one disabled title="รีเซ็ตชิ้นที่เลือก">
+        ↺ Reset ชิ้นนี้
+      </button>
+      <button type="button" class="ve-btn" data-ve-reset-all title="รีเซ็ตทั้งหมดกลับค่าเริ่มต้น">
+        Reset ทั้งหมด
+      </button>
+      <button type="button" class="ve-btn ve-btn-primary" data-ve-copy>
+        📋 Copy ค่าส่งให้ AI (<span data-ve-count>0</span>)
+      </button>
+      <button type="button" class="ve-btn ve-btn-close" data-ve-close title="ปิดโหมดจัดหน้า (Esc)">
+        ✕ ปิด
+      </button>
+    </div>
+  </div>
+
+  <!-- Live Coordinate Readout / Numeric Inputs -->
+  <div class="ve-inspector" data-ve-inspector>
+    <span class="ve-sel-name" data-ve-sel-name>ยังไม่ได้เลือกชิ้นงาน — คลิกที่รูปหรือกล่องข้อความบนหน้าเว็บได้เลย</span>
+    <div class="ve-fields" data-ve-fields hidden>
+      <label>
+        <span>X</span>
+        <input type="number" data-ve-in="x" step="1" />
+      </label>
+      <label>
+        <span>Y</span>
+        <input type="number" data-ve-in="y" step="1" />
+      </label>
+      <label>
+        <span>W</span>
+        <input type="number" data-ve-in="w" step="1" min="20" />
+      </label>
+      <label>
+        <span>H</span>
+        <input type="number" data-ve-in="h" step="1" min="20" />
+      </label>
+    </div>
+  </div>
+</aside>
+
+<!-- Toast Notification -->
+<div class="ve-toast" data-ve-toast hidden></div>
+
+<script>
+  const STORAGE_KEY = 'pun-portfolio-ve-v1';
+
+  const launcher = document.querySelector<HTMLElement>('[data-ve-launcher]')!;
+  const toggleBtn = document.querySelector<HTMLButtonElement>('[data-ve-toggle]')!;
+  const dock = document.querySelector<HTMLElement>('[data-ve-dock]')!;
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-ve-close]')!;
+  const gridOverlay = document.querySelector<HTMLElement>('[data-ve-grid]')!;
+  const gridBtn = document.querySelector<HTMLButtonElement>('[data-ve-grid-btn]')!;
+  const hoverBox = document.querySelector<HTMLElement>('[data-ve-hover]')!;
+  const hoverTag = document.querySelector<HTMLElement>('[data-ve-hover-tag]')!;
+  const selectBox = document.querySelector<HTMLElement>('[data-ve-select]')!;
+  const selectTag = document.querySelector<HTMLElement>('[data-ve-select-tag]')!;
+  const selNameEl = document.querySelector<HTMLElement>('[data-ve-sel-name]')!;
+  const fieldsWrap = document.querySelector<HTMLElement>('[data-ve-fields]')!;
+  const resetOneBtn = document.querySelector<HTMLButtonElement>('[data-ve-reset-one]')!;
+  const resetAllBtn = document.querySelector<HTMLButtonElement>('[data-ve-reset-all]')!;
+  const copyBtn = document.querySelector<HTMLButtonElement>('[data-ve-copy]')!;
+  const countEl = document.querySelector<HTMLElement>('[data-ve-count]')!;
+  const toastEl = document.querySelector<HTMLElement>('[data-ve-toast]')!;
+
+  const inX = document.querySelector<HTMLInputElement>('[data-ve-in="x"]')!;
+  const inY = document.querySelector<HTMLInputElement>('[data-ve-in="y"]')!;
+  const inW = document.querySelector<HTMLInputElement>('[data-ve-in="w"]')!;
+  const inH = document.querySelector<HTMLInputElement>('[data-ve-in="h"]')!;
+
+  // Auto-tag additional major sections so the user can drag/resize them too
+  const autoTagList: [string, string, string][] = [
+    ['#sidenav .sidenav-inner', 'global:sidenav', 'SideNav Bar'],
+    ['#about .holo-card', 'about:holo-card', 'About Holographic ID Card'],
+    ['#about .about-body', 'about:body', 'About Text Column'],
+    ['#experience .exp-col', 'experience:timeline', 'Experience Timeline'],
+    ['#experience .skills-col', 'experience:skills', 'Skills & Tools Column'],
+  ];
+  autoTagList.forEach(([sel, id, label]) => {
+    const el = document.querySelector<HTMLElement>(sel);
+    if (el && !el.hasAttribute('data-ve-free')) {
+      el.setAttribute('data-ve-free', id);
+      el.setAttribute('data-ve-label', label);
+    }
+  });
+
+  type BoxEdit = {
+    kind: 'box';
+    project: string;
+    slide: string;
+    key: string;
+    box: [number, number, number, number];
+    orig: [number, number, number, number];
+  };
+  type FreeEdit = {
+    kind: 'free';
+    id: string;
+    label: string;
+    tx: number;
+    ty: number;
+    w: number | null;
+    h: number | null;
+  };
+  type EditRecord = BoxEdit | FreeEdit;
+
+  const edits = new Map<string, EditRecord>();
+  let active = false;
+  let gridOn = false;
+  let selectedEl: HTMLElement | null = null;
+  let hoveredEl: HTMLElement | null = null;
+
+  function showToast(msg: string) {
+    toastEl.textContent = msg;
+    toastEl.hidden = false;
+    toastEl.classList.add('is-visible');
+    clearTimeout((showToast as any)._t);
+    (showToast as any)._t = setTimeout(() => {
+      toastEl.classList.remove('is-visible');
+      setTimeout(() => (toastEl.hidden = true), 250);
+    }, 3400);
+  }
+
+  function getItemId(el: HTMLElement): string {
+    if (el.hasAttribute('data-ve-box')) {
+      return `box:${el.dataset.veProject}:${el.dataset.veSlide}:${el.dataset.veKey}`;
+    }
+    return `free:${el.dataset.veFree}`;
+  }
+
+  function getItemLabel(el: HTMLElement): string {
+    if (el.hasAttribute('data-ve-box')) {
+      return `${el.dataset.veProject} / ${el.dataset.veKey}`;
+    }
+    return el.dataset.veLabel || el.dataset.veFree || 'Element';
+  }
+
+  function getRegion(el: HTMLElement): [number, number, number, number] {
+    const canvas = el.closest<HTMLElement>('[data-ve-region]');
+    const raw = canvas?.dataset.veRegion || '0,0,1280,720';
+    return raw.split(',').map(Number) as [number, number, number, number];
+  }
+
+  function getCurrentBox(el: HTMLElement): [number, number, number, number] {
+    const id = getItemId(el);
+    const rec = edits.get(id);
+    if (rec && rec.kind === 'box') return [...rec.box] as [number, number, number, number];
+    return (el.dataset.veBox || '0,0,100,100').split(',').map(Number) as [number, number, number, number];
+  }
+
+  function getCurrentFree(el: HTMLElement): FreeEdit {
+    const id = getItemId(el);
+    const rec = edits.get(id);
+    if (rec && rec.kind === 'free') return { ...rec };
+    return {
+      kind: 'free',
+      id: el.dataset.veFree!,
+      label: getItemLabel(el),
+      tx: 0,
+      ty: 0,
+      w: null,
+      h: null,
+    };
+  }
+
+  const pct = (n: number) => `${+n.toFixed(3)}%`;
+
+  function applyBoxToDOM(el: HTMLElement, box: [number, number, number, number]) {
+    const r = getRegion(el);
+    const rw = r[2] - r[0];
+    const rh = r[3] - r[1];
+    el.style.setProperty('--x', pct(((box[0] - r[0]) / rw) * 100));
+    el.style.setProperty('--y', pct(((box[1] - r[1]) / rh) * 100));
+    el.style.setProperty('--w', pct(((box[2] - box[0]) / rw) * 100));
+    el.style.setProperty('--h', pct(((box[3] - box[1]) / rh) * 100));
+  }
+
+  function applyFreeToDOM(el: HTMLElement, state: FreeEdit) {
+    if (state.tx !== 0 || state.ty !== 0) {
+      el.style.translate = `${Math.round(state.tx)}px ${Math.round(state.ty)}px`;
+    } else {
+      el.style.removeProperty('translate');
+    }
+    if (state.w !== null) {
+      el.style.width = `${Math.round(state.w)}px`;
+      el.style.maxWidth = 'none';
+    } else {
+      el.style.removeProperty('width');
+      el.style.removeProperty('max-width');
+    }
+    if (state.h !== null) {
+      el.style.height = `${Math.round(state.h)}px`;
+      el.style.maxHeight = 'none';
+      // If resizing the Project 05 carousel showcase container, scale the cards inside proportionally
+      if (el.hasAttribute('data-ed-carousel')) {
+        const cardH = Math.max(180, Math.round(state.h - 44));
+        el.querySelectorAll<HTMLElement>('.ed-card').forEach((c) => {
+          c.style.maxHeight = `${cardH}px`;
+          c.style.height = `${cardH}px`;
+        });
+      }
+    } else {
+      el.style.removeProperty('height');
+      el.style.removeProperty('max-height');
+      if (el.hasAttribute('data-ed-carousel')) {
+        el.querySelectorAll<HTMLElement>('.ed-card').forEach((c) => {
+          c.style.removeProperty('max-height');
+          c.style.removeProperty('height');
+        });
+      }
+    }
+  }
+
+  function updateCount() {
+    countEl.textContent = String(edits.size);
+    try {
+      const obj = Object.fromEntries(edits.entries());
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+    } catch {}
+  }
+
+  function loadSavedEdits() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const obj = JSON.parse(raw) as Record<string, EditRecord>;
+      for (const [id, rec] of Object.entries(obj)) {
+        if (rec.kind === 'box') {
+          const el = document.querySelector<HTMLElement>(
+            `[data-ve-project="${rec.project}"][data-ve-slide="${rec.slide}"][data-ve-key="${rec.key}"]`,
+          );
+          if (el) {
+            edits.set(id, rec);
+            applyBoxToDOM(el, rec.box);
+          }
+        } else if (rec.kind === 'free') {
+          const el = document.querySelector<HTMLElement>(`[data-ve-free="${rec.id}"]`);
+          if (el) {
+            edits.set(id, rec);
+            applyFreeToDOM(el, rec);
+          }
+        }
+      }
+      updateCount();
+    } catch {}
+  }
+
+  function positionOverlay(boxEl: HTMLElement, targetEl: HTMLElement) {
+    const r = targetEl.getBoundingClientRect();
+    boxEl.style.left = `${r.left}px`;
+    boxEl.style.top = `${r.top}px`;
+    boxEl.style.width = `${r.width}px`;
+    boxEl.style.height = `${r.height}px`;
+  }
+
+  function syncInspector() {
+    if (!selectedEl || !active) {
+      selectBox.hidden = true;
+      fieldsWrap.hidden = true;
+      resetOneBtn.disabled = true;
+      selNameEl.textContent = 'ยังไม่ได้เลือกชิ้นงาน — คลิกที่รูปหรือกล่องข้อความบนหน้าเว็บได้เลย';
+      return;
+    }
+
+    selectBox.hidden = false;
+    fieldsWrap.hidden = false;
+    resetOneBtn.disabled = false;
+    positionOverlay(selectBox, selectedEl);
+
+    const label = getItemLabel(selectedEl);
+    selNameEl.textContent = label;
+
+    if (selectedEl.hasAttribute('data-ve-box')) {
+      const b = getCurrentBox(selectedEl);
+      const w = b[2] - b[0];
+      const h = b[3] - b[1];
+      selectTag.textContent = `${label} · X:${b[0]} Y:${b[1]} · ${w}×${h}`;
+      inX.value = String(b[0]);
+      inY.value = String(b[1]);
+      inW.value = String(w);
+      inH.value = String(h);
+    } else {
+      const st = getCurrentFree(selectedEl);
+      const r = selectedEl.getBoundingClientRect();
+      const w = Math.round(st.w ?? r.width);
+      const h = Math.round(st.h ?? r.height);
+      const tx = Math.round(st.tx);
+      const ty = Math.round(st.ty);
+      selectTag.textContent = `${label} · Δ(${tx >= 0 ? '+' + tx : tx}, ${ty >= 0 ? '+' + ty : ty}) · ${w}×${h}px`;
+      inX.value = String(tx);
+      inY.value = String(ty);
+      inW.value = String(w);
+      inH.value = String(h);
+    }
+  }
+
+  function selectElement(el: HTMLElement | null) {
+    selectedEl = el;
+    syncInspector();
+  }
+
+  function setEditorActive(on: boolean) {
+    active = on;
+    document.documentElement.classList.toggle('ve-active', on);
+    dock.hidden = !on;
+    launcher.hidden = on;
+    if (!on) {
+      hoverBox.hidden = true;
+      selectBox.hidden = true;
+      gridOverlay.hidden = true;
+      gridOn = false;
+      gridBtn.classList.remove('is-on');
+      selectedEl = null;
+    } else {
+      syncInspector();
+      showToast('เปิด Visual Editor Mode แล้ว — คลิกที่รูปหรือกล่องเพื่อลากขยับ/ย่อขยายได้เลย');
+    }
+  }
+
+  toggleBtn.addEventListener('click', () => setEditorActive(true));
+  closeBtn.addEventListener('click', () => setEditorActive(false));
+
+  gridBtn.addEventListener('click', () => {
+    gridOn = !gridOn;
+    gridOverlay.hidden = !gridOn;
+    gridBtn.classList.toggle('is-on', gridOn);
+  });
+
+  // Hover detection
+  document.addEventListener(
+    'pointermove',
+    (e) => {
+      if (!active || dragState) return;
+      const target = e.target as Element;
+      if (target.closest('[data-ve-dock], [data-ve-select], [data-ve-launcher]')) {
+        hoverBox.hidden = true;
+        return;
+      }
+      const editable = target.closest<HTMLElement>('[data-ve-box], [data-ve-free]');
+      if (!editable || editable === selectedEl) {
+        hoverBox.hidden = true;
+        hoveredEl = null;
+        return;
+      }
+      hoveredEl = editable;
+      hoverBox.hidden = false;
+      hoverTag.textContent = getItemLabel(editable);
+      positionOverlay(hoverBox, editable);
+    },
+    { passive: true },
+  );
+
+  // Keep overlays aligned during scroll or resize
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!active) return;
+      if (selectedEl) positionOverlay(selectBox, selectedEl);
+      if (hoveredEl && !hoverBox.hidden) positionOverlay(hoverBox, hoveredEl);
+    },
+    { passive: true },
+  );
+  window.addEventListener('resize', () => {
+    if (active) syncInspector();
+  });
+
+  // Intercept clicks in capture phase when active so Lightbox/links don't fire while editing layout
+  document.addEventListener(
+    'click',
+    (e) => {
+      if (!active) return;
+      const target = e.target as Element;
+      if (target.closest('[data-ve-dock], [data-ve-launcher]')) return;
+      const editable = target.closest<HTMLElement>('[data-ve-box], [data-ve-free]');
+      if (editable) {
+        e.preventDefault();
+        e.stopPropagation();
+        selectElement(editable);
+      } else if (!target.closest('[data-ve-select]')) {
+        selectElement(null);
+      }
+    },
+    true,
+  );
+
+  // Dragging & Resizing logic
+  type DragState = {
+    mode: 'move' | 'resize';
+    handle: string;
+    el: HTMLElement;
+    startX: number;
+    startY: number;
+    startBox?: [number, number, number, number];
+    canvasRect?: DOMRect;
+    region?: [number, number, number, number];
+    startFree?: FreeEdit;
+    startRect?: DOMRect;
+  };
+  let dragState: DragState | null = null;
+
+  function beginDrag(e: PointerEvent, el: HTMLElement, mode: 'move' | 'resize', handle = '') {
+    e.preventDefault();
+    e.stopPropagation();
+    selectElement(el);
+    hoverBox.hidden = true;
+
+    if (el.hasAttribute('data-ve-box')) {
+      const canvas = el.closest<HTMLElement>('[data-ve-region]')!;
+      dragState = {
+        mode,
+        handle,
+        el,
+        startX: e.clientX,
+        startY: e.clientY,
+        startBox: getCurrentBox(el),
+        canvasRect: canvas.getBoundingClientRect(),
+        region: getRegion(el),
+      };
+    } else {
+      dragState = {
+        mode,
+        handle,
+        el,
+        startX: e.clientX,
+        startY: e.clientY,
+        startFree: getCurrentFree(el),
+        startRect: el.getBoundingClientRect(),
+      };
+    }
+  }
+
+  // Start resize when dragging one of the 8 handles
+  selectBox.querySelectorAll<HTMLElement>('[data-ve-handle]').forEach((hEl) => {
+    hEl.addEventListener('pointerdown', (e) => {
+      if (!active || !selectedEl) return;
+      beginDrag(e, selectedEl, 'resize', hEl.dataset.veHandle || 'se');
+    });
+  });
+
+  // Start move when pressing down on an editable element
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (!active || e.button !== 0) return;
+      const target = e.target as Element;
+      if (target.closest('[data-ve-dock], [data-ve-launcher], [data-ve-handle]')) return;
+      const editable = target.closest<HTMLElement>('[data-ve-box], [data-ve-free]');
+      if (editable) {
+        beginDrag(e, editable, 'move');
+      }
+    },
+    true,
+  );
+
+  window.addEventListener('pointermove', (e) => {
+    if (!dragState) return;
+    const { mode, handle, el, startX, startY } = dragState;
+    const dxPx = e.clientX - startX;
+    const dyPx = e.clientY - startY;
+    const id = getItemId(el);
+
+    if (el.hasAttribute('data-ve-box') && dragState.startBox && dragState.canvasRect && dragState.region) {
+      const [rx0, ry0, rx1, ry1] = dragState.region;
+      const rw = rx1 - rx0;
+      const rh = ry1 - ry0;
+      const scaleX = rw / Math.max(dragState.canvasRect.width, 1);
+      const scaleY = rh / Math.max(dragState.canvasRect.height, 1);
+      const dx = Math.round(dxPx * scaleX);
+      const dy = Math.round(dyPx * scaleY);
+
+      let [x0, y0, x1, y1] = dragState.startBox;
+      if (mode === 'move') {
+        x0 += dx;
+        x1 += dx;
+        y0 += dy;
+        y1 += dy;
+      } else {
+        if (handle.includes('w')) x0 = Math.min(x1 - 24, x0 + dx);
+        if (handle.includes('e')) x1 = Math.max(x0 + 24, x1 + dx);
+        if (handle.includes('n')) y0 = Math.min(y1 - 24, y0 + dy);
+        if (handle.includes('s')) y1 = Math.max(y0 + 24, y1 + dy);
+      }
+
+      const newBox: [number, number, number, number] = [x0, y0, x1, y1];
+      const orig = (el.dataset.veBox || '0,0,100,100').split(',').map(Number) as [number, number, number, number];
+      edits.set(id, {
+        kind: 'box',
+        project: el.dataset.veProject!,
+        slide: el.dataset.veSlide!,
+        key: el.dataset.veKey!,
+        box: newBox,
+        orig,
+      });
+      applyBoxToDOM(el, newBox);
+      syncInspector();
+      updateCount();
+    } else if (dragState.startFree && dragState.startRect) {
+      const st: FreeEdit = { ...dragState.startFree };
+      const r0 = dragState.startRect;
+      const baseW = st.w ?? r0.width;
+      const baseH = st.h ?? r0.height;
+
+      if (mode === 'move') {
+        st.tx = Math.round(dragState.startFree.tx + dxPx);
+        st.ty = Math.round(dragState.startFree.ty + dyPx);
+      } else {
+        let w = baseW;
+        let h = baseH;
+        let tx = st.tx;
+        let ty = st.ty;
+        if (handle.includes('e')) w = Math.max(60, baseW + dxPx);
+        if (handle.includes('s')) h = Math.max(40, baseH + dyPx);
+        if (handle.includes('w')) {
+          const nw = Math.max(60, baseW - dxPx);
+          tx += baseW - nw;
+          w = nw;
+        }
+        if (handle.includes('n')) {
+          const nh = Math.max(40, baseH - dyPx);
+          ty += baseH - nh;
+          h = nh;
+        }
+        st.w = Math.round(w);
+        st.h = Math.round(h);
+        st.tx = Math.round(tx);
+        st.ty = Math.round(ty);
+      }
+
+      edits.set(id, st);
+      applyFreeToDOM(el, st);
+      syncInspector();
+      updateCount();
+    }
+  });
+
+  window.addEventListener('pointerup', () => {
+    dragState = null;
+  });
+
+  // Numeric inputs in the inspector bar
+  function onNumericInput() {
+    if (!selectedEl) return;
+    const id = getItemId(selectedEl);
+    const vx = Number(inX.value) || 0;
+    const vy = Number(inY.value) || 0;
+    const vw = Math.max(20, Number(inW.value) || 100);
+    const vh = Math.max(20, Number(inH.value) || 100);
+
+    if (selectedEl.hasAttribute('data-ve-box')) {
+      const newBox: [number, number, number, number] = [vx, vy, vx + vw, vy + vh];
+      const orig = (selectedEl.dataset.veBox || '0,0,100,100').split(',').map(Number) as [number, number, number, number];
+      edits.set(id, {
+        kind: 'box',
+        project: selectedEl.dataset.veProject!,
+        slide: selectedEl.dataset.veSlide!,
+        key: selectedEl.dataset.veKey!,
+        box: newBox,
+        orig,
+      });
+      applyBoxToDOM(selectedEl, newBox);
+    } else {
+      const st = getCurrentFree(selectedEl);
+      st.tx = vx;
+      st.ty = vy;
+      st.w = vw;
+      st.h = vh;
+      edits.set(id, st);
+      applyFreeToDOM(selectedEl, st);
+    }
+    syncInspector();
+    updateCount();
+  }
+
+  [inX, inY, inW, inH].forEach((inp) => inp.addEventListener('input', onNumericInput));
+
+  // Keyboard shortcuts: Shift+E toggles editor, G toggles grid, Arrows nudge selected element
+  window.addEventListener('keydown', (e) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    const isInput = tag === 'INPUT' || tag === 'TEXTAREA';
+
+    if (e.shiftKey && (e.key === 'E' || e.key === 'e') && !isInput) {
+      e.preventDefault();
+      setEditorActive(!active);
+      return;
+    }
+    if (!active || isInput) return;
+
+    if (e.key === 'g' || e.key === 'G') {
+      e.preventDefault();
+      gridBtn.click();
+      return;
+    }
+    if (e.key === 'Escape') {
+      if (selectedEl) selectElement(null);
+      else setEditorActive(false);
+      return;
+    }
+
+    if (selectedEl && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+      const step = e.shiftKey ? 10 : 1;
+      const dx = e.key === 'ArrowRight' ? step : e.key === 'ArrowLeft' ? -step : 0;
+      const dy = e.key === 'ArrowDown' ? step : e.key === 'ArrowUp' ? -step : 0;
+      const id = getItemId(selectedEl);
+
+      if (selectedEl.hasAttribute('data-ve-box')) {
+        const b = getCurrentBox(selectedEl);
+        const newBox: [number, number, number, number] = [b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy];
+        const orig = (selectedEl.dataset.veBox || '0,0,100,100').split(',').map(Number) as [number, number, number, number];
+        edits.set(id, {
+          kind: 'box',
+          project: selectedEl.dataset.veProject!,
+          slide: selectedEl.dataset.veSlide!,
+          key: selectedEl.dataset.veKey!,
+          box: newBox,
+          orig,
+        });
+        applyBoxToDOM(selectedEl, newBox);
+      } else {
+        const st = getCurrentFree(selectedEl);
+        st.tx += dx;
+        st.ty += dy;
+        edits.set(id, st);
+        applyFreeToDOM(selectedEl, st);
+      }
+      syncInspector();
+      updateCount();
+    }
+  });
+
+  // Reset buttons
+  resetOneBtn.addEventListener('click', () => {
+    if (!selectedEl) return;
+    const id = getItemId(selectedEl);
+    edits.delete(id);
+    if (selectedEl.hasAttribute('data-ve-box')) {
+      const orig = (selectedEl.dataset.veBox || '0,0,100,100').split(',').map(Number) as [number, number, number, number];
+      applyBoxToDOM(selectedEl, orig);
+    } else {
+      applyFreeToDOM(selectedEl, {
+        kind: 'free',
+        id: selectedEl.dataset.veFree!,
+        label: getItemLabel(selectedEl),
+        tx: 0,
+        ty: 0,
+        w: null,
+        h: null,
+      });
+    }
+    syncInspector();
+    updateCount();
+    showToast('รีเซ็ตชิ้นที่เลือกกลับค่าเริ่มต้นแล้ว');
+  });
+
+  resetAllBtn.addEventListener('click', () => {
+    for (const [, rec] of edits.entries()) {
+      if (rec.kind === 'box') {
+        const el = document.querySelector<HTMLElement>(
+          `[data-ve-project="${rec.project}"][data-ve-slide="${rec.slide}"][data-ve-key="${rec.key}"]`,
+        );
+        if (el) applyBoxToDOM(el, rec.orig);
+      } else {
+        const el = document.querySelector<HTMLElement>(`[data-ve-free="${rec.id}"]`);
+        if (el) {
+          applyFreeToDOM(el, { kind: 'free', id: rec.id, label: rec.label, tx: 0, ty: 0, w: null, h: null });
+        }
+      }
+    }
+    edits.clear();
+    localStorage.removeItem(STORAGE_KEY);
+    syncInspector();
+    updateCount();
+    showToast('รีเซ็ตทุกชิ้นกลับค่าเริ่มต้นแล้ว');
+  });
+
+  // Copy Layout Spec for Antigravity AI
+  copyBtn.addEventListener('click', async () => {
+    if (edits.size === 0) {
+      showToast('ยังไม่มีชิ้นงานที่ถูกขยับ — ลองคลิกลากหรือย่อขยายกล่องบนหน้าเว็บก่อนนะ');
+      return;
+    }
+
+    const lines: string[] = ['### Visual Editor Layout Specs (เอาตามค่านี้เลย):'];
+    for (const [, rec] of edits.entries()) {
+      if (rec.kind === 'box') {
+        lines.push(`- [${rec.project} / slide ${Number(rec.slide) + 1}] \`${rec.key}\`: \`box: [${rec.box.join(', ')}]\` (เดิม \`[${rec.orig.join(', ')}]\`)`);
+      } else {
+        const parts: string[] = [];
+        if (rec.tx !== 0 || rec.ty !== 0) parts.push(`offset: (${rec.tx}px, ${rec.ty}px)`);
+        if (rec.w !== null) parts.push(`width: ${rec.w}px`);
+        if (rec.h !== null) parts.push(`height: ${rec.h}px`);
+        lines.push(`- [${rec.label} (\`${rec.id}\`)]: ${parts.join(', ')}`);
+      }
+    }
+
+    const text = lines.join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('คัดลอกค่า Layout แล้ว! กดวาง (Cmd+V) ส่งในแชทให้กูอัปเดตโค้ดจริงได้เลย');
+    } catch {
+      window.prompt('คัดลอกข้อความด้านล่างส่งในแชทได้เลย:', text);
+    }
+  });
+
+  // Restore saved edits and check ?edit=1 URL parameter
+  loadSavedEdits();
+  if (new URLSearchParams(window.location.search).get('edit') === '1' || window.location.hash === '#edit') {
+    setEditorActive(true);
+  }
+</script>
+
+<style>
+  /* Floating Launcher Pill */
+  .ve-launcher {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 90;
+  }
+  .ve-launch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.16);
+    background: rgb(20 20 22 / 0.88);
+    backdrop-filter: blur(10px);
+    color: #f5f5f7;
+    font: 600 12px / 1 var(--f-body);
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .ve-launch-btn:hover {
+    transform: translateY(-2px);
+    border-color: #0d99ff;
+    background: rgb(16 24 38 / 0.95);
+  }
+  .ve-sparkle {
+    color: #0d99ff;
+    font-size: 14px;
+  }
+  .ve-launch-btn kbd {
+    padding: 3px 6px;
+    border-radius: 5px;
+    background: rgb(255 255 255 / 0.12);
+    color: rgb(255 255 255 / 0.78);
+    font: 500 10px / 1 monospace;
+  }
+
+  /* 12-Column Figma Grid Overlay */
+  .ve-grid-overlay {
+    position: fixed;
+    inset: 0;
+    left: var(--sidebar-w, 0px);
+    z-index: 88;
+    pointer-events: none;
+  }
+  .ve-grid-inner {
+    width: 100%;
+    max-width: calc(var(--max-w) + var(--gutter) * 2);
+    height: 100%;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: 20px;
+  }
+  .ve-grid-col {
+    height: 100%;
+    background: rgb(255 42 68 / 0.08);
+    border-inline: 1px solid rgb(255 42 68 / 0.22);
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+  }
+  .ve-grid-col span {
+    font: 600 10px / 1 monospace;
+    color: rgb(255 42 68 / 0.75);
+  }
+
+  /* Figma Blue Hover & Selection Boxes */
+  .ve-hover-box {
+    position: fixed;
+    z-index: 89;
+    border: 1.5px dashed #0d99ff;
+    background: rgb(13 153 255 / 0.04);
+    pointer-events: none;
+  }
+  .ve-hover-tag {
+    position: absolute;
+    left: -1px;
+    top: -22px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: #0d99ff;
+    color: #fff;
+    font: 600 11px / 1 var(--f-body);
+    white-space: nowrap;
+  }
+
+  .ve-select-box {
+    position: fixed;
+    z-index: 91;
+    border: 2px solid #0d99ff;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35);
+    pointer-events: none;
+  }
+  .ve-select-tag {
+    position: absolute;
+    left: -2px;
+    top: -26px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    background: #0d99ff;
+    color: #ffffff;
+    font: 600 11px / 1 monospace;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgb(0 0 0 / 0.22);
+  }
+  .ve-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border: 2px solid #0d99ff;
+    border-radius: 2px;
+    pointer-events: auto;
+  }
+  .ve-h-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+  .ve-h-n  { top: -6px; left: calc(50% - 5px); cursor: ns-resize; }
+  .ve-h-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+  .ve-h-e  { top: calc(50% - 5px); right: -6px; cursor: ew-resize; }
+  .ve-h-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+  .ve-h-s  { bottom: -6px; left: calc(50% - 5px); cursor: ns-resize; }
+  .ve-h-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+  .ve-h-w  { top: calc(50% - 5px); left: -6px; cursor: ew-resize; }
+
+  /* Active Editor Cursors on Editable Elements */
+  :global(html.ve-active [data-ve-box]),
+  :global(html.ve-active [data-ve-free]) {
+    cursor: move !important;
+  }
+
+  /* Bottom Floating Inspector Dock */
+  .ve-dock {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 95;
+    width: min(980px, calc(100vw - 24px));
+    padding: 12px 16px;
+    border-radius: 16px;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    background: rgb(18 19 23 / 0.94);
+    backdrop-filter: blur(14px);
+    color: #f3f4f6;
+    box-shadow: 0 18px 42px rgb(0 0 0 / 0.42);
+    display: grid;
+    gap: 10px;
+  }
+  .ve-dock[hidden] {
+    display: none;
+  }
+  .ve-dock-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .ve-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .ve-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0d99ff;
+    box-shadow: 0 0 10px #0d99ff;
+  }
+  .ve-sub {
+    color: rgb(255 255 255 / 0.6);
+    font-size: 12px;
+  }
+  .ve-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .ve-btn {
+    padding: 6px 11px;
+    border-radius: 8px;
+    border: 1px solid rgb(255 255 255 / 0.15);
+    background: rgb(255 255 255 / 0.06);
+    color: #f3f4f6;
+    font: 600 12px / 1.2 var(--f-body);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .ve-btn:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.14);
+    border-color: rgb(255 255 255 / 0.3);
+  }
+  .ve-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .ve-btn.is-on {
+    border-color: #ff2a44;
+    background: rgb(255 42 68 / 0.22);
+    color: #ffd6db;
+  }
+  .ve-btn-primary {
+    border-color: #0d99ff;
+    background: #0d99ff;
+    color: #ffffff;
+  }
+  .ve-btn-primary:hover:not(:disabled) {
+    background: #0084e6;
+    border-color: #0084e6;
+  }
+  .ve-btn-close {
+    border-color: rgb(255 255 255 / 0.2);
+  }
+
+  /* Inspector Row */
+  .ve-inspector {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+    font-size: 12px;
+  }
+  .ve-sel-name {
+    font-family: monospace;
+    color: #7cc4ff;
+  }
+  .ve-fields {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ve-fields[hidden] {
+    display: none;
+  }
+  .ve-fields label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.12);
+  }
+  .ve-fields span {
+    color: rgb(255 255 255 / 0.55);
+    font: 600 11px / 1 monospace;
+  }
+  .ve-fields input {
+    width: 58px;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
+    font: 600 12px / 1 monospace;
+    outline: none;
+  }
+
+  /* Toast */
+  .ve-toast {
+    position: fixed;
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%) translateY(-10px);
+    z-index: 100;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: #0d99ff;
+    color: #ffffff;
+    font: 600 13px / 1.3 var(--f-body);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
+    opacity: 0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    pointer-events: none;
+  }
+  .ve-toast.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 760px) {
+    .ve-sub {
+      display: none;
+    }
+  }
+</style>
