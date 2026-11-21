@@ -1,0 +1,599 @@
+---
+// Test section for Figma Frame 428 ("07 SYBIL HUSKY" Highlight + FULL CASE STUDY popup trigger)
+// Kept alongside the existing Project 07 Sybil Husky section for side-by-side comparison.
+import '@fontsource/bbh-hegarty/400.css';
+import '@fontsource/kodchasan/400.css';
+import '@fontsource/kodchasan/500.css';
+import '@fontsource/kodchasan/700.css';
+import Picture from './Picture.astro';
+import { assetUrl, posterUrl } from '../lib/media';
+import { projects } from '../data/projects';
+
+const sybil = projects.find((p) => p.slug === 'sybil-husky')!;
+const logoMarkSrc = assetUrl('media/07-sybil-logo-mark.webp');
+
+const overviewText =
+  'A collection of digital thumbnails and promotional visuals created in collaboration with MollageBKK, including entertainment content for Netflix Thailand. Each design combines photo compositing, retouching, and typography to create engaging, attention-grabbing visuals tailored to different content formats.';
+
+const roleBullets = [
+  'Designed editorial infographics and visual layouts.',
+  'Organized information through typography and visual hierarchy.',
+  'Created illustrations, icons, and supporting graphics.',
+  'Prepared final artwork for digital publishing.',
+];
+
+const problemBullets = [
+  'Designed editorial infographics and visual layouts.',
+  'Organized information through typography and visual hierarchy.',
+  'Created illustrations, icons, and supporting graphics.',
+  'Prepared final artwork for digital publishing.',
+];
+---
+
+<article
+  class="project sybil-highlight-test"
+  id="sybil-husky-test"
+  aria-labelledby="sybil-test-title"
+>
+  <div class="f428-canvas" data-ve-editorial="sybil-husky-test">
+    <!-- Frame 131: Header (07 + SYBIL HUSKY) & Frame 71 (Overview) -->
+    <header class="f131" data-ve-free="sybil-test:header" data-ve-label="07 Header & Overview">
+      <div class="f130">
+        <p class="f-no" data-reveal>07</p>
+        <h3 id="sybil-test-title" class="f-title" data-reveal style="--reveal-d: 60ms">
+          SYBIL HUSKY
+        </h3>
+      </div>
+
+      <div class="f71">
+        <h4 class="f-overview-h" data-reveal style="--reveal-d: 110ms">Overview</h4>
+        <p class="f-overview-p" data-reveal style="--reveal-d: 150ms">
+          {overviewText}
+        </p>
+      </div>
+    </header>
+
+    <!-- Frame 429: Gradient Highlight Card (1040 x 585, border-radius 26px) -->
+    <div
+      class="f429"
+      data-ve-free="sybil-test:hero-card"
+      data-ve-label="07 Highlight Card"
+      data-open-sybil-case
+      role="button"
+      tabindex="0"
+      aria-label="Open Sybil Husky Full Case Study"
+    >
+      <img
+        class="f-group354"
+        src={logoMarkSrc}
+        width="568"
+        height="306"
+        alt="Sybil Husky logo mark and wordmark"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+
+    <!-- Bottom Row (top: 981px): Frame 430 Button + Frame 72 My Role + Frame 128 Problem Solve ?! -->
+    <div class="f-bottom-row">
+      <button
+        type="button"
+        class="f430-btn"
+        data-open-sybil-case
+        data-ve-free="sybil-test:cta"
+        data-ve-label="07 Full Case Study Button"
+      >
+        <span>FULL CASE STUDY</span>
+      </button>
+
+      <div class="f72" data-ve-free="sybil-test:role" data-ve-label="07 My Role">
+        <h4 class="f-col-h" data-reveal>My Role</h4>
+        <ul class="f-col-list" data-reveal style="--reveal-d: 70ms">
+          {roleBullets.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+
+      <div class="f128" data-ve-free="sybil-test:problem" data-ve-label="07 Problem Solve">
+        <h4 class="f-col-h" data-reveal style="--reveal-d: 60ms">Problem Solve ?!</h4>
+        <ul class="f-col-list f-col-list-wide" data-reveal style="--reveal-d: 130ms">
+          {problemBullets.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Case Study Popup Modal (<dialog>) -->
+  <dialog class="case-dialog" data-sybil-case-dialog aria-labelledby="sybil-case-modal-title">
+    <div class="case-modal-shell">
+      <header class="case-modal-bar">
+        <div class="case-modal-meta">
+          <span class="case-modal-no">07</span>
+          <h3 id="sybil-case-modal-title" class="case-modal-title">SYBIL HUSKY — FULL CASE STUDY</h3>
+        </div>
+        <button type="button" class="case-modal-close" data-close-sybil-case aria-label="Close case study">
+          <span>Close</span>
+          <span class="case-esc" aria-hidden="true">ESC</span>
+        </button>
+      </header>
+
+      <div class="case-modal-body">
+        <section class="case-intro-grid">
+          <div>
+            <h4>Overview</h4>
+            <p>{overviewText}</p>
+          </div>
+          <div>
+            <h4>My Role</h4>
+            <ul>
+              {sybil.role.map((r) => <li>{r}</li>)}
+            </ul>
+          </div>
+          <div>
+            <h4>Deliverables &amp; Direction</h4>
+            <ul>
+              {Array.isArray(sybil.description) && sybil.description.map((d) => <li>{d}</li>)}
+            </ul>
+          </div>
+        </section>
+
+        <section class="case-gallery" aria-label="Sybil Husky case study visuals">
+          <div class="case-row-two">
+            <figure class="case-fig">
+              <div class="case-media">
+                <Picture name="07-sybil-logo" alt="Sybil Husky logo" sizes="(min-width: 900px) 45vw, 95vw" />
+              </div>
+              <figcaption>01 — Brand Mark &amp; Identity System</figcaption>
+            </figure>
+
+            <figure class="case-fig">
+              <div class="case-media">
+                <Picture name="07-sybil-environment" alt="Sybil Husky environment illustration" sizes="(min-width: 900px) 45vw, 95vw" />
+              </div>
+              <figcaption>02 — Fantasy Environment &amp; Northern Lights Castle</figcaption>
+            </figure>
+          </div>
+
+          <figure class="case-fig">
+            <div class="case-media">
+              <Picture name="07-sybil-tiers" alt="Six husky character cards" sizes="92vw" />
+            </div>
+            <figcaption>03 — Six Character Tiers &amp; Collectible NFT Cards (Apprentice to Super Special)</figcaption>
+          </figure>
+
+          <figure class="case-fig">
+            <div class="case-media">
+              <Picture name="07-sybil-landing" alt="Sybil Husky landing page UI" sizes="92vw" />
+            </div>
+            <figcaption>04 — Landing Page Interface &amp; Section Overview</figcaption>
+          </figure>
+        </section>
+      </div>
+    </div>
+  </dialog>
+</article>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-sybil-case-dialog]');
+  const openers = document.querySelectorAll<HTMLElement>('[data-open-sybil-case]');
+  const closer = document.querySelector<HTMLButtonElement>('[data-close-sybil-case]');
+
+  if (dialog) {
+    const openModal = () => {
+      if (!dialog.open) {
+        dialog.showModal();
+        document.documentElement.style.overflow = 'hidden';
+      }
+    };
+
+    const closeModal = () => {
+      if (dialog.open) {
+        dialog.close();
+      }
+      document.documentElement.style.overflow = '';
+    };
+
+    openers.forEach((el) => {
+      el.addEventListener('click', () => {
+        if (document.documentElement.classList.contains('ve-active')) return;
+        openModal();
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openModal();
+        }
+      });
+    });
+
+    closer?.addEventListener('click', closeModal);
+
+    // Click backdrop outside modal shell to close
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) closeModal();
+    });
+
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+    });
+  }
+</script>
+
+<style>
+  /* ================= Frame 428 Container ================= */
+  .sybil-highlight-test {
+    background: #101010;
+    color: #fbf5eb;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .f428-canvas {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    box-sizing: border-box;
+    padding: 40px 80px 107px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Frame 131: left 80px, top 40px, width 674px, gap 32px */
+  .f131 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    width: 100%;
+    max-width: 674px;
+  }
+
+  /* Frame 130: gap 12px */
+  .f130 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* 07 */
+  .f-no {
+    margin: 0;
+    font-family: 'BBH Bartle', var(--f-heading);
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.1;
+    color: #ff2b2b;
+  }
+
+  /* SYBIL HUSKY */
+  .f-title {
+    margin: 0;
+    font-family: 'BBH Hegarty', 'Archivo Black', var(--f-display);
+    font-style: normal;
+    font-weight: 400;
+    font-size: clamp(32px, 3.8vw, 46px);
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #fbf5eb;
+  }
+
+  /* Frame 71: Overview (gap 8px) */
+  .f71 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .f-overview-h {
+    margin: 0;
+    font-family: 'Kodchasan', var(--f-body);
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.1;
+    color: #ff2b2b;
+  }
+
+  .f-overview-p {
+    margin: 0;
+    font-family: 'Kodchasan', var(--f-body);
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #ffffff;
+  }
+
+  /* Frame 429: Highlight Card (1040 x 585, top 334px -> 51px below Frame 131) */
+  .f429 {
+    box-sizing: border-box;
+    margin-top: 51px;
+    width: 100%;
+    max-width: 1040px;
+    min-height: 585px;
+    padding: 92px 194px 112px 137px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
+    border-radius: 26px;
+    cursor: pointer;
+    transition:
+      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.32s ease;
+  }
+  .f429:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 22px 48px rgb(0 0 0 / 0.45);
+  }
+  .f429:focus-visible {
+    outline: 3px solid #ff2b2b;
+    outline-offset: 4px;
+  }
+
+  /* Group 354: 708.74 x 381 */
+  .f-group354 {
+    display: block;
+    width: 100%;
+    max-width: 632px;
+    height: auto;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Bottom Row at top: 981px (62px below Frame 429 bottom 919px) */
+  .f-bottom-row {
+    margin-top: 62px;
+    display: grid;
+    grid-template-columns: 248px minmax(0, 333px) minmax(0, 342px);
+    column-gap: 48px;
+    align-items: start;
+  }
+  @media (min-width: 1200px) {
+    .f-bottom-row {
+      /* Exact Figma X coordinates relative to left 80px:
+         Button: 0..248 (left 80)
+         Frame 72: 354..687 (left 434)
+         Frame 128: 699..1041 (left 779) */
+      grid-template-columns: 248px 333px 342px;
+      column-gap: 0;
+    }
+    .f72 {
+      margin-left: 106px;
+      width: 333px;
+    }
+    .f128 {
+      margin-left: 118px;
+      width: 342px;
+    }
+  }
+
+  /* Frame 430: FULL CASE STUDY Pill Button (248 x 80) */
+  .f430-btn {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 10px;
+    gap: 10px;
+    width: 248px;
+    height: 80px;
+    background: #ffffff;
+    border: 0;
+    border-radius: 999px;
+    font-family: 'Kodchasan', var(--f-body);
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.4;
+    color: #000000;
+    cursor: pointer;
+    transition:
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.22s ease;
+  }
+  .f430-btn:hover {
+    background: #ff2b2b;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgb(255 43 43 / 0.35);
+  }
+  .f430-btn:focus-visible {
+    outline: 3px solid #ff2b2b;
+    outline-offset: 4px;
+  }
+
+  /* Frame 72 (My Role) & Frame 128 (Problem Solve ?!) */
+  .f72,
+  .f128 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .f-col-h {
+    margin: 0;
+    font-family: 'Kodchasan', var(--f-body);
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.1;
+    color: #ff2b2b;
+  }
+
+  .f-col-list {
+    margin: 0;
+    padding-left: 1.25em;
+    font-family: 'Kodchasan', var(--f-body);
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #fbf5eb;
+  }
+  .f-col-list li + li {
+    margin-top: 2px;
+  }
+
+  @media (max-width: 1199px) {
+    .f428-canvas {
+      padding: 40px var(--gutter) 72px;
+    }
+    .f429 {
+      min-height: 360px;
+      padding: 48px 32px;
+    }
+    .f-bottom-row {
+      grid-template-columns: 1fr;
+      row-gap: 32px;
+    }
+  }
+
+  /* ================= Full Case Study Popup Modal ================= */
+  .case-dialog {
+    width: min(1240px, 94vw);
+    max-height: 90dvh;
+    margin: auto;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 24px;
+    background: #141414;
+    color: #fbf5eb;
+    box-shadow: 0 32px 90px rgb(0 0 0 / 0.72);
+    overflow: hidden;
+  }
+  .case-dialog::backdrop {
+    background: rgb(6 6 8 / 0.78);
+    backdrop-filter: blur(10px);
+  }
+  .case-modal-shell {
+    display: flex;
+    flex-direction: column;
+    max-height: 90dvh;
+  }
+  .case-modal-bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 28px;
+    background: rgb(20 20 20 / 0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  }
+  .case-modal-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .case-modal-no {
+    font-family: 'BBH Bartle', var(--f-heading);
+    font-size: 18px;
+    color: #ff2b2b;
+  }
+  .case-modal-title {
+    margin: 0;
+    font-family: 'BBH Hegarty', var(--f-display);
+    font-size: clamp(18px, 2vw, 24px);
+    letter-spacing: 0.02em;
+    color: #fbf5eb;
+  }
+  .case-modal-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.2);
+    background: rgb(255 255 255 / 0.06);
+    color: #ffffff;
+    font-family: 'Kodchasan', var(--f-body);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+  .case-modal-close:hover {
+    background: #ff2b2b;
+    border-color: #ff2b2b;
+  }
+  .case-esc {
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgb(0 0 0 / 0.35);
+    font-size: 10px;
+    opacity: 0.8;
+  }
+  .case-modal-body {
+    overflow-y: auto;
+    padding: 32px 28px 48px;
+    display: grid;
+    gap: 36px;
+  }
+  .case-intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    font-family: 'Kodchasan', var(--f-body);
+  }
+  .case-intro-grid h4 {
+    margin: 0 0 8px;
+    color: #ff2b2b;
+    font-size: 18px;
+  }
+  .case-intro-grid p,
+  .case-intro-grid ul {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgb(251 245 235 / 0.88);
+  }
+  .case-intro-grid ul {
+    padding-left: 1.2em;
+  }
+  .case-gallery {
+    display: grid;
+    gap: 28px;
+  }
+  .case-row-two {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  .case-fig {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .case-media {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1d1d1d;
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+  .case-media :global(picture),
+  .case-media :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .case-fig figcaption {
+    font-family: 'Kodchasan', var(--f-body);
+    font-size: 13px;
+    color: rgb(251 245 235 / 0.65);
+  }
+</style>
