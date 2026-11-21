@@ -97,7 +97,7 @@ export const projects: Project[] = [
       { kind: 'image', name: '02-standup-wall-posters', alt: 'Three speaker posters mounted on a brick wall' },
       { kind: 'image', name: '02-standup-poster-mockup', alt: 'Framed event poster with the speaker line-up' },
       { kind: 'image', name: '02-standup-logo', alt: 'Startup Standup Comedy logo, white on black' },
-      { kind: 'video', name: '02-standup-motion', label: 'Startup Standup Comedy motion piece', poster: '02-standup-kv' },
+      { kind: 'video', name: '02-standup-motion', label: 'Startup Standup Comedy intro motion', poster: '02-standup-motion-poster' },
     ],
   },
   {

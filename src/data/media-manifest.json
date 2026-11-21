@@ -62,6 +62,14 @@
       185
     ]
   },
+  "01-k2o-planb-poster": {
+    "width": 1400,
+    "height": 400,
+    "sizes": [
+      800,
+      1400
+    ]
+  },
   "01-k2o-poster-bus": {
     "width": 176,
     "height": 224,
@@ -105,45 +113,58 @@
     ]
   },
   "02-standup-banners": {
-    "width": 198,
-    "height": 349,
+    "width": 1270,
+    "height": 1920,
     "sizes": [
-      198
+      800,
+      1270
     ]
   },
   "02-standup-billboard": {
-    "width": 305,
-    "height": 349,
+    "width": 2000,
+    "height": 1500,
     "sizes": [
-      305
+      800,
+      1600
     ]
   },
   "02-standup-kv": {
-    "width": 369,
-    "height": 462,
+    "width": 960,
+    "height": 1200,
     "sizes": [
-      369
+      800,
+      960
     ]
   },
   "02-standup-logo": {
-    "width": 149,
-    "height": 147,
+    "width": 2045,
+    "height": 2045,
     "sizes": [
-      149
+      800
+    ]
+  },
+  "02-standup-motion-poster": {
+    "width": 1920,
+    "height": 1080,
+    "sizes": [
+      800,
+      1280
     ]
   },
   "02-standup-poster-mockup": {
-    "width": 227,
-    "height": 257,
+    "width": 1000,
+    "height": 712,
     "sizes": [
-      227
+      800,
+      1000
     ]
   },
   "02-standup-wall-posters": {
-    "width": 277,
-    "height": 257,
+    "width": 2000,
+    "height": 1500,
     "sizes": [
-      277
+      800,
+      1600
     ]
   },
   "03-thumbs-masterchef": {
@@ -415,14 +436,6 @@
       660,
       800,
       920
-    ]
-  },
-  "01-k2o-planb-poster": {
-    "width": 1400,
-    "height": 400,
-    "sizes": [
-      800,
-      1400
     ]
   }
 }
