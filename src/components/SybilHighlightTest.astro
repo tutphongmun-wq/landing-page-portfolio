@@ -233,12 +233,12 @@ const problemBullets = [
     max-width: 1200px;
     margin-inline: auto;
     box-sizing: border-box;
-    padding: 40px 80px 107px;
+    padding: 40px 60px 107px;
     display: flex;
     flex-direction: column;
   }
 
-  /* Frame 131: left 80px, top 40px, width 674px, gap 32px */
+  /* Frame 131: left 60px, top 40px, width 674px, gap 32px */
   .f131 {
     display: flex;
     flex-direction: column;
@@ -309,12 +309,12 @@ const problemBullets = [
     color: #ffffff;
   }
 
-  /* Frame 429: Highlight Card (1040 x 585, top 334px -> 51px below Frame 131) */
+  /* Frame 429: Highlight Card (1080 x 585 with 60px margin on 1200px frame) */
   .f429 {
     box-sizing: border-box;
     margin-top: 51px;
     width: 100%;
-    max-width: 1040px;
+    max-width: 1080px;
     min-height: 585px;
     padding: 92px 194px 112px 137px;
     display: flex;
@@ -358,19 +358,15 @@ const problemBullets = [
   }
   @media (min-width: 1200px) {
     .f-bottom-row {
-      /* Exact Figma X coordinates relative to left 80px:
-         Button: 0..248 (left 80)
-         Frame 72: 354..687 (left 434)
-         Frame 128: 699..1041 (left 779) */
-      grid-template-columns: 248px 333px 342px;
-      column-gap: 0;
+      width: 100%;
+      max-width: 1080px;
+      grid-template-columns: 248px 1fr 1fr;
+      column-gap: 78px;
     }
     .f72 {
-      margin-left: 106px;
       width: 333px;
     }
     .f128 {
-      margin-left: 118px;
       width: 342px;
     }
   }
