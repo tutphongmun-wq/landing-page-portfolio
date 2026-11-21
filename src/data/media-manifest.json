@@ -308,45 +308,59 @@
     ]
   },
   "05-info-bitcoin-timeline": {
-    "width": 494,
-    "height": 622,
+    "width": 2000,
+    "height": 2500,
     "sizes": [
-      494
+      800,
+      1600
     ]
   },
   "05-info-documentaries": {
-    "width": 238,
-    "height": 297,
+    "width": 1024,
+    "height": 1280,
     "sizes": [
-      238
+      800,
+      1024
     ]
   },
   "05-info-ethereum": {
-    "width": 157,
-    "height": 192,
+    "width": 2000,
+    "height": 2500,
     "sizes": [
-      157
+      800,
+      1600
     ]
   },
   "05-info-ev-sales": {
-    "width": 238,
-    "height": 302,
+    "width": 1024,
+    "height": 1280,
     "sizes": [
-      238
+      800,
+      1024
     ]
   },
   "05-info-investing": {
-    "width": 157,
-    "height": 154,
+    "width": 2000,
+    "height": 2500,
     "sizes": [
-      157
+      800,
+      1600
     ]
   },
   "05-info-pixar": {
-    "width": 157,
-    "height": 197,
+    "width": 2001,
+    "height": 2501,
     "sizes": [
-      157
+      800,
+      1600
+    ]
+  },
+  "05-info-skills": {
+    "width": 1024,
+    "height": 1280,
+    "sizes": [
+      800,
+      1024
     ]
   },
   "06-16p-all-spreads": {

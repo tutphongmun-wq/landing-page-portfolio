@@ -128,6 +128,7 @@ export const layouts: Record<string, SlideLayout[]> = {
         { name: '05-info-ethereum', box: [1071, 48, 1236, 248] },
         { name: '05-info-investing', box: [1071, 258, 1236, 420] },
         { name: '05-info-pixar', box: [1071, 470, 1236, 675] },
+        { name: '05-info-skills', box: [820, 365, 1066, 675] },
       ],
     },
   ],
