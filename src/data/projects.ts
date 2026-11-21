@@ -205,7 +205,6 @@ export const projects: Project[] = [
       { kind: 'image', name: '06-16p-spread-yellow', alt: 'Yellow book spread: an adventurer character in a desert' },
       { kind: 'image', name: '06-16p-characters', alt: 'Line-up of 16 original characters, one per MBTI type' },
       { kind: 'image', name: '06-16p-all-spreads', alt: 'All sixteen book spreads, grouped by color family' },
-      { kind: 'video', name: '06-16p-flip', label: 'Book flip-through', poster: '06-16p-cover' },
     ],
   },
   {
@@ -227,8 +226,6 @@ export const projects: Project[] = [
       { kind: 'image', name: '07-sybil-environment', alt: 'Illustrated snowy mountain landscape with a castle under the northern lights' },
       { kind: 'image', name: '07-sybil-tiers', alt: 'Six husky character cards: Apprentice, Mage, Sorcerer, Supreme, Special, Super Special' },
       { kind: 'image', name: '07-sybil-landing', alt: 'Sybil Husky landing page UI shown on laptops and as a section overview' },
-      { kind: 'model', name: '07-sybil-card', label: 'Character card, 3D', poster: '07-sybil-tiers' },
-      { kind: 'video', name: '07-sybil-prototype', label: 'Landing page prototype walkthrough', poster: '07-sybil-landing' },
     ],
   },
 ];
