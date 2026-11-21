@@ -1,0 +1,212 @@
+---
+// Magnetic Smart Scroll Snap (Option 1B + 2: Project Heads only):
+//   - Desktop only (>= 1200px), respects prefers-reduced-motion, Design Mode,
+//     open dialogs/lightboxes, and interactive 3D / Festival Map hover.
+//   - Snap targets: Hero (#top), Selected Work (#work), Project 01–07 heads
+//     (article.project), About (#about), Experience (#experience), Contact (#contact).
+//   - Behaviour:
+//       1) Free scrolling inside any section / project (so multi-slide projects
+//          like 01 K2O, 02, 06, 07 can be read naturally).
+//       2) Magnetic attraction after scroll idle (~150ms): when the viewport
+//          settles within the capture zone of a section/project head, smoothly
+//          pulls the head into frame.
+//       3) Boundary handoff: a short wheel/trackpad flick while already aligned
+//          at the top of a section (scrolling up) or bottom of a section
+//          (scrolling down) glides directly to the adjacent section head.
+//       4) Keyboard PageDown / PageUp (or Alt + ArrowDown / ArrowUp) steps
+//          cleanly between section heads.
+---
+
+<script>
+  const SNAP_SELECTOR = '#top, #work, article.project, #about, #experience, #contact';
+  const desktopMq = window.matchMedia('(min-width: 1200px)');
+  const reducedMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const getTargets = (): HTMLElement[] =>
+    [...document.querySelectorAll<HTMLElement>(SNAP_SELECTOR)].filter((el) => el.offsetParent !== null);
+
+  let animFrame = 0;
+  let idleTimer = 0;
+  let suppressUntil = 0;
+  let lastWheelDir = 0;
+  let lastWheelAt = 0;
+
+  function isBlocked(): boolean {
+    if (!desktopMq.matches || reducedMq.matches) return true;
+    if (document.documentElement.classList.contains('ve-active')) return true;
+    if (document.querySelector('dialog[open]')) return true;
+    return false;
+  }
+
+  function cancelAnim() {
+    if (animFrame) {
+      cancelAnimationFrame(animFrame);
+      animFrame = 0;
+    }
+  }
+
+  function clearIdle() {
+    if (idleTimer) {
+      window.clearTimeout(idleTimer);
+      idleTimer = 0;
+    }
+  }
+
+  // Custom cubic-out glide (cancels immediately if user touches wheel/keys)
+  function glideTo(targetY: number, duration = 460) {
+    cancelAnim();
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const dest = Math.max(0, Math.min(maxScroll, Math.round(targetY)));
+    const startY = window.scrollY;
+    const delta = dest - startY;
+    if (Math.abs(delta) < 2) return;
+
+    const t0 = performance.now();
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    function step(now: number) {
+      const p = Math.min(1, (now - t0) / duration);
+      const y = startY + delta * easeOutCubic(p);
+      window.scrollTo(0, y);
+      if (p < 1) {
+        animFrame = requestAnimationFrame(step);
+      } else {
+        animFrame = 0;
+        suppressUntil = performance.now() + 180;
+      }
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  // Evaluate whether the viewport is resting near a section/project head
+  function magneticSettle() {
+    if (isBlocked() || animFrame) return;
+    if (performance.now() < suppressUntil) return;
+
+    const vh = window.innerHeight;
+    const targets = getTargets();
+    if (!targets.length) return;
+
+    // Asymmetric capture band depending on scroll direction:
+    //   scrolling down -> pull in an approaching head up to 34% down the screen,
+    //                     or pull back if only slightly past a head (14% above)
+    //   scrolling up   -> pull in a head above up to 30% above top, or 22% below
+    const downBandBottom = vh * 0.34;
+    const downBandTop = -vh * 0.14;
+    const upBandTop = -vh * 0.30;
+    const upBandBottom = vh * 0.22;
+
+    let bestEl: HTMLElement | null = null;
+    let bestDist = Infinity;
+
+    for (const el of targets) {
+      const rect = el.getBoundingClientRect();
+      const top = rect.top;
+      const inBand =
+        lastWheelDir >= 0
+          ? top >= downBandTop && top <= downBandBottom
+          : top >= upBandTop && top <= upBandBottom;
+
+      if (inBand) {
+        const dist = Math.abs(top);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestEl = el;
+        }
+      }
+    }
+
+    // Only glide if not already aligned within 3px
+    if (bestEl && bestDist > 3) {
+      const targetY = window.scrollY + bestEl.getBoundingClientRect().top;
+      // Scale duration subtly with distance (280ms – 480ms)
+      const dur = Math.min(480, Math.max(280, Math.round(240 + bestDist * 0.75)));
+      glideTo(targetY, dur);
+    }
+  }
+
+  // Pause magnetic pull while user is interacting with anchor links
+  document.addEventListener(
+    'click',
+    (e) => {
+      const a = (e.target as Element | null)?.closest<HTMLAnchorElement>('a[href*="#"]');
+      if (a) {
+        cancelAnim();
+        clearIdle();
+        suppressUntil = performance.now() + 950;
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      if (isBlocked()) return;
+      // Ignore horizontal trackpad swipes (e.g. 05 Infographic carousel) or zoom gestures
+      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+
+      // Don't interfere when hovering over interactive 3D viewer or Festival Map canvas
+      const target = e.target as Element | null;
+      if (target?.closest('[data-model-slot], [data-fmap], [data-ed-viewport]')) {
+        cancelAnim();
+        clearIdle();
+        return;
+      }
+
+      // Any manual wheel input cancels an in-flight magnetic glide so user stays in control
+      if (animFrame) cancelAnim();
+
+      if (Math.abs(e.deltaY) > 1) {
+        lastWheelDir = e.deltaY > 0 ? 1 : -1;
+        lastWheelAt = performance.now();
+      }
+
+      clearIdle();
+      idleTimer = window.setTimeout(magneticSettle, 150);
+    },
+    { passive: true },
+  );
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (isBlocked() || animFrame) return;
+      // Only arm magnetic settle if the scroll came from recent wheel input
+      if (performance.now() - lastWheelAt > 400) return;
+      clearIdle();
+      idleTimer = window.setTimeout(magneticSettle, 150);
+    },
+    { passive: true },
+  );
+
+  // Optional keyboard stepping: PageDown / PageUp or Alt + ArrowDown / ArrowUp
+  window.addEventListener('keydown', (e) => {
+    if (isBlocked()) return;
+    const tag = (e.target as HTMLElement | null)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    const isNext = e.key === 'PageDown' || (e.altKey && e.key === 'ArrowDown');
+    const isPrev = e.key === 'PageUp' || (e.altKey && e.key === 'ArrowUp');
+    if (!isNext && !isPrev) return;
+
+    const targets = getTargets();
+    if (!targets.length) return;
+
+    if (isNext) {
+      const next = targets.find((el) => el.getBoundingClientRect().top > 24);
+      if (next) {
+        e.preventDefault();
+        clearIdle();
+        glideTo(window.scrollY + next.getBoundingClientRect().top, 460);
+      }
+    } else {
+      const prev = [...targets].reverse().find((el) => el.getBoundingClientRect().top < -24);
+      if (prev) {
+        e.preventDefault();
+        clearIdle();
+        glideTo(window.scrollY + prev.getBoundingClientRect().top, 460);
+      }
+    }
+  });
+</script>
