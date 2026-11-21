@@ -1,15 +1,18 @@
 ---
-// Test section for Figma Frame 428 ("07 SYBIL HUSKY" Highlight + FULL CASE STUDY popup trigger)
-// Kept alongside the existing Project 07 Sybil Husky section for side-by-side comparison.
+// Test section for Figma Frame 428 ("07 SYBIL HUSKY" Highlight) +
+// Worachet-style Full-Screen Editorial Case Study Reader (#read-sybil-husky).
 import '@fontsource/bbh-hegarty/400.css';
 import '@fontsource/kodchasan/400.css';
 import '@fontsource/kodchasan/500.css';
 import '@fontsource/kodchasan/700.css';
 import Picture from './Picture.astro';
-import { assetUrl, posterUrl } from '../lib/media';
+import Palette from './Palette.astro';
+import { assetUrl } from '../lib/media';
 import { projects } from '../data/projects';
+import { tools } from '../data/site';
 
 const sybil = projects.find((p) => p.slug === 'sybil-husky')!;
+const k2o = projects.find((p) => p.slug === 'k2o')!;
 const logoMarkSrc = assetUrl('media/07-sybil-logo-mark.webp');
 
 const overviewText =
@@ -27,6 +30,15 @@ const problemBullets = [
   'Organized information through typography and visual hierarchy.',
   'Created illustrations, icons, and supporting graphics.',
   'Prepared final artwork for digital publishing.',
+];
+
+const sections = [
+  { id: 'cs-overview', label: 'Overview' },
+  { id: 'cs-challenge', label: 'The challenge' },
+  { id: 'cs-world', label: 'World & environment' },
+  { id: 'cs-tiers', label: 'Character tiers' },
+  { id: 'cs-landing', label: 'Landing page UI' },
+  { id: 'cs-outcome', label: 'Outcome' },
 ];
 ---
 
@@ -53,7 +65,7 @@ const problemBullets = [
       </div>
     </header>
 
-    <!-- Frame 429: Gradient Highlight Card (1040 x 585, border-radius 26px) -->
+    <!-- Frame 429: Gradient Highlight Card (1080 x 585 with 60px margin) -->
     <div
       class="f429"
       data-ve-free="sybil-test:hero-card"
@@ -76,15 +88,15 @@ const problemBullets = [
 
     <!-- Bottom Row (top: 981px): Frame 430 Button + Frame 72 My Role + Frame 128 Problem Solve ?! -->
     <div class="f-bottom-row">
-      <button
-        type="button"
+      <a
+        href="#read-sybil-husky"
         class="f430-btn"
         data-open-sybil-case
         data-ve-free="sybil-test:cta"
         data-ve-label="07 Full Case Study Button"
       >
         <span>FULL CASE STUDY</span>
-      </button>
+      </a>
 
       <div class="f72" data-ve-free="sybil-test:role" data-ve-label="07 My Role">
         <h4 class="f-col-h" data-reveal>My Role</h4>
@@ -102,71 +114,184 @@ const problemBullets = [
     </div>
   </div>
 
-  <!-- Full Case Study Popup Modal (<dialog>) -->
-  <dialog class="case-dialog" data-sybil-case-dialog aria-labelledby="sybil-case-modal-title">
-    <div class="case-modal-shell">
-      <header class="case-modal-bar">
-        <div class="case-modal-meta">
-          <span class="case-modal-no">07</span>
-          <h3 id="sybil-case-modal-title" class="case-modal-title">SYBIL HUSKY — FULL CASE STUDY</h3>
-        </div>
-        <button type="button" class="case-modal-close" data-close-sybil-case aria-label="Close case study">
-          <span>Close</span>
-          <span class="case-esc" aria-hidden="true">ESC</span>
+  <!-- Worachet-style Full-Screen Editorial Case Study Reader (#read-sybil-husky) -->
+  <dialog class="cs-reader" data-sybil-case-dialog aria-labelledby="cs-main-title">
+    <div class="cs-layout">
+      <!-- Left Sticky Navigation Sidebar -->
+      <aside class="cs-sidebar" aria-label="Case study sections">
+        <button type="button" class="cs-back" data-close-sybil-case>
+          <span aria-hidden="true">←</span>
+          <span>All work</span>
         </button>
-      </header>
 
-      <div class="case-modal-body">
-        <section class="case-intro-grid">
-          <div>
-            <h4>Overview</h4>
-            <p>{overviewText}</p>
-          </div>
-          <div>
-            <h4>My Role</h4>
-            <ul>
-              {sybil.role.map((r) => <li>{r}</li>)}
+        <div class="cs-toc-wrap">
+          <p class="cs-proj-name">Sybil Husky</p>
+          <nav aria-label="Table of contents">
+            <ul class="cs-toc" role="list">
+              {
+                sections.map((s, idx) => (
+                  <li>
+                    <a
+                      href={`#${s.id}`}
+                      class:list={['cs-toc-link', { 'is-active': idx === 0 }]}
+                      data-cs-toc={s.id}
+                    >
+                      <span class="cs-toc-bar" aria-hidden="true" />
+                      <span>{s.label}</span>
+                    </a>
+                  </li>
+                ))
+              }
             </ul>
-          </div>
-          <div>
-            <h4>Deliverables &amp; Direction</h4>
-            <ul>
-              {Array.isArray(sybil.description) && sybil.description.map((d) => <li>{d}</li>)}
-            </ul>
-          </div>
-        </section>
+          </nav>
+        </div>
 
-        <section class="case-gallery" aria-label="Sybil Husky case study visuals">
-          <div class="case-row-two">
-            <figure class="case-fig">
-              <div class="case-media">
-                <Picture name="07-sybil-logo" alt="Sybil Husky logo" sizes="(min-width: 900px) 45vw, 95vw" />
-              </div>
-              <figcaption>01 — Brand Mark &amp; Identity System</figcaption>
-            </figure>
+        <a href="#k2o" class="cs-next" data-cs-next="#k2o">
+          <span class="cs-next-lbl">NEXT</span>
+          <span class="cs-next-title">{k2o.spine.label} <span aria-hidden="true">→</span></span>
+        </a>
+      </aside>
 
-            <figure class="case-fig">
-              <div class="case-media">
-                <Picture name="07-sybil-environment" alt="Sybil Husky environment illustration" sizes="(min-width: 900px) 45vw, 95vw" />
-              </div>
-              <figcaption>02 — Fantasy Environment &amp; Northern Lights Castle</figcaption>
-            </figure>
-          </div>
-
-          <figure class="case-fig">
-            <div class="case-media">
-              <Picture name="07-sybil-tiers" alt="Six husky character cards" sizes="92vw" />
+      <!-- Right Scrollable Editorial Reading Column -->
+      <div class="cs-scroller" data-cs-scroller>
+        <div class="cs-article">
+          <!-- Section 1: Overview -->
+          <section id="cs-overview" class="cs-sec" data-cs-section>
+            <div class="cs-hero-banner">
+              <img
+                src={logoMarkSrc}
+                width="568"
+                height="306"
+                alt="Sybil Husky brand mark and wordmark"
+                class="cs-hero-logo"
+              />
             </div>
-            <figcaption>03 — Six Character Tiers &amp; Collectible NFT Cards (Apprentice to Super Special)</figcaption>
-          </figure>
 
-          <figure class="case-fig">
-            <div class="case-media">
-              <Picture name="07-sybil-landing" alt="Sybil Husky landing page UI" sizes="92vw" />
+            <h1 id="cs-main-title" class="cs-h1">Sybil Husky</h1>
+            <p class="cs-subtitle">
+              A fantasy-inspired Web3 brand identity, six-tier collectible character system, northern-lights world illustration, and interactive landing page UI.
+            </p>
+
+            <dl class="cs-meta-grid">
+              <div>
+                <dt>Client</dt>
+                <dd>Sybil Husky Collective</dd>
+              </div>
+              <div>
+                <dt>Dates</dt>
+                <dd>2024 — Digital &amp; Web3 Release</dd>
+              </div>
+              <div>
+                <dt>Role</dt>
+                <dd>Visual Identity, Character Design &amp; UI</dd>
+              </div>
+            </dl>
+
+            <p class="cs-prose">
+              Sybil Husky is a character-driven digital project blending mystical Arctic folklore with a clean, modern collectible card identity. I led the visual direction from the core geometric husky emblem through to the six progression tiers, environmental key art, and the responsive web interface.
+            </p>
+          </section>
+
+          <!-- Section 2: The Challenge -->
+          <section id="cs-challenge" class="cs-sec" data-cs-section>
+            <h2 class="cs-h2">The challenge</h2>
+            <p class="cs-prose">
+              Most character collectible projects suffer from visual clutter—overly complex mascots that lose legibility at small avatar sizes, paired with generic dark-mode landing pages that feel disconnected from the artwork.
+            </p>
+            <p class="cs-prose">
+              Our goal was to establish an immediately recognizable silhouette that works both as a minimal monochrome mark and as the foundation for six distinct RPG-inspired character classes, while keeping the website navigation intuitive for first-time visitors.
+            </p>
+
+            <div class="cs-callout-grid">
+              <div class="cs-callout">
+                <h3>01 · Recognizable Silhouette</h3>
+                <p>Built the logo mark from sharp crescent curves so the husky ear-and-muzzle profile stays legible from a 24px favicon up to billboard scale.</p>
+              </div>
+              <div class="cs-callout">
+                <h3>02 · Cohesive Tier Progression</h3>
+                <p>Designed a clear visual hierarchy across six rarity tiers so collectors can tell an Apprentice from a Super Special card at a glance.</p>
+              </div>
             </div>
-            <figcaption>04 — Landing Page Interface &amp; Section Overview</figcaption>
-          </figure>
-        </section>
+          </section>
+
+          <!-- Section 3: World & Environment -->
+          <section id="cs-world" class="cs-sec" data-cs-section>
+            <h2 class="cs-h2">World &amp; environment</h2>
+            <p class="cs-prose">
+              To ground the characters in a memorable setting, I illustrated an Arctic mountain citadel beneath ribbons of aurora borealis. The cool cyan-to-cobalt palette provides high contrast against the warm gold and crimson accents of the higher-tier character cards.
+            </p>
+
+            <figure class="cs-figure">
+              <div class="cs-img-box">
+                <Picture
+                  name="07-sybil-environment"
+                  alt="Illustrated snowy mountain landscape with a castle under the northern lights"
+                  sizes="(min-width: 900px) 780px, 92vw"
+                />
+              </div>
+              <figcaption>Environmental key visual — Northern lights citadel and layered alpine terrain.</figcaption>
+            </figure>
+          </section>
+
+          <!-- Section 4: Character Tiers -->
+          <section id="cs-tiers" class="cs-sec" data-cs-section>
+            <h2 class="cs-h2">Character tiers</h2>
+            <p class="cs-prose">
+              Every character shares the same base husky anatomy for brand consistency, while costume design, lighting effects, and card frame colors escalate across six tiers: <strong>Apprentice</strong>, <strong>Mage</strong>, <strong>Sorcerer</strong>, <strong>Supreme</strong>, <strong>Special</strong>, and <strong>Super Special</strong>.
+            </p>
+
+            <figure class="cs-figure">
+              <div class="cs-img-box">
+                <Picture
+                  name="07-sybil-tiers"
+                  alt="Six husky character cards: Apprentice, Mage, Sorcerer, Supreme, Special, Super Special"
+                  sizes="(min-width: 900px) 780px, 92vw"
+                />
+              </div>
+              <figcaption>The six collectible tiers — progressing from everyday winter gear to arcane cosmic regalia.</figcaption>
+            </figure>
+          </section>
+
+          <!-- Section 5: Landing Page UI -->
+          <section id="cs-landing" class="cs-sec" data-cs-section>
+            <h2 class="cs-h2">Landing page UI</h2>
+            <p class="cs-prose">
+              The web experience brings the world art and card system together into a single editorial landing page. Visitors can explore the lore, inspect each rarity tier, and preview the collection layout across desktop and tablet breakpoints.
+            </p>
+
+            <figure class="cs-figure">
+              <div class="cs-img-box">
+                <Picture
+                  name="07-sybil-landing"
+                  alt="Sybil Husky landing page UI shown on laptops and as a section overview"
+                  sizes="(min-width: 900px) 780px, 92vw"
+                />
+              </div>
+              <figcaption>Full landing page architecture — hero showcase, lore breakdown, and interactive tier gallery.</figcaption>
+            </figure>
+          </section>
+
+          <!-- Section 6: Outcome -->
+          <section id="cs-outcome" class="cs-sec" data-cs-section>
+            <h2 class="cs-h2">Outcome</h2>
+            <p class="cs-prose">
+              The final identity package delivered a complete, production-ready design system: vector brand guidelines, six high-resolution character illustrations with modular card frames, widescreen environmental art, and a responsive Figma UI kit ready for front-end handoff.
+            </p>
+
+            <div class="cs-tools-bar">
+              <span class="cs-tools-lbl">Tools &amp; Software</span>
+              <div class="cs-tools-list">
+                {
+                  sybil.tools.map((id) => (
+                    <span class="cs-tool-pill">
+                      <strong>{tools[id].abbr}</strong> {tools[id].name}
+                    </span>
+                  ))
+                }
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   </dialog>
@@ -176,45 +301,118 @@ const problemBullets = [
   const dialog = document.querySelector<HTMLDialogElement>('[data-sybil-case-dialog]');
   const openers = document.querySelectorAll<HTMLElement>('[data-open-sybil-case]');
   const closer = document.querySelector<HTMLButtonElement>('[data-close-sybil-case]');
+  const scroller = dialog?.querySelector<HTMLElement>('[data-cs-scroller]');
+  const tocLinks = dialog ? [...dialog.querySelectorAll<HTMLAnchorElement>('[data-cs-toc]')] : [];
+  const sections = dialog ? [...dialog.querySelectorAll<HTMLElement>('[data-cs-section]')] : [];
+  const nextLink = dialog?.querySelector<HTMLAnchorElement>('[data-cs-next]');
 
-  if (dialog) {
-    const openModal = () => {
-      if (!dialog.open) {
-        dialog.showModal();
-        document.documentElement.style.overflow = 'hidden';
+  const CASE_HASH = '#read-sybil-husky';
+
+  if (dialog && scroller) {
+    const setActiveToc = (id: string) => {
+      for (const link of tocLinks) {
+        link.classList.toggle('is-active', link.dataset.csToc === id);
       }
     };
 
-    const closeModal = () => {
+    const openModal = (pushHash = true) => {
+      if (document.documentElement.classList.contains('ve-active')) return;
+      if (!dialog.open) {
+        dialog.showModal();
+        document.documentElement.style.overflow = 'hidden';
+        scroller.scrollTop = 0;
+        setActiveToc(sections[0]?.id || 'cs-overview');
+      }
+      if (pushHash && location.hash !== CASE_HASH) {
+        history.pushState({ caseStudy: 'sybil-husky' }, '', CASE_HASH);
+      }
+    };
+
+    const closeModal = (clearHash = true) => {
       if (dialog.open) {
         dialog.close();
       }
       document.documentElement.style.overflow = '';
+      if (clearHash && location.hash === CASE_HASH) {
+        history.pushState(null, '', '#sybil-husky-test');
+      }
     };
 
     openers.forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (e) => {
         if (document.documentElement.classList.contains('ve-active')) return;
-        openModal();
+        e.preventDefault();
+        openModal(true);
       });
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openModal();
+          openModal(true);
         }
       });
     });
 
-    closer?.addEventListener('click', closeModal);
+    closer?.addEventListener('click', () => closeModal(true));
 
-    // Click backdrop outside modal shell to close
-    dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) closeModal();
+    // Clicking a TOC link scrolls inside the reader scroller (not the main window)
+    tocLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = link.dataset.csToc;
+        const target = id ? dialog.querySelector<HTMLElement>(`#${id}`) : null;
+        if (target) {
+          setActiveToc(id!);
+          scroller.scrollTo({ top: target.offsetTop - 48, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Update active TOC pill on scroll inside the reader
+    const onReaderScroll = () => {
+      const cutoff = scroller.scrollTop + scroller.clientHeight * 0.28;
+      let currentId = sections[0]?.id || 'cs-overview';
+      for (const sec of sections) {
+        if (sec.offsetTop <= cutoff) {
+          currentId = sec.id;
+        }
+      }
+      setActiveToc(currentId);
+    };
+    scroller.addEventListener('scroll', onReaderScroll, { passive: true });
+
+    // Next project link closes reader and jumps to target project
+    nextLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const dest = nextLink.dataset.csNext || '#k2o';
+      if (dialog.open) dialog.close();
+      document.documentElement.style.overflow = '';
+      history.pushState(null, '', dest);
+      const destEl = document.querySelector<HTMLElement>(dest);
+      destEl?.scrollIntoView({ behavior: 'smooth' });
     });
 
     dialog.addEventListener('close', () => {
       document.documentElement.style.overflow = '';
+      if (location.hash === CASE_HASH) {
+        history.replaceState(null, '', '#sybil-husky-test');
+      }
     });
+
+    // Support direct URL / refresh / browser Back button with #read-sybil-husky
+    const syncFromHash = () => {
+      if (location.hash === CASE_HASH) {
+        openModal(false);
+      } else if (dialog.open) {
+        closeModal(false);
+      }
+    };
+    window.addEventListener('hashchange', syncFromHash);
+    window.addEventListener('popstate', syncFromHash);
+    if (location.hash === CASE_HASH) {
+      openModal(false);
+    }
   }
 </script>
 
@@ -391,6 +589,7 @@ const problemBullets = [
     font-size: 20px;
     line-height: 1.4;
     color: #000000;
+    text-decoration: none;
     cursor: pointer;
     transition:
       transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
@@ -456,140 +655,348 @@ const problemBullets = [
     }
   }
 
-  /* ================= Full Case Study Popup Modal ================= */
-  .case-dialog {
-    width: min(1240px, 94vw);
-    max-height: 90dvh;
-    margin: auto;
+  /* ================= Worachet-style Full-Screen Editorial Case Study Reader ================= */
+  .cs-reader {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
     padding: 0;
-    border: 1px solid rgb(255 255 255 / 0.14);
-    border-radius: 24px;
-    background: #141414;
-    color: #fbf5eb;
-    box-shadow: 0 32px 90px rgb(0 0 0 / 0.72);
+    border: 0;
+    border-radius: 0;
+    background: #121212;
+    color: #f3efe8;
     overflow: hidden;
   }
-  .case-dialog::backdrop {
-    background: rgb(6 6 8 / 0.78);
-    backdrop-filter: blur(10px);
+  .cs-reader::backdrop {
+    background: rgb(0 0 0 / 0.85);
   }
-  .case-modal-shell {
+
+  .cs-layout {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr);
+    width: 100%;
+    height: 100dvh;
+  }
+
+  /* Left Sidebar (All work + TOC + NEXT) */
+  .cs-sidebar {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    max-height: 90dvh;
-  }
-  .case-modal-bar {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 18px 28px;
-    background: rgb(20 20 20 / 0.9);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+    padding: 40px 28px 36px 36px;
+    background: #101010;
+    border-right: 1px solid rgb(255 255 255 / 0.06);
+    height: 100dvh;
+    user-select: none;
   }
-  .case-modal-meta {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-  }
-  .case-modal-no {
-    font-family: 'BBH Bartle', var(--f-heading);
-    font-size: 18px;
-    color: #ff2b2b;
-  }
-  .case-modal-title {
-    margin: 0;
-    font-family: 'BBH Hegarty', var(--f-display);
-    font-size: clamp(18px, 2vw, 24px);
-    letter-spacing: 0.02em;
-    color: #fbf5eb;
-  }
-  .case-modal-close {
+
+  .cs-back {
+    align-self: flex-start;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 999px;
-    border: 1px solid rgb(255 255 255 / 0.2);
-    background: rgb(255 255 255 / 0.06);
-    color: #ffffff;
-    font-family: 'Kodchasan', var(--f-body);
-    font-weight: 700;
-    font-size: 13px;
+    gap: 10px;
+    padding: 6px 2px;
+    border: 0;
+    background: transparent;
+    color: rgb(243 239 232 / 0.72);
+    font: 500 14px / 1.2 var(--f-body);
     cursor: pointer;
-    transition: background 0.18s ease, border-color 0.18s ease;
+    transition: color 0.18s ease, transform 0.18s ease;
   }
-  .case-modal-close:hover {
-    background: #ff2b2b;
-    border-color: #ff2b2b;
+  .cs-back:hover {
+    color: #ffffff;
+    transform: translateX(-3px);
   }
-  .case-esc {
-    padding: 2px 6px;
-    border-radius: 6px;
-    background: rgb(0 0 0 / 0.35);
-    font-size: 10px;
-    opacity: 0.8;
-  }
-  .case-modal-body {
-    overflow-y: auto;
-    padding: 32px 28px 48px;
+
+  .cs-toc-wrap {
     display: grid;
-    gap: 36px;
+    gap: 14px;
+    margin-block: auto;
   }
-  .case-intro-grid {
+
+  .cs-proj-name {
+    margin: 0 0 4px 12px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: #f3efe8;
+    letter-spacing: -0.01em;
+  }
+
+  .cs-toc {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  .cs-toc-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    color: rgb(243 239 232 / 0.42);
+    font: 500 13.5px / 1.2 var(--f-body);
+    text-decoration: none;
+    transition:
+      color 0.18s ease,
+      border-color 0.18s ease,
+      background-color 0.18s ease;
+  }
+  .cs-toc-link:hover {
+    color: rgb(243 239 232 / 0.82);
+  }
+  .cs-toc-bar {
+    width: 14px;
+    height: 1.5px;
+    background: currentColor;
+    opacity: 0.45;
+    transition: width 0.22s ease, opacity 0.22s ease;
+  }
+  .cs-toc-link.is-active {
+    color: #ffffff;
+    border-color: rgb(243 239 232 / 0.55);
+    background: rgb(255 255 255 / 0.03);
+  }
+  .cs-toc-link.is-active .cs-toc-bar {
+    width: 24px;
+    opacity: 1;
+  }
+
+  .cs-next {
+    display: grid;
+    gap: 4px;
+    padding-left: 12px;
+    text-decoration: none;
+    color: #f3efe8;
+  }
+  .cs-next-lbl {
+    font: 600 10.5px / 1 var(--f-body);
+    letter-spacing: 0.1em;
+    color: rgb(243 239 232 / 0.42);
+  }
+  .cs-next-title {
+    font: 500 14.5px / 1.3 var(--f-body);
+    color: rgb(243 239 232 / 0.85);
+    transition: color 0.18s ease;
+  }
+  .cs-next:hover .cs-next-title {
+    color: #ff2b2b;
+  }
+
+  /* Right Scrollable Reading Area */
+  .cs-scroller {
+    height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    padding: 52px clamp(24px, 6vw, 96px) 120px;
+    box-sizing: border-box;
+  }
+
+  .cs-article {
+    width: 100%;
+    max-width: 780px;
+    margin-inline: auto;
+    display: grid;
+    gap: 72px;
+  }
+
+  .cs-sec {
+    display: grid;
+    gap: 24px;
+    scroll-margin-top: 48px;
+  }
+
+  .cs-hero-banner {
+    width: 100%;
+    aspect-ratio: 16 / 9.2;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
+    display: grid;
+    place-items: center;
+    padding: clamp(28px, 5vw, 64px);
+    box-sizing: border-box;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  }
+
+  .cs-hero-logo {
+    width: 100%;
+    max-width: 470px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .cs-h1 {
+    margin: 12px 0 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(38px, 4.6vw, 56px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+  }
+
+  .cs-subtitle {
+    margin: -6px 0 0;
+    font: 400 clamp(17px, 1.5vw, 20px) / 1.5 var(--f-body);
+    color: rgb(243 239 232 / 0.58);
+    max-width: 60ch;
+  }
+
+  /* 3-Column Meta Row: Client | Dates | Role */
+  .cs-meta-grid {
+    margin: 8px 0 12px;
+    padding-block: 22px;
+    border-top: 1px solid rgb(255 255 255 / 0.09);
+    border-bottom: 1px solid rgb(255 255 255 / 0.09);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .cs-meta-grid dt {
+    font: 500 12.5px / 1.3 var(--f-body);
+    color: rgb(243 239 232 / 0.44);
+    margin-bottom: 6px;
+  }
+  .cs-meta-grid dd {
+    margin: 0;
+    font: 500 14.5px / 1.4 var(--f-body);
+    color: rgb(243 239 232 / 0.9);
+  }
+
+  .cs-h2 {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(26px, 2.8vw, 34px);
+    line-height: 1.2;
+    color: #ffffff;
+  }
+
+  .cs-prose {
+    margin: 0;
+    font: 400 clamp(16px, 1.25vw, 18.5px) / 1.72 var(--f-body);
+    color: rgb(243 239 232 / 0.84);
+  }
+  .cs-prose strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .cs-callout-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
-    font-family: 'Kodchasan', var(--f-body);
+    gap: 18px;
+    margin-top: 6px;
   }
-  .case-intro-grid h4 {
-    margin: 0 0 8px;
-    color: #ff2b2b;
-    font-size: 18px;
-  }
-  .case-intro-grid p,
-  .case-intro-grid ul {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.5;
-    color: rgb(251 245 235 / 0.88);
-  }
-  .case-intro-grid ul {
-    padding-left: 1.2em;
-  }
-  .case-gallery {
-    display: grid;
-    gap: 28px;
-  }
-  .case-row-two {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-  }
-  .case-fig {
-    margin: 0;
-    display: grid;
-    gap: 10px;
-  }
-  .case-media {
+  .cs-callout {
+    padding: 22px 24px;
     border-radius: 16px;
-    overflow: hidden;
-    background: #1d1d1d;
+    background: rgb(255 255 255 / 0.035);
     border: 1px solid rgb(255 255 255 / 0.08);
+    display: grid;
+    gap: 8px;
   }
-  .case-media :global(picture),
-  .case-media :global(img) {
+  .cs-callout h3 {
+    margin: 0;
+    font: 700 15px / 1.3 var(--f-body);
+    color: #ff2b2b;
+  }
+  .cs-callout p {
+    margin: 0;
+    font: 400 14.5px / 1.55 var(--f-body);
+    color: rgb(243 239 232 / 0.76);
+  }
+
+  .cs-figure {
+    margin: 8px 0 0;
+    display: grid;
+    gap: 12px;
+  }
+  .cs-img-box {
+    border-radius: 18px;
+    overflow: hidden;
+    background: #1a1a1a;
+    border: 1px solid rgb(255 255 255 / 0.08);
+    box-shadow: 0 20px 48px rgb(0 0 0 / 0.4);
+  }
+  .cs-img-box :global(picture),
+  .cs-img-box :global(img) {
     display: block;
     width: 100%;
     height: auto;
   }
-  .case-fig figcaption {
-    font-family: 'Kodchasan', var(--f-body);
-    font-size: 13px;
-    color: rgb(251 245 235 / 0.65);
+  .cs-figure figcaption {
+    font: 400 13.5px / 1.45 var(--f-body);
+    color: rgb(243 239 232 / 0.5);
+  }
+
+  .cs-tools-bar {
+    margin-top: 8px;
+    padding: 22px 24px;
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.03);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .cs-tools-lbl {
+    font: 600 13px / 1 var(--f-body);
+    color: rgb(243 239 232 / 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .cs-tools-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cs-tool-pill {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    font: 400 13px / 1.2 var(--f-body);
+    color: rgb(243 239 232 / 0.88);
+  }
+  .cs-tool-pill strong {
+    color: #ff2b2b;
+    margin-right: 4px;
+  }
+
+  @media (max-width: 900px) {
+    .cs-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+    }
+    .cs-sidebar {
+      height: auto;
+      flex-direction: row;
+      align-items: center;
+      padding: 14px 20px;
+      border-right: 0;
+      border-bottom: 1px solid rgb(255 255 255 / 0.08);
+    }
+    .cs-toc-wrap {
+      display: none;
+    }
+    .cs-scroller {
+      height: calc(100dvh - 56px);
+      padding: 28px 20px 80px;
+    }
+    .cs-meta-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
   }
 </style>
