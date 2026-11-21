@@ -23,26 +23,26 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     <!-- Top Header & Overview -->
     <header class="ed-header">
       <div class="ed-title-block" data-ve-free={`${p.slug}:title-block`} data-ve-label={`${p.no} Title & Counter`}>
-        <p class="ed-counter" aria-hidden="true">
+        <p class="ed-counter" aria-hidden="true" data-reveal>
           {p.no} / {totalProjects}
         </p>
-        <h3 id={titleId} class="ed-title display">
+        <h3 id={titleId} class="ed-title display" data-reveal style="--reveal-d: 60ms">
           <span class="visually-hidden">Project {p.no}: </span>
           {p.title}
         </h3>
       </div>
 
       <div class="ed-overview" data-ve-free={`${p.slug}:overview`} data-ve-label={`${p.no} Overview`}>
-        <h4 class="ed-h4">Overview</h4>
+        <h4 class="ed-h4" data-reveal style="--reveal-d: 100ms">Overview</h4>
         {
           Array.isArray(p.description) ? (
-            <ul class="ed-bullets">
+            <ul class="ed-bullets" data-reveal style="--reveal-d: 140ms">
               {p.description.map((d) => (
                 <li>{d}</li>
               ))}
             </ul>
           ) : (
-            <p>{p.description}</p>
+            <p data-reveal style="--reveal-d: 140ms">{p.description}</p>
           )
         }
       </div>
@@ -130,15 +130,15 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     <!-- Bottom 2-Column Section: My Role & Tools & Software -->
     <footer class="ed-footer">
       <div class="ed-col" data-ve-free={`${p.slug}:my-role`} data-ve-label={`${p.no} My Role`}>
-        <h4 class="ed-h4">My Role</h4>
-        <ul class="ed-bullets">
+        <h4 class="ed-h4" data-reveal>My Role</h4>
+        <ul class="ed-bullets" data-reveal style="--reveal-d: 60ms">
           {p.role.map((r) => <li>{r}</li>)}
         </ul>
       </div>
 
       <div class="ed-col" data-ve-free={`${p.slug}:tools`} data-ve-label={`${p.no} Tools & Software`}>
-        <h4 class="ed-h4">Tools &amp; Software</h4>
-        <ul class="ed-tools" role="list" aria-label="Tools & Software">
+        <h4 class="ed-h4" data-reveal style="--reveal-d: 60ms">Tools &amp; Software</h4>
+        <ul class="ed-tools" role="list" aria-label="Tools & Software" data-reveal style="--reveal-d: 120ms">
           {
             p.tools.map((id) => (
               <li class="ed-tool-row">

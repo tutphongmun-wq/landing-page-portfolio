@@ -4,13 +4,13 @@ import ToolChips from './ToolChips.astro';
 ---
 
 <section class="exp container section" id="experience" aria-labelledby="exp-title">
-  <h2 id="exp-title" class="section-title display" style="--fit: 13.4">Experience</h2>
+  <h2 id="exp-title" class="section-title display" style="--fit: 13.4" data-reveal>Experience</h2>
 
   <div class="grid">
     <ol class="timeline" role="list">
       {
-        experience.map((job) => (
-          <li>
+        experience.map((job, i) => (
+          <li data-reveal style={`--reveal-d: ${i * 70}ms`}>
             <p class="meta">
               <span class="period">{job.period}</span>
               <span class="title">{job.title}</span>
@@ -23,7 +23,7 @@ import ToolChips from './ToolChips.astro';
     </ol>
 
     <div class="side">
-      <div class="block">
+      <div class="block" data-reveal style="--reveal-d: 60ms">
         <h3 class="block-title display" style="--fit: 11.7">Skills &amp; Tools</h3>
         <ul class="skills" role="list" aria-label="Skills">
           {skills.map((s) => <li>{s}</li>)}
@@ -31,7 +31,7 @@ import ToolChips from './ToolChips.astro';
         <ToolChips ids={profileTools} label="Software" />
       </div>
 
-      <div class="block">
+      <div class="block" data-reveal style="--reveal-d: 140ms">
         <h3 class="block-title display" style="--fit: 11.7">Education</h3>
         <ol class="timeline edu" role="list">
           {

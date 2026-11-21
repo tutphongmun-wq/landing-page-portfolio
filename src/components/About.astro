@@ -10,13 +10,13 @@ const [intro, ...rest] = profile.about;
   </div>
 
   <div class="about-body">
-    <h2 id="about-title" class="section-title display" style="--fit: 6.7">About<br />me</h2>
-    <p class="about-intro">
+    <h2 id="about-title" class="section-title display" style="--fit: 6.7" data-reveal>About<br />me</h2>
+    <p class="about-intro" data-reveal style="--reveal-d: 70ms">
       My name is <mark>{profile.fullName}</mark>, but you can call me {profile.nickname}.
     </p>
-    {rest.map((p) => <p>{p}</p>)}
+    {rest.map((p, i) => <p data-reveal style={`--reveal-d: ${130 + i * 60}ms`}>{p}</p>)}
 
-    <ul class="contact-row" role="list" aria-label="Contact">
+    <ul class="contact-row" role="list" aria-label="Contact" data-reveal style={`--reveal-d: ${130 + rest.length * 60}ms`}>
       <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
       <li><a href={contact.linkedin.href} rel="noopener" target="_blank">{contact.linkedin.label}</a></li>
       <li><a href={contact.behance.href} rel="noopener" target="_blank">{contact.behance.label}</a></li>

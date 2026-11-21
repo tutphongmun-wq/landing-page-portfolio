@@ -7,12 +7,12 @@ import ContactTopo, { contactTopoBackground } from './ContactTopo';
 <section class="contact" id="contact" aria-labelledby="contact-title" style={`--contact-bg:${contactTopoBackground}`}>
   <ContactTopo client:visible>
   <div class="container inner">
-    <h2 id="contact-title" class="display big">Let’s<br />talk</h2>
-    <p class="lead">Open to Visual, Graphic, Digital and UI / Web design roles.</p>
+    <h2 id="contact-title" class="display big" data-reveal>Let’s<br />talk</h2>
+    <p class="lead" data-reveal style="--reveal-d: 80ms">Open to Visual, Graphic, Digital and UI / Web design roles.</p>
 
-    <a class="email" href={`mailto:${contact.email}`}>{contact.email}</a>
+    <a class="email" href={`mailto:${contact.email}`} data-reveal style="--reveal-d: 140ms">{contact.email}</a>
 
-    <ul class="links" role="list">
+    <ul class="links" role="list" data-reveal style="--reveal-d: 200ms">
       <li><a href={contact.linkedin.href} rel="noopener" target="_blank">LinkedIn <span class="visually-hidden">(opens in a new tab)</span></a></li>
       <li><a href={contact.behance.href} rel="noopener" target="_blank">Behance <span class="visually-hidden">(opens in a new tab)</span></a></li>
       <li><a href={contact.github.href} rel="noopener" target="_blank">GitHub <span class="visually-hidden">(opens in a new tab)</span></a></li>

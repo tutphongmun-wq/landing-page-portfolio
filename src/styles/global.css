@@ -150,6 +150,20 @@ a {
   transform: translateY(-2px);
 }
 
+/* Scroll-triggered slide + fade-in for text blocks (progressive enhancement) */
+html.has-reveal [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition:
+    opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-d, 0ms),
+    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-d, 0ms);
+}
+html.has-reveal [data-reveal].is-in,
+html.ve-active [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

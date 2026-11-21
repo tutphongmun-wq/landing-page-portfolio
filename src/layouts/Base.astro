@@ -33,6 +33,9 @@ const ogImage = new URL(assetUrl('og.jpg'), Astro.site);
       try {
         const t = localStorage.getItem('theme');
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('has-reveal');
+        }
       } catch {}
     </script>
     <link rel="icon" href={assetUrl('favicon.svg')} type="image/svg+xml" />
@@ -54,5 +57,40 @@ const ogImage = new URL(assetUrl('og.jpg'), Astro.site);
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <slot />
+    <script>
+      if (document.documentElement.classList.contains('has-reveal')) {
+        const els = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
+        const show = (el: HTMLElement) => el.classList.add('is-in');
+
+        const flushVisible = () => {
+          const cutoff = window.innerHeight * 0.96;
+          for (const el of els) {
+            if (el.classList.contains('is-in')) continue;
+            const r = el.getBoundingClientRect();
+            if (r.top < cutoff) show(el);
+          }
+        };
+
+        if ('IntersectionObserver' in window) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                show(entry.target as HTMLElement);
+                io.unobserve(entry.target);
+              }
+            },
+            { threshold: 0.06, rootMargin: '0px 0px -36px 0px' },
+          );
+          for (const el of els) io.observe(el);
+          // Reveal anything already in or above the viewport on load or anchor jumps
+          flushVisible();
+          window.addEventListener('hashchange', () => requestAnimationFrame(flushVisible));
+          window.addEventListener('scroll', flushVisible, { passive: true });
+        } else {
+          els.forEach(show);
+        }
+      }
+    </script>
   </body>
 </html>

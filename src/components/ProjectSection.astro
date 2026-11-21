@@ -156,34 +156,36 @@ const itemKey = (it: Item) =>
             <div class="page">
             {s.intro && (
               <div class="info" data-ve-free={`${p.slug}:intro-info`} data-ve-label={`${p.no} Intro Text Column`}>
-                <p class="no display" aria-hidden="true">
+                <p class="no display" aria-hidden="true" data-reveal>
                   {p.no}
                 </p>
-                <h3 id={titleId} class="title display">
+                <h3 id={titleId} class="title display" data-reveal style="--reveal-d: 60ms">
                   <span class="visually-hidden">Project {p.no}: </span>
                   {p.title}
                 </h3>
 
-                <h4>Description</h4>
+                <h4 data-reveal style="--reveal-d: 110ms">Description</h4>
                 {Array.isArray(p.description) ? (
-                  <ul class="bullets">
+                  <ul class="bullets" data-reveal style="--reveal-d: 140ms">
                     {p.description.map((d) => (
                       <li>{d}</li>
                     ))}
                   </ul>
                 ) : (
-                  <p>{p.description}</p>
+                  <p data-reveal style="--reveal-d: 140ms">{p.description}</p>
                 )}
 
-                <h4>My Role</h4>
-                <ul class="bullets">
+                <h4 data-reveal style="--reveal-d: 180ms">My Role</h4>
+                <ul class="bullets" data-reveal style="--reveal-d: 210ms">
                   {p.role.map((r) => (
                     <li>{r}</li>
                   ))}
                 </ul>
 
-                <h4>Tools &amp; Software</h4>
-                <ToolChips ids={p.tools} />
+                <h4 data-reveal style="--reveal-d: 240ms">Tools &amp; Software</h4>
+                <div data-reveal style="--reveal-d: 270ms">
+                  <ToolChips ids={p.tools} />
+                </div>
               </div>
             )}
 
