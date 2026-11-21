@@ -168,66 +168,75 @@
     ]
   },
   "03-thumbs-masterchef": {
-    "width": 206,
-    "height": 274,
+    "width": 1080,
+    "height": 1920,
     "sizes": [
-      206
+      800,
+      1080
     ]
   },
   "03-thumbs-netflix-backstage": {
-    "width": 179,
-    "height": 97,
+    "width": 1920,
+    "height": 1080,
     "sizes": [
-      179
+      800,
+      1600
     ]
   },
   "03-thumbs-netflix-codex": {
-    "width": 206,
-    "height": 109,
+    "width": 1920,
+    "height": 1080,
     "sizes": [
-      206
+      800,
+      1600
     ]
   },
   "03-thumbs-netflix-playback": {
-    "width": 206,
-    "height": 111,
+    "width": 1920,
+    "height": 1080,
     "sizes": [
-      206
+      800,
+      1600
     ]
   },
   "03-thumbs-netflix-snow": {
-    "width": 273,
-    "height": 150,
+    "width": 1920,
+    "height": 1080,
     "sizes": [
-      273
+      800,
+      1600
     ]
   },
   "03-thumbs-netflix-whats": {
-    "width": 206,
-    "height": 109,
+    "width": 1920,
+    "height": 1080,
     "sizes": [
-      206
+      800,
+      1600
     ]
   },
   "03-thumbs-netflix-yaya": {
-    "width": 181,
-    "height": 97,
+    "width": 1920,
+    "height": 1080,
     "sizes": [
-      181
+      800,
+      1600
     ]
   },
   "03-thumbs-poster-ice": {
-    "width": 377,
-    "height": 539,
+    "width": 1080,
+    "height": 1920,
     "sizes": [
-      377
+      800,
+      1080
     ]
   },
   "03-thumbs-poster-jail": {
-    "width": 273,
-    "height": 494,
+    "width": 1080,
+    "height": 1920,
     "sizes": [
-      273
+      800,
+      1080
     ]
   },
   "04-content-binance-worldcup": {
