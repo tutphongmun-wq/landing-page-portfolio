@@ -1,0 +1,22 @@
+---
+// Preview: multi-page version. Home shows covers only; each project lives on
+// /v3/work/[slug]/. The one-page site at / stays untouched for comparison.
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import About from '../../components/About.astro';
+import WorkGrid from '../../components/WorkGrid.astro';
+import Experience from '../../components/Experience.astro';
+import Contact from '../../components/Contact.astro';
+import StickyNav from '../../components/StickyNav.astro';
+---
+
+<Base>
+  <StickyNav />
+  <Hero />
+  <main id="main">
+    <WorkGrid />
+    <About />
+    <Experience />
+    <Contact />
+  </main>
+</Base>
