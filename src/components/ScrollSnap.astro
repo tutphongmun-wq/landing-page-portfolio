@@ -1,48 +1,110 @@
 ---
-// Magnetic Smart Scroll Snap (Option 1B + 2: Project Heads only):
-//   - Desktop only (>= 1200px), respects prefers-reduced-motion, Design Mode,
-//     open dialogs/lightboxes, and interactive 3D / Festival Map hover.
-//   - Snap targets: Hero (#top), Selected Work (#work), Project 01–07 heads
-//     (article.project), About (#about), Experience (#experience), Contact (#contact).
-//   - Behaviour:
-//       1) Free scrolling inside any section / project (so multi-slide projects
-//          like 01 K2O, 02, 06, 07 can be read naturally).
-//       2) Magnetic attraction after scroll idle (~150ms): when the viewport
-//          settles within the capture zone of a section/project head, smoothly
-//          pulls the head into frame.
-//       3) Boundary handoff: a short wheel/trackpad flick while already aligned
-//          at the top of a section (scrolling up) or bottom of a section
-//          (scrolling down) glides directly to the adjacent section head.
-//       4) Keyboard PageDown / PageUp (or Alt + ArrowDown / ArrowUp) steps
-//          cleanly between section heads.
+// Smooth Inertia / Damping Scroll (Lenis-style lerp) + Magnetic Project-Head Snap:
+//   - Desktop (>= 1200px), respects prefers-reduced-motion, Design Mode,
+//     open dialogs/lightboxes, and interactive 3D / Festival Map / Carousel areas.
+//   - Physics:
+//       targetY += wheelDelta * wheelMultiplier
+//       currentY = damp(currentY, targetY, lerp, dt)   (frame-rate independent 60/120Hz)
+//   - Presets (switchable live via bottom-left pill or Shift+S):
+//       1) Light   (lerp 0.14,  wheel 1.00)
+//       2) Studio  (lerp 0.085, wheel 0.85)  <- Default (Worachet / Awwwards feel)
+//       3) Heavy   (lerp 0.055, wheel 0.75)
+//       4) Off     (native browser scroll)
 ---
+
+<div class="scroll-tuner" data-scroll-tuner aria-label="Scroll feel presets">
+  <span class="st-label">Scroll Weight</span>
+  <div class="st-group" role="group" aria-label="Inertia level">
+    <button type="button" class="st-btn" data-preset="light" title="Light inertia (lerp 0.14)">Light</button>
+    <button type="button" class="st-btn is-active" data-preset="studio" title="Studio / Worachet feel (lerp 0.085, weight 0.85)">Studio</button>
+    <button type="button" class="st-btn" data-preset="heavy" title="Heavy editorial inertia (lerp 0.055, weight 0.75)">Heavy</button>
+    <button type="button" class="st-btn" data-preset="off" title="Native browser scroll">Off</button>
+  </div>
+  <button type="button" class="st-snap is-on" data-snap-toggle title="Toggle magnetic snap on project heads">
+    Magnet: ON
+  </button>
+</div>
 
 <script>
   const SNAP_SELECTOR = '#top, #work, article.project, #about, #experience, #contact';
   const desktopMq = window.matchMedia('(min-width: 1200px)');
   const reducedMq = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  type PresetKey = 'light' | 'studio' | 'heavy' | 'off';
+  const PRESETS: Record<PresetKey, { lerp: number; wheel: number }> = {
+    light: { lerp: 0.14, wheel: 1.0 },
+    studio: { lerp: 0.085, wheel: 0.85 },
+    heavy: { lerp: 0.055, wheel: 0.75 },
+    off: { lerp: 1, wheel: 1 },
+  };
+
+  let activePreset: PresetKey = 'studio';
+  let magnetEnabled = true;
+
+  try {
+    const saved = localStorage.getItem('pun_scroll_preset') as PresetKey | null;
+    if (saved && saved in PRESETS) activePreset = saved;
+    const savedMag = localStorage.getItem('pun_scroll_magnet');
+    if (savedMag === '0') magnetEnabled = false;
+  } catch {}
+
+  const tuner = document.querySelector<HTMLElement>('[data-scroll-tuner]');
+  const presetBtns = tuner ? [...tuner.querySelectorAll<HTMLButtonElement>('[data-preset]')] : [];
+  const snapBtn = tuner?.querySelector<HTMLButtonElement>('[data-snap-toggle]');
+
+  function syncTunerUI() {
+    for (const btn of presetBtns) {
+      btn.classList.toggle('is-active', btn.dataset.preset === activePreset);
+    }
+    if (snapBtn) {
+      snapBtn.classList.toggle('is-on', magnetEnabled);
+      snapBtn.textContent = magnetEnabled ? 'Magnet: ON' : 'Magnet: OFF';
+    }
+  }
+  syncTunerUI();
+
+  presetBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.preset as PresetKey;
+      if (!p || !(p in PRESETS)) return;
+      activePreset = p;
+      currentY = window.scrollY;
+      targetY = window.scrollY;
+      try {
+        localStorage.setItem('pun_scroll_preset', p);
+      } catch {}
+      syncTunerUI();
+    });
+  });
+
+  snapBtn?.addEventListener('click', () => {
+    magnetEnabled = !magnetEnabled;
+    try {
+      localStorage.setItem('pun_scroll_magnet', magnetEnabled ? '1' : '0');
+    } catch {}
+    syncTunerUI();
+  });
+
   const getTargets = (): HTMLElement[] =>
     [...document.querySelectorAll<HTMLElement>(SNAP_SELECTOR)].filter((el) => el.offsetParent !== null);
 
-  let animFrame = 0;
+  let currentY = window.scrollY;
+  let targetY = window.scrollY;
+  let rafId = 0;
+  let lastFrameTime = 0;
   let idleTimer = 0;
-  let suppressUntil = 0;
   let lastWheelDir = 0;
-  let lastWheelAt = 0;
+  let suppressMagnetUntil = 0;
+
+  function maxScrollY(): number {
+    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  }
 
   function isBlocked(): boolean {
     if (!desktopMq.matches || reducedMq.matches) return true;
     if (document.documentElement.classList.contains('ve-active')) return true;
     if (document.querySelector('dialog[open]')) return true;
     return false;
-  }
-
-  function cancelAnim() {
-    if (animFrame) {
-      cancelAnimationFrame(animFrame);
-      animFrame = 0;
-    }
   }
 
   function clearIdle() {
@@ -52,136 +114,199 @@
     }
   }
 
-  // Custom cubic-out glide (cancels immediately if user touches wheel/keys)
-  function glideTo(targetY: number, duration = 460) {
-    cancelAnim();
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    const dest = Math.max(0, Math.min(maxScroll, Math.round(targetY)));
-    const startY = window.scrollY;
-    const delta = dest - startY;
-    if (Math.abs(delta) < 2) return;
-
-    const t0 = performance.now();
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
-    function step(now: number) {
-      const p = Math.min(1, (now - t0) / duration);
-      const y = startY + delta * easeOutCubic(p);
-      window.scrollTo({ top: y, behavior: 'instant' as ScrollBehavior });
-      if (p < 1) {
-        animFrame = requestAnimationFrame(step);
-      } else {
-        animFrame = 0;
-        suppressUntil = performance.now() + 180;
-      }
+  function stopLoop() {
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
     }
-    animFrame = requestAnimationFrame(step);
   }
 
-  // Evaluate whether the viewport is resting near a section/project head
+  // Frame-rate independent exponential damping (normalized to 60fps frames)
+  function damp(curr: number, dest: number, lerpFactor: number, dtMs: number): number {
+    const frames = Math.min(4, Math.max(0.25, dtMs / 16.667));
+    const alpha = 1 - Math.pow(1 - lerpFactor, frames);
+    return curr + (dest - curr) * alpha;
+  }
+
+  function tick(now: number) {
+    if (isBlocked() || activePreset === 'off') {
+      rafId = 0;
+      return;
+    }
+
+    const dt = lastFrameTime ? now - lastFrameTime : 16.667;
+    lastFrameTime = now;
+
+    const max = maxScrollY();
+    targetY = Math.max(0, Math.min(max, targetY));
+
+    const { lerp } = PRESETS[activePreset];
+    currentY = damp(currentY, targetY, lerp, dt);
+
+    if (Math.abs(targetY - currentY) > 0.35) {
+      window.scrollTo({ top: currentY, behavior: 'instant' as ScrollBehavior });
+      rafId = requestAnimationFrame(tick);
+    } else {
+      currentY = targetY;
+      window.scrollTo({ top: targetY, behavior: 'instant' as ScrollBehavior });
+      rafId = 0;
+    }
+  }
+
+  function startLoop() {
+    if (!rafId) {
+      lastFrameTime = performance.now();
+      rafId = requestAnimationFrame(tick);
+    }
+  }
+
+  // Normalize wheel delta across mouse wheels (line mode) and trackpads (pixel mode)
+  function normalizeWheelDelta(e: WheelEvent): number {
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 36; // DOM_DELTA_LINE
+    else if (e.deltaMode === 2) dy *= window.innerHeight * 0.85; // DOM_DELTA_PAGE
+    // Clamp extreme single-event spikes
+    return Math.max(-260, Math.min(260, dy));
+  }
+
+  // Magnetic settle: shifts targetY to the nearest section/project head after wheel idle
   function magneticSettle() {
-    if (isBlocked() || animFrame) return;
-    if (performance.now() < suppressUntil) return;
+    if (isBlocked() || !magnetEnabled) return;
+    if (performance.now() < suppressMagnetUntil) return;
 
     const vh = window.innerHeight;
     const targets = getTargets();
     if (!targets.length) return;
 
-    // Asymmetric capture band depending on scroll direction:
-    //   scrolling down -> pull in an approaching head up to 34% down the screen,
-    //                     or pull back if only slightly past a head (14% above)
-    //   scrolling up   -> pull in a head above up to 30% above top, or 22% below
+    // Evaluate relative to where the inertia scroll is heading (targetY),
+    // not just where currentY happens to be mid-glide.
     const downBandBottom = vh * 0.34;
     const downBandTop = -vh * 0.14;
     const upBandTop = -vh * 0.30;
     const upBandBottom = vh * 0.22;
 
-    let bestEl: HTMLElement | null = null;
+    let bestOffset = 0;
     let bestDist = Infinity;
 
     for (const el of targets) {
-      const rect = el.getBoundingClientRect();
-      const top = rect.top;
+      const elAbsTop = window.scrollY + el.getBoundingClientRect().top;
+      const topAtTarget = elAbsTop - targetY;
       const inBand =
         lastWheelDir >= 0
-          ? top >= downBandTop && top <= downBandBottom
-          : top >= upBandTop && top <= upBandBottom;
+          ? topAtTarget >= downBandTop && topAtTarget <= downBandBottom
+          : topAtTarget >= upBandTop && topAtTarget <= upBandBottom;
 
       if (inBand) {
-        const dist = Math.abs(top);
+        const dist = Math.abs(topAtTarget);
         if (dist < bestDist) {
           bestDist = dist;
-          bestEl = el;
+          bestOffset = elAbsTop;
         }
       }
     }
 
-    // Only glide if not already aligned within 3px
-    if (bestEl && bestDist > 3) {
-      const targetY = window.scrollY + bestEl.getBoundingClientRect().top;
-      // Scale duration subtly with distance (280ms – 480ms)
-      const dur = Math.min(480, Math.max(280, Math.round(240 + bestDist * 0.75)));
-      glideTo(targetY, dur);
+    if (bestDist < Infinity && bestDist > 2) {
+      targetY = Math.max(0, Math.min(maxScrollY(), Math.round(bestOffset)));
+      if (activePreset === 'off') {
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      } else {
+        startLoop();
+      }
     }
   }
 
-  // Pause magnetic pull while user is interacting with anchor links
+  // Intercept wheel on desktop for weighted inertia scrolling
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      if (isBlocked() || activePreset === 'off') {
+        if (!isBlocked() && magnetEnabled) {
+          if (Math.abs(e.deltaY) > 1) lastWheelDir = e.deltaY > 0 ? 1 : -1;
+          clearIdle();
+          idleTimer = window.setTimeout(magneticSettle, 160);
+        }
+        return;
+      }
+
+      // Allow browser zoom or horizontal trackpad swipe
+      if (e.ctrlKey || e.metaKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+
+      const target = e.target;
+      if (
+        target instanceof Element &&
+        target.closest('[data-model-slot], [data-fmap], [data-ed-viewport], [data-scroll-tuner]')
+      ) {
+        return;
+      }
+
+      e.preventDefault();
+
+      // Sync with actual scroll position if user dragged the native scrollbar
+      if (!rafId) {
+        currentY = window.scrollY;
+        targetY = window.scrollY;
+      }
+
+      const raw = normalizeWheelDelta(e);
+      const { wheel } = PRESETS[activePreset];
+      targetY = Math.max(0, Math.min(maxScrollY(), targetY + raw * wheel));
+
+      if (Math.abs(raw) > 0.5) {
+        lastWheelDir = raw > 0 ? 1 : -1;
+      }
+
+      startLoop();
+      clearIdle();
+      idleTimer = window.setTimeout(magneticSettle, 170);
+    },
+    { passive: false },
+  );
+
+  // Keep currentY / targetY in sync when user drags scrollbar or uses native scroll
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!rafId) {
+        currentY = window.scrollY;
+        targetY = window.scrollY;
+      }
+    },
+    { passive: true },
+  );
+
+  // Smoothly animate anchor clicks (#work, #k2o, #about, etc.) through the same inertia engine
   document.addEventListener(
     'click',
     (e) => {
       const target = e.target;
       const a = target instanceof Element ? target.closest<HTMLAnchorElement>('a[href*="#"]') : null;
-      if (a) {
-        cancelAnim();
+      if (!a) return;
+
+      const hashIdx = a.href.indexOf('#');
+      if (hashIdx === -1) return;
+      const hash = a.href.slice(hashIdx);
+      if (!hash || hash === '#') return;
+
+      const destEl = document.querySelector<HTMLElement>(hash);
+      if (!destEl || isBlocked() || activePreset === 'off') {
+        stopLoop();
         clearIdle();
-        suppressUntil = performance.now() + 950;
+        suppressMagnetUntil = performance.now() + 950;
+        return;
       }
+
+      e.preventDefault();
+      clearIdle();
+      suppressMagnetUntil = performance.now() + 900;
+      if (!rafId) currentY = window.scrollY;
+      targetY = Math.max(0, Math.min(maxScrollY(), Math.round(window.scrollY + destEl.getBoundingClientRect().top)));
+      history.pushState(null, '', hash);
+      startLoop();
     },
     true,
   );
 
-  window.addEventListener(
-    'wheel',
-    (e) => {
-      if (isBlocked()) return;
-      // Ignore horizontal trackpad swipes (e.g. 05 Infographic carousel) or zoom gestures
-      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-
-      // Don't interfere when hovering over interactive 3D viewer or Festival Map canvas
-      const target = e.target;
-      if (target instanceof Element && target.closest('[data-model-slot], [data-fmap], [data-ed-viewport]')) {
-        cancelAnim();
-        clearIdle();
-        return;
-      }
-
-      // Any manual wheel input cancels an in-flight magnetic glide so user stays in control
-      if (animFrame) cancelAnim();
-
-      if (Math.abs(e.deltaY) > 1) {
-        lastWheelDir = e.deltaY > 0 ? 1 : -1;
-        lastWheelAt = performance.now();
-      }
-
-      clearIdle();
-      idleTimer = window.setTimeout(magneticSettle, 150);
-    },
-    { passive: true },
-  );
-
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (isBlocked() || animFrame) return;
-      // Only arm magnetic settle if the scroll came from recent wheel input
-      if (performance.now() - lastWheelAt > 400) return;
-      clearIdle();
-      idleTimer = window.setTimeout(magneticSettle, 150);
-    },
-    { passive: true },
-  );
-
-  // Optional keyboard stepping: PageDown / PageUp or Alt + ArrowDown / ArrowUp
+  // Keyboard stepping: PageDown / PageUp or Alt + ArrowDown / ArrowUp
   window.addEventListener('keydown', (e) => {
     if (isBlocked()) return;
     const tag = (e.target as HTMLElement | null)?.tagName;
@@ -194,20 +319,93 @@
     const targets = getTargets();
     if (!targets.length) return;
 
+    const refY = rafId ? targetY : window.scrollY;
     if (isNext) {
-      const next = targets.find((el) => el.getBoundingClientRect().top > 24);
+      const next = targets.find((el) => window.scrollY + el.getBoundingClientRect().top - refY > 24);
       if (next) {
         e.preventDefault();
         clearIdle();
-        glideTo(window.scrollY + next.getBoundingClientRect().top, 460);
+        if (!rafId) currentY = window.scrollY;
+        targetY = Math.round(window.scrollY + next.getBoundingClientRect().top);
+        startLoop();
       }
     } else {
-      const prev = [...targets].reverse().find((el) => el.getBoundingClientRect().top < -24);
+      const prev = [...targets].reverse().find((el) => window.scrollY + el.getBoundingClientRect().top - refY < -24);
       if (prev) {
         e.preventDefault();
         clearIdle();
-        glideTo(window.scrollY + prev.getBoundingClientRect().top, 460);
+        if (!rafId) currentY = window.scrollY;
+        targetY = Math.round(window.scrollY + prev.getBoundingClientRect().top);
+        startLoop();
       }
     }
   });
 </script>
+
+<style>
+  .scroll-tuner {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 90;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgb(18 18 18 / 0.84);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 8px 24px rgb(0 0 0 / 0.25),
+      inset 0 0 0 1px rgb(255 255 255 / 0.14);
+    color: #f2f2f2;
+    font: 600 11px / 1 var(--f-body);
+    user-select: none;
+  }
+  @media (min-width: 1200px) {
+    .scroll-tuner {
+      display: inline-flex;
+    }
+  }
+  :global(html.ve-active) .scroll-tuner {
+    display: none;
+  }
+  .st-label {
+    color: rgb(255 255 255 / 0.65);
+    padding-left: 4px;
+    letter-spacing: 0.03em;
+  }
+  .st-group {
+    display: inline-flex;
+    gap: 3px;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+  }
+  .st-btn,
+  .st-snap {
+    border: 0;
+    border-radius: 999px;
+    padding: 5px 9px;
+    background: transparent;
+    color: rgb(255 255 255 / 0.72);
+    font: 600 11px / 1 var(--f-body);
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease;
+  }
+  .st-btn:hover,
+  .st-snap:hover {
+    color: #ffffff;
+  }
+  .st-btn.is-active {
+    background: #e8222b;
+    color: #ffffff;
+  }
+  .st-snap {
+    background: rgb(255 255 255 / 0.08);
+  }
+  .st-snap.is-on {
+    background: rgb(255 255 255 / 0.18);
+    color: #ffffff;
+  }
+</style>
