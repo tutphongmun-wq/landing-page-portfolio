@@ -997,7 +997,7 @@ const sections = [
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
-    padding: 48px 0 120px;
+    padding: 0 0 120px;
     box-sizing: border-box;
   }
 
@@ -1021,6 +1021,9 @@ const sections = [
     display: grid;
     gap: 24px;
     scroll-margin-top: 48px;
+  }
+  .cs-sec-overview {
+    scroll-margin-top: 0;
   }
 
   /* Left-aligned 720px text column centered inside the 864px media frame */
@@ -1430,7 +1433,7 @@ const sections = [
     }
     .cs-scroller {
       height: calc(100dvh - 56px);
-      padding: 28px 0 80px;
+      padding: 0 0 80px;
     }
     .cs-pad,
     .cs-article {
