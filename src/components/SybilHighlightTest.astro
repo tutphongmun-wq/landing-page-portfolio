@@ -991,6 +991,7 @@ const sections = [
 
   /* Right Scrollable Reading Area */
   .cs-scroller {
+    container-type: inline-size;
     height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1070,9 +1071,11 @@ const sections = [
   }
 
   .cs-hero-banner {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 20px;
+    width: calc(100cqw + 120px);
+    height: 486px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    border-radius: 0;
     background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
     display: grid;
     place-items: center;
@@ -1422,6 +1425,10 @@ const sections = [
     .cs-scroller {
       height: calc(100dvh - 56px);
       padding: 28px 20px 80px;
+    }
+    .cs-hero-banner {
+      width: calc(100cqw + 40px);
+      height: clamp(240px, 56vw, 486px);
     }
     .cs-meta-grid {
       grid-template-columns: 1fr;
