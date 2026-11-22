@@ -783,19 +783,19 @@ const sections = [
     color: #ff3838;
   }
 
-  /* Right Scrollable Reading Area */
+  /* Right Scrollable Reading Area (60px outer margin matching main Work page) */
   .cs-scroller {
     height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
-    padding: 48px clamp(24px, 6vw, 96px) 120px;
+    padding: 48px 60px 120px;
     box-sizing: border-box;
   }
 
   .cs-article {
     width: 100%;
-    max-width: 780px;
+    max-width: 1056px;
     margin-inline: auto;
     display: grid;
     gap: 72px;
@@ -807,10 +807,23 @@ const sections = [
     scroll-margin-top: 48px;
   }
 
+  /* Editorial Breakout: text stays at comfortable ~720px measure while media spans full 1056px */
+  .cs-h1,
+  .cs-subtitle,
+  .cs-meta-grid,
+  .cs-h2,
+  .cs-prose,
+  .cs-callout-grid,
+  .cs-tools-bar,
+  .cs-figure figcaption {
+    width: 100%;
+    max-width: 720px;
+  }
+
   .cs-hero-banner {
     width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 20px;
+    aspect-ratio: 16 / 8.8;
+    border-radius: 24px;
     background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
     display: grid;
     place-items: center;
@@ -821,7 +834,7 @@ const sections = [
 
   .cs-hero-logo {
     width: 100%;
-    max-width: 468px;
+    max-width: 560px;
     height: auto;
     object-fit: contain;
   }
@@ -840,7 +853,6 @@ const sections = [
     margin: -8px 0 0;
     font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-body);
     color: #aaa398;
-    max-width: 60ch;
   }
 
   /* 3-Column Meta Row: Client | Dates | Role */
@@ -915,7 +927,7 @@ const sections = [
     gap: 12px;
   }
   .cs-img-box {
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
     background: #1c1a18;
     border: 1px solid rgb(239 233 222 / 0.08);
@@ -943,6 +955,7 @@ const sections = [
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+    box-sizing: border-box;
   }
   .cs-tools-lbl {
     font: 600 13px / 1 var(--f-body);
