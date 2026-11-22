@@ -432,6 +432,22 @@
       278
     ]
   },
+  "07-sybil-bg-day": {
+    "width": 1920,
+    "height": 1080,
+    "sizes": [
+      800,
+      1600
+    ]
+  },
+  "07-sybil-bg-night": {
+    "width": 1920,
+    "height": 1080,
+    "sizes": [
+      800,
+      1600
+    ]
+  },
   "07-sybil-environment": {
     "width": 368,
     "height": 307,

@@ -1,7 +1,10 @@
 ---
 // Highlight showcase ("07 SYBIL HUSKY") + Full-Screen Editorial Case Study Reader (#read-sybil-husky)
-// Polished under unslop Light/Polish Mode: 4px spacing scale, unified site typography,
-// warm studio dark ramp with 8% hairlines, and real project copy.
+// Option 3 integration with Punmetal/sybil-husky:
+//   - Authentic 1920x1080 Day & Night world illustrations (interactive toggle)
+//   - Real character portraits & NFT Mint Tier specs from src/data/content.ts
+//   - Live interactive Next.js website embed (https://sybil-husky.vercel.app) scaled to 1920px desktop
+//   - 864px media (+20% wider than the centered, left-aligned 720px text column)
 import Picture from './Picture.astro';
 import { assetUrl } from '../lib/media';
 import { projects } from '../data/projects';
@@ -10,29 +13,69 @@ import { tools } from '../data/site';
 const sybil = projects.find((p) => p.slug === 'sybil-husky')!;
 const k2o = projects.find((p) => p.slug === 'k2o')!;
 const logoMarkSrc = assetUrl('media/07-sybil-logo-mark.webp');
+const LIVE_URL = 'https://sybil-husky.vercel.app';
 
 const overviewText =
-  'A fantasy-inspired visual identity and collectible card system for Sybil Husky. Blending Arctic folklore with clean vector craft, the project spans a minimal husky mark, six progression tiers, northern-lights world art, and a responsive landing page.';
+  'A fantasy-inspired visual identity, character collection, and Web3 airdrop farming landing page for Sybil Husky. Blending Arctic folklore with approachable product design, the project pairs minimal vector branding and six character tiers with a dual Day/Night Next.js web experience.';
 
 const roleBullets = [
-  'Visual identity, logo mark, and overall art direction.',
-  'Character design across six collectible rarity tiers.',
-  'Northern-lights fantasy environment illustration.',
-  'Landing page UI layout and responsive web assets.',
+  'Visual identity, husky emblem mark, and overall art direction.',
+  'Character illustrations across rarity tiers and Baby Husky editions.',
+  'Dual Day (Sunrise) & Night (Aurora) Arctic citadel key artwork.',
+  'Full 1920px landing page UI including Mint Tier & Airdrop Estimator flows.',
 ];
 
 const challengeBullets = [
-  'Keep the mascot silhouette legible from 24px avatars up to hero banners.',
-  'Build clear rarity distinction across six tiers while sharing one base anatomy.',
-  'Connect rich fantasy illustration with a clean, scannable landing page.',
+  'Turn complex crypto airdrop farming & rune-multiplier math into an approachable narrative.',
+  'Design two complete world atmospheres (Day & Night) while keeping UI readability sharp.',
+  'Maintain character silhouette consistency across six collectible rarity tiers.',
+];
+
+const mintTiers = [
+  {
+    badge: 'Tier 01 · Apprentice',
+    title: 'Siberian Apprentice',
+    img: assetUrl('media/07-sybil-char-apprentice.webp'),
+    stats: '100 Runes · $100 · Base Tier',
+  },
+  {
+    badge: 'Tier 02 · Mage',
+    title: 'Siberian Mage',
+    img: assetUrl('media/07-sybil-char-mage.webp'),
+    stats: 'Bonus Frost Gear · Companion',
+  },
+  {
+    badge: 'Tier 03 · Sorcerer',
+    title: 'Siberian Sorcerer',
+    img: assetUrl('media/07-sybil-char-sorcerer.webp'),
+    stats: '660 Runes · $600 · +10% Bonus',
+  },
+  {
+    badge: 'Tier 04 · Supreme',
+    title: 'Siberian Supreme',
+    img: assetUrl('media/07-sybil-char-supreme.webp'),
+    stats: '1,820 Runes · $1,400 · +30% Bonus',
+  },
+  {
+    badge: 'Edition · Baby 01',
+    title: 'Baby Husky (Frost)',
+    img: assetUrl('media/07-sybil-char-baby1.webp'),
+    stats: 'Special Community Edition',
+  },
+  {
+    badge: 'Edition · Baby 02',
+    title: 'Baby Husky (Ember)',
+    img: assetUrl('media/07-sybil-char-baby2.webp'),
+    stats: 'Special Community Edition',
+  },
 ];
 
 const sections = [
   { id: 'cs-overview', label: 'Overview' },
   { id: 'cs-challenge', label: 'The challenge' },
   { id: 'cs-world', label: 'World & environment' },
-  { id: 'cs-tiers', label: 'Character tiers' },
-  { id: 'cs-landing', label: 'Landing page UI' },
+  { id: 'cs-tiers', label: 'Character & NFT tiers' },
+  { id: 'cs-landing', label: 'Live landing page' },
   { id: 'cs-outcome', label: 'Outcome' },
 ];
 ---
@@ -141,10 +184,16 @@ const sections = [
           </nav>
         </div>
 
-        <a href="#k2o" class="cs-next" data-cs-next="#k2o">
-          <span class="cs-next-lbl">Next project</span>
-          <span class="cs-next-title">{k2o.spine.label} <span aria-hidden="true">→</span></span>
-        </a>
+        <div class="cs-side-foot">
+          <a href={LIVE_URL} rel="noopener" target="_blank" class="cs-live-pill">
+            <span>Visit live site</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a href="#k2o" class="cs-next" data-cs-next="#k2o">
+            <span class="cs-next-lbl">Next project</span>
+            <span class="cs-next-title">{k2o.spine.label} <span aria-hidden="true">→</span></span>
+          </a>
+        </div>
       </aside>
 
       <!-- Right Scrollable Editorial Reading Column -->
@@ -164,17 +213,17 @@ const sections = [
 
             <h1 id="cs-main-title" class="cs-h1">Sybil Husky</h1>
             <p class="cs-subtitle">
-              A fantasy-inspired Web3 brand identity, six-tier collectible character system, northern-lights world illustration, and interactive landing page UI.
+              A Web3 NFT collectible brand and airdrop farming platform built around Arctic folklore—spanning vector branding, tiered husky companions, dual Day/Night worlds, and a shipped Next.js website.
             </p>
 
             <dl class="cs-meta-grid">
               <div>
                 <dt>Client</dt>
-                <dd>Sybil Husky Collective</dd>
+                <dd>SybilHusky Collective</dd>
               </div>
               <div>
-                <dt>Dates</dt>
-                <dd>2024 — Digital &amp; Web3 Release</dd>
+                <dt>Stack &amp; Delivery</dt>
+                <dd>Figma → Next.js 16 + React</dd>
               </div>
               <div>
                 <dt>Role</dt>
@@ -183,7 +232,7 @@ const sections = [
             </dl>
 
             <p class="cs-prose">
-              Sybil Husky is a character-driven digital project blending mystical Arctic folklore with a clean, modern collectible card identity. I led the visual direction from the core geometric husky emblem through to the six progression tiers, environmental key art, and the responsive web interface.
+              In the wintry landscapes of the crypto world, SybilHusky reimagines cryptocurrency airdrop farming through loyal husky companions. Collectors mint tiered SybilHusky NFTs—unlocking higher rune multipliers and greater shares of farming rewards as their pack levels up.
             </p>
           </section>
 
@@ -191,48 +240,70 @@ const sections = [
           <section id="cs-challenge" class="cs-sec" data-cs-section>
             <h2 class="cs-h2">The challenge</h2>
             <p class="cs-prose">
-              Most character collectible projects suffer from visual clutter—overly complex mascots that lose legibility at small avatar sizes, paired with generic dark-mode landing pages that feel disconnected from the artwork.
+              DeFi and airdrop farming tools often intimidate newcomers with dense spreadsheets and generic dark dashboards. Meanwhile, many NFT projects rely on cluttered mascots that break down at small UI sizes.
             </p>
             <p class="cs-prose">
-              Our goal was to establish an immediately recognizable silhouette that works both as a minimal monochrome mark and as the foundation for six distinct RPG-inspired character classes, while keeping the website navigation intuitive for first-time visitors.
+              The design challenge was twofold: craft an iconic, minimal husky emblem that scales cleanly from favicon to hero banner, and wrap real utility—<strong>Mint Tier selection</strong>, <strong>38-month Airdrop Estimator math</strong>, and <strong>FAQ onboarding</strong>—inside an inviting storybook world.
             </p>
 
             <div class="cs-callout-grid">
               <div class="cs-callout">
-                <h3>01 · Recognizable silhouette</h3>
-                <p>Built the logo mark from sharp crescent curves so the husky ear-and-muzzle profile stays legible from a 24px favicon up to billboard scale.</p>
+                <h3>01 · Approachable Web3 utility</h3>
+                <p>Replaced abstract APY tables with interactive tier cards, rune counts, and a draggable duration slider showing exact reward projections.</p>
               </div>
               <div class="cs-callout">
-                <h3>02 · Cohesive tier progression</h3>
-                <p>Designed a clear visual hierarchy across six rarity tiers so collectors can tell an Apprentice from a Super Special card at a glance.</p>
+                <h3>02 · Seamless Day &amp; Night worlds</h3>
+                <p>Designed matching sunrise and aurora landscapes so switching Light/Dark theme transforms the entire Arctic scene, not just text colors.</p>
               </div>
             </div>
           </section>
 
-          <!-- Section 3: World & Environment -->
+          <!-- Section 3: World & Environment (Interactive Day/Night Switcher) -->
           <section id="cs-world" class="cs-sec" data-cs-section>
-            <h2 class="cs-h2">World &amp; environment</h2>
+            <div class="cs-sec-head-row">
+              <h2 class="cs-h2">World &amp; environment</h2>
+              <div class="cs-seg" role="group" aria-label="Switch environment lighting">
+                <button type="button" class="cs-seg-btn is-active" data-world-mode="night">
+                  Night · Aurora
+                </button>
+                <button type="button" class="cs-seg-btn" data-world-mode="day">
+                  Day · Sunrise
+                </button>
+              </div>
+            </div>
+
             <p class="cs-prose">
-              To ground the characters in a memorable setting, I illustrated an Arctic mountain citadel beneath ribbons of aurora borealis. The cool cyan-to-cobalt palette provides high contrast against the warm gold and crimson accents of the higher-tier character cards.
+              Full-bleed <code>1920×1080</code> illustrated landscapes anchor the top hero and theme switcher on the live site—transitioning between crisp golden alpine sunrise and glowing northern-lights twilight.
             </p>
 
             <figure class="cs-figure">
-              <div class="cs-img-box">
-                <Picture
-                  name="07-sybil-environment"
-                  alt="Illustrated snowy mountain landscape with a castle under the northern lights"
-                  sizes="(min-width: 900px) 780px, 92vw"
-                />
+              <div class="cs-world-stage" data-world-stage="night">
+                <div class="cs-world-layer is-night">
+                  <Picture
+                    name="07-sybil-bg-night"
+                    alt="Sybil Husky night landscape with Arctic citadel under northern lights"
+                    sizes="(min-width: 900px) 864px, 92vw"
+                  />
+                </div>
+                <div class="cs-world-layer is-day">
+                  <Picture
+                    name="07-sybil-bg-day"
+                    alt="Sybil Husky day landscape with pastel sunrise behind snowy peaks and castle"
+                    sizes="(min-width: 900px) 864px, 92vw"
+                  />
+                </div>
               </div>
-              <figcaption>Environmental key visual — Northern lights citadel and layered alpine terrain.</figcaption>
+              <figcaption data-world-caption>
+                Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.
+              </figcaption>
             </figure>
           </section>
 
-          <!-- Section 4: Character Tiers -->
+          <!-- Section 4: Character & NFT Tiers -->
           <section id="cs-tiers" class="cs-sec" data-cs-section>
-            <h2 class="cs-h2">Character tiers</h2>
+            <h2 class="cs-h2">Character &amp; NFT tiers</h2>
             <p class="cs-prose">
-              Every character shares the same base husky anatomy for brand consistency, while costume design, lighting effects, and card frame colors escalate across six tiers: <strong>Apprentice</strong>, <strong>Mage</strong>, <strong>Sorcerer</strong>, <strong>Supreme</strong>, <strong>Special</strong>, and <strong>Super Special</strong>.
+              Each collectible starts from the same geometric husky silhouette and escalates through costume accessories, magical aura, and rune economics—from <strong>Tier 1 Apprentice / Mage</strong> (100 Runes) up to <strong>Tier 3 Supreme</strong> (1,820 Runes, +30% bonus).
             </p>
 
             <figure class="cs-figure">
@@ -240,37 +311,89 @@ const sections = [
                 <Picture
                   name="07-sybil-tiers"
                   alt="Six husky character cards: Apprentice, Mage, Sorcerer, Supreme, Special, Super Special"
-                  sizes="(min-width: 900px) 780px, 92vw"
+                  sizes="(min-width: 900px) 864px, 92vw"
                 />
               </div>
-              <figcaption>The six collectible tiers — progressing from everyday winter gear to arcane cosmic regalia.</figcaption>
+              <figcaption>Full 6-tier collectible progression banner.</figcaption>
             </figure>
+
+            <div class="cs-char-grid" role="list" aria-label="Character tier portraits">
+              {
+                mintTiers.map((c) => (
+                  <div class="cs-char-card" role="listitem">
+                    <div class="cs-char-thumb">
+                      <img src={c.img} width="300" height="300" alt={c.title} loading="lazy" decoding="async" />
+                    </div>
+                    <div class="cs-char-meta">
+                      <span class="cs-char-badge">{c.badge}</span>
+                      <strong>{c.title}</strong>
+                      <span class="cs-char-stats">{c.stats}</span>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
           </section>
 
-          <!-- Section 5: Landing Page UI -->
+          <!-- Section 5: Live Interactive Landing Page -->
           <section id="cs-landing" class="cs-sec" data-cs-section>
-            <h2 class="cs-h2">Landing page UI</h2>
+            <div class="cs-sec-head-row">
+              <h2 class="cs-h2">Live landing page UI</h2>
+              <div class="cs-seg" role="group" aria-label="Landing page view mode">
+                <button type="button" class="cs-seg-btn is-active" data-lp-mode="live">
+                  Live Site (Interactive)
+                </button>
+                <button type="button" class="cs-seg-btn" data-lp-mode="shot">
+                  Overview Mockup
+                </button>
+              </div>
+            </div>
+
             <p class="cs-prose">
-              The web experience brings the world art and card system together into a single editorial landing page. Visitors can explore the lore, inspect each rarity tier, and preview the collection layout across desktop and tablet breakpoints.
+              Explore the shipped Next.js build of <strong>sybil-husky.vercel.app</strong> right here—scroll through the 6 sections, toggle the theme, inspect the Mint Tiers, or adjust the 38-month Airdrop Estimator slider.
             </p>
 
-            <figure class="cs-figure">
-              <div class="cs-img-box">
+            <div class="cs-browser-frame" data-browser-frame="live">
+              <div class="cs-browser-bar">
+                <div class="cs-browser-dots" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="cs-browser-url">
+                  <span>sybil-husky.vercel.app</span>
+                  <span class="cs-live-badge">LIVE</span>
+                </div>
+                <a href={LIVE_URL} rel="noopener" target="_blank" class="cs-browser-open">
+                  Open ↗
+                </a>
+              </div>
+
+              <!-- Live 1920px-scaled iframe (lazy-loaded on reader open) -->
+              <div class="cs-iframe-stage" data-iframe-stage>
+                <iframe
+                  class="cs-iframe"
+                  data-sybil-iframe
+                  data-src={LIVE_URL}
+                  title="Sybil Husky live website preview"
+                  loading="lazy"
+                ></iframe>
+              </div>
+
+              <!-- Static high-res overview fallback/toggle -->
+              <div class="cs-shot-stage" data-shot-stage hidden>
                 <Picture
                   name="07-sybil-landing"
                   alt="Sybil Husky landing page UI shown on laptops and as a section overview"
-                  sizes="(min-width: 900px) 780px, 92vw"
+                  sizes="(min-width: 900px) 864px, 92vw"
                 />
               </div>
-              <figcaption>Full landing page architecture — hero showcase, lore breakdown, and interactive tier gallery.</figcaption>
-            </figure>
+            </div>
           </section>
 
           <!-- Section 6: Outcome -->
           <section id="cs-outcome" class="cs-sec" data-cs-section>
             <h2 class="cs-h2">Outcome</h2>
             <p class="cs-prose">
-              The final identity package delivered a complete, production-ready design system: vector brand guidelines, six high-resolution character illustrations with modular card frames, widescreen environmental art, and a responsive Figma UI kit ready for front-end handoff.
+              Delivered a complete end-to-end visual package and production Next.js 16 front-end—preserving crisp vector logo geometry, dual 1920×1080 environmental artwork, six character rarity tiers, and interactive calculator/mint controls ready for Web3 launch.
             </p>
 
             <div class="cs-tools-bar">
@@ -301,13 +424,43 @@ const sections = [
   const sections = dialog ? [...dialog.querySelectorAll<HTMLElement>('[data-cs-section]')] : [];
   const nextLink = dialog?.querySelector<HTMLAnchorElement>('[data-cs-next]');
 
+  // Interactive Day/Night world switcher
+  const worldStage = dialog?.querySelector<HTMLElement>('[data-world-stage]');
+  const worldBtns = dialog ? [...dialog.querySelectorAll<HTMLButtonElement>('[data-world-mode]')] : [];
+  const worldCaption = dialog?.querySelector<HTMLElement>('[data-world-caption]');
+
+  // Live iframe scaler & view mode switcher
+  const lpBtns = dialog ? [...dialog.querySelectorAll<HTMLButtonElement>('[data-lp-mode]')] : [];
+  const iframeStage = dialog?.querySelector<HTMLElement>('[data-iframe-stage]');
+  const shotStage = dialog?.querySelector<HTMLElement>('[data-shot-stage]');
+  const iframeEl = dialog?.querySelector<HTMLIFrameElement>('[data-sybil-iframe]');
+
   const CASE_HASH = '#read-sybil-husky';
+
+  function scaleLiveFrame() {
+    if (!iframeStage || !iframeEl) return;
+    const w = iframeStage.clientWidth;
+    if (w <= 0) return;
+    const s = w / 1920;
+    const targetH = Math.round(Math.min(540, Math.max(320, w * 0.625)));
+    iframeStage.style.height = `${targetH}px`;
+    iframeEl.style.width = '1920px';
+    iframeEl.style.height = `${Math.round(targetH / s)}px`;
+    iframeEl.style.transform = `scale(${s.toFixed(4)})`;
+  }
 
   if (dialog && scroller) {
     const setActiveToc = (id: string) => {
       for (const link of tocLinks) {
         link.classList.toggle('is-active', link.dataset.csToc === id);
       }
+    };
+
+    const ensureIframeLoaded = () => {
+      if (iframeEl && !iframeEl.src && iframeEl.dataset.src) {
+        iframeEl.src = iframeEl.dataset.src;
+      }
+      requestAnimationFrame(scaleLiveFrame);
     };
 
     const openModal = (pushHash = true) => {
@@ -317,6 +470,7 @@ const sections = [
         document.documentElement.style.overflow = 'hidden';
         scroller.scrollTop = 0;
         setActiveToc(sections[0]?.id || 'cs-overview');
+        ensureIframeLoaded();
       }
       if (pushHash && location.hash !== CASE_HASH) {
         history.pushState({ caseStudy: 'sybil-husky' }, '', CASE_HASH);
@@ -349,7 +503,42 @@ const sections = [
 
     closer?.addEventListener('click', () => closeModal(true));
 
-    // Clicking a TOC link scrolls inside the reader scroller (not the main window)
+    // World Day/Night Toggle
+    worldBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.worldMode || 'night';
+        if (worldStage) worldStage.dataset.worldStage = mode;
+        worldBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+        if (worldCaption) {
+          worldCaption.textContent =
+            mode === 'day'
+              ? 'Day mode artwork — 1920×1080 alpine sunrise key visual used in Light theme.'
+              : 'Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.';
+        }
+      });
+    });
+
+    // Live Site / Mockup Toggle
+    lpBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.lpMode || 'live';
+        lpBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+        if (iframeStage && shotStage) {
+          const isLive = mode === 'live';
+          iframeStage.hidden = !isLive;
+          shotStage.hidden = isLive;
+          if (isLive) ensureIframeLoaded();
+        }
+      });
+    });
+
+    if (iframeStage) {
+      const ro = new ResizeObserver(scaleLiveFrame);
+      ro.observe(iframeStage);
+      window.addEventListener('resize', scaleLiveFrame);
+    }
+
+    // TOC scrolling inside reader
     tocLinks.forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -363,7 +552,7 @@ const sections = [
       });
     });
 
-    // Update active TOC pill on scroll inside the reader
+    // Update active TOC pill on scroll
     const onReaderScroll = () => {
       const cutoff = scroller.scrollTop + scroller.clientHeight * 0.28;
       let currentId = sections[0]?.id || 'cs-overview';
@@ -376,7 +565,7 @@ const sections = [
     };
     scroller.addEventListener('scroll', onReaderScroll, { passive: true });
 
-    // Next project link closes reader and jumps to target project
+    // Next project jump
     nextLink?.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -395,7 +584,6 @@ const sections = [
       }
     });
 
-    // Support direct URL / refresh / browser Back button with #read-sybil-husky
     const syncFromHash = () => {
       if (location.hash === CASE_HASH) {
         openModal(false);
@@ -431,7 +619,6 @@ const sections = [
     flex-direction: column;
   }
 
-  /* Header & Overview: 4px spacing scale */
   .f131 {
     display: flex;
     flex-direction: column;
@@ -496,7 +683,6 @@ const sections = [
     color: #cbc4b8;
   }
 
-  /* Highlight Card (1080 x 576 with 60px margin on 1200px frame) */
   .f429 {
     box-sizing: border-box;
     margin-top: 48px;
@@ -540,7 +726,6 @@ const sections = [
     -webkit-user-drag: none;
   }
 
-  /* Bottom Row: 64px below card */
   .f-bottom-row {
     margin-top: 64px;
     display: grid;
@@ -563,7 +748,6 @@ const sections = [
     }
   }
 
-  /* Primary Action Button (Warm off-white primary on dark surface per unslop) */
   .f430-btn {
     box-sizing: border-box;
     display: flex;
@@ -646,7 +830,7 @@ const sections = [
     }
   }
 
-  /* ================= Full-Screen Editorial Case Study Reader (Warm Dark Ramp) ================= */
+  /* ================= Full-Screen Editorial Case Study Reader ================= */
   .cs-reader {
     width: 100vw;
     max-width: 100vw;
@@ -671,7 +855,6 @@ const sections = [
     height: 100dvh;
   }
 
-  /* Left Sidebar (All work + TOC + Next) */
   .cs-sidebar {
     box-sizing: border-box;
     display: flex;
@@ -763,6 +946,28 @@ const sections = [
     background: #ff3838;
   }
 
+  .cs-side-foot {
+    display: grid;
+    gap: 16px;
+  }
+  .cs-live-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.12);
+    color: #efe9de;
+    font: 600 13px / 1.2 var(--f-body);
+    text-decoration: none;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+  }
+  .cs-live-pill:hover {
+    background: #262421;
+    border-color: rgb(239 233 222 / 0.28);
+  }
+
   .cs-next {
     display: grid;
     gap: 4px;
@@ -793,7 +998,7 @@ const sections = [
     box-sizing: border-box;
   }
 
-  /* Media spans 864px (exact +20% wider than the 720px text column) */
+  /* Media spans 864px (+20% wider than the 720px text column) */
   .cs-article {
     width: 100%;
     max-width: 864px;
@@ -816,11 +1021,51 @@ const sections = [
   .cs-prose,
   .cs-callout-grid,
   .cs-tools-bar,
+  .cs-sec-head-row,
   .cs-figure figcaption {
     width: 100%;
     max-width: 720px;
     margin-inline: auto;
     text-align: left;
+  }
+
+  .cs-sec-head-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .cs-sec-head-row .cs-h2 {
+    width: auto;
+    margin: 0;
+  }
+
+  /* Segmented Control Pill (Day/Night & Live/Mockup) */
+  .cs-seg {
+    display: inline-flex;
+    padding: 4px;
+    gap: 4px;
+    border-radius: 999px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.1);
+  }
+  .cs-seg-btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 14px;
+    background: transparent;
+    color: #968f84;
+    font: 600 12.5px / 1 var(--f-body);
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .cs-seg-btn:hover {
+    color: #efe9de;
+  }
+  .cs-seg-btn.is-active {
+    background: #efe9de;
+    color: #141312;
   }
 
   .cs-hero-banner {
@@ -858,7 +1103,6 @@ const sections = [
     color: #aaa398;
   }
 
-  /* 3-Column Meta Row: Client | Dates | Role */
   .cs-meta-grid {
     margin: 8px auto;
     padding-block: 20px;
@@ -897,6 +1141,13 @@ const sections = [
   .cs-prose strong {
     color: #efe9de;
     font-weight: 600;
+  }
+  .cs-prose code {
+    font-size: 0.9em;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: #262421;
+    color: #efe9de;
   }
 
   .cs-callout-grid {
@@ -947,6 +1198,174 @@ const sections = [
     color: #8a847a;
   }
 
+  /* Interactive Day/Night Stage */
+  .cs-world-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    box-shadow: 0 20px 48px rgb(0 0 0 / 0.36);
+  }
+  .cs-world-layer {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cs-world-layer :global(picture),
+  .cs-world-layer :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cs-world-stage[data-world-stage='night'] .is-day {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cs-world-stage[data-world-stage='day'] .is-night {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Character Tier Grid (inside 864px media column) */
+  .cs-char-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .cs-char-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+  }
+  .cs-char-thumb {
+    width: 68px;
+    height: 68px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex: none;
+    background: #262421;
+  }
+  .cs-char-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cs-char-meta {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+    text-align: left;
+  }
+  .cs-char-badge {
+    font: 700 11px / 1 var(--f-body);
+    color: #ff3838;
+  }
+  .cs-char-meta strong {
+    font: 700 14px / 1.2 var(--f-body);
+    color: #efe9de;
+  }
+  .cs-char-stats {
+    font: 400 12px / 1.3 var(--f-body);
+    color: #968f84;
+  }
+
+  /* Live Browser Mockup & Scaled 1920px Website Frame */
+  .cs-browser-frame {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.12);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  }
+  .cs-browser-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #12110f;
+    border-bottom: 1px solid rgb(239 233 222 / 0.08);
+  }
+  .cs-browser-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .cs-browser-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgb(239 233 222 / 0.18);
+  }
+  .cs-browser-url {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    font: 500 12px / 1 var(--f-body);
+    color: #cbc4b8;
+  }
+  .cs-live-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgb(255 56 56 / 0.16);
+    color: #ff3838;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+  .cs-browser-open {
+    font: 600 12.5px / 1 var(--f-body);
+    color: #efe9de;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: rgb(239 233 222 / 0.08);
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .cs-browser-open:hover {
+    background: #ff3838;
+    color: #ffffff;
+  }
+
+  .cs-iframe-stage {
+    position: relative;
+    width: 100%;
+    height: 540px;
+    overflow: hidden;
+    background: #12110f;
+  }
+  .cs-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1200px;
+    border: 0;
+    transform-origin: top left;
+    transform: scale(0.45);
+  }
+
+  .cs-shot-stage :global(picture),
+  .cs-shot-stage :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
   .cs-tools-bar {
     margin-top: 8px;
     padding: 20px 24px;
@@ -995,7 +1414,8 @@ const sections = [
       border-right: 0;
       border-bottom: 1px solid rgb(239 233 222 / 0.08);
     }
-    .cs-toc-wrap {
+    .cs-toc-wrap,
+    .cs-live-pill {
       display: none;
     }
     .cs-scroller {
@@ -1005,6 +1425,9 @@ const sections = [
     .cs-meta-grid {
       grid-template-columns: 1fr;
       gap: 16px;
+    }
+    .cs-char-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
