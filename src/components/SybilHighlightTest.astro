@@ -198,19 +198,19 @@ const sections = [
 
       <!-- Right Scrollable Editorial Reading Column -->
       <div class="cs-scroller" data-cs-scroller>
-        <div class="cs-article">
-          <!-- Section 1: Overview -->
-          <section id="cs-overview" class="cs-sec" data-cs-section>
-            <div class="cs-hero-banner">
-              <img
-                src={logoMarkSrc}
-                width="568"
-                height="306"
-                alt="Sybil Husky brand mark and wordmark"
-                class="cs-hero-logo"
-              />
-            </div>
+        <!-- Section 1: Overview -->
+        <section id="cs-overview" class="cs-sec cs-sec-overview" data-cs-section>
+          <div class="cs-hero-banner">
+            <img
+              src={logoMarkSrc}
+              width="568"
+              height="306"
+              alt="Sybil Husky brand mark and wordmark"
+              class="cs-hero-logo"
+            />
+          </div>
 
+          <div class="cs-pad cs-sec">
             <h1 id="cs-main-title" class="cs-h1">Sybil Husky</h1>
             <p class="cs-subtitle">
               A Web3 NFT collectible brand and airdrop farming platform built around Arctic folklore—spanning vector branding, tiered husky companions, dual Day/Night worlds, and a shipped Next.js website.
@@ -234,8 +234,10 @@ const sections = [
             <p class="cs-prose">
               In the wintry landscapes of the crypto world, SybilHusky reimagines cryptocurrency airdrop farming through loyal husky companions. Collectors mint tiered SybilHusky NFTs—unlocking higher rune multipliers and greater shares of farming rewards as their pack levels up.
             </p>
-          </section>
+          </div>
+        </section>
 
+        <div class="cs-article">
           <!-- Section 2: The Challenge -->
           <section id="cs-challenge" class="cs-sec" data-cs-section>
             <h2 class="cs-h2">The challenge</h2>
@@ -991,20 +993,26 @@ const sections = [
 
   /* Right Scrollable Reading Area */
   .cs-scroller {
-    container-type: inline-size;
     height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
-    padding: 48px 60px 120px;
+    padding: 48px 0 120px;
     box-sizing: border-box;
   }
 
-  /* Media spans 864px (+20% wider than the 720px text column) */
+  /* Centered 864px media column with 60px outer breathing room */
+  .cs-pad,
   .cs-article {
     width: 100%;
-    max-width: 864px;
+    max-width: calc(864px + 120px);
+    padding-inline: 60px;
+    box-sizing: border-box;
     margin-inline: auto;
+  }
+
+  .cs-article {
+    margin-top: 72px;
     display: grid;
     gap: 72px;
   }
@@ -1071,10 +1079,8 @@ const sections = [
   }
 
   .cs-hero-banner {
-    width: calc(100cqw + 120px);
+    width: 100%;
     height: 486px;
-    margin-left: 50%;
-    transform: translateX(-50%);
     border-radius: 0;
     background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
     display: grid;
@@ -1424,10 +1430,14 @@ const sections = [
     }
     .cs-scroller {
       height: calc(100dvh - 56px);
-      padding: 28px 20px 80px;
+      padding: 28px 0 80px;
+    }
+    .cs-pad,
+    .cs-article {
+      padding-inline: 20px;
     }
     .cs-hero-banner {
-      width: calc(100cqw + 40px);
+      width: 100%;
       height: clamp(240px, 56vw, 486px);
     }
     .cs-meta-grid {
