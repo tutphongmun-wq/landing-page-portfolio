@@ -47,15 +47,15 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --c-bg: #1c1c1c;
-  --c-bg-raised: #242424;
-  --c-line: #3a3a3a;
-  --c-fg: #f2f2f2;
-  --c-fg-soft: #d8d8d8; /* running copy */
-  --c-muted: #a9a9a9;
-  --c-accent: #ff2a2a; /* 4.56:1 on --c-bg */
-  --c-ph-a: #222; /* placeholder stripes */
-  --c-ph-b: #1f1f1f;
+  --c-bg: #141312;
+  --c-bg-raised: #1c1a18;
+  --c-line: rgb(239 233 222 / 0.12);
+  --c-fg: #efe9de;
+  --c-fg-soft: #cbc4b8; /* running copy */
+  --c-muted: #968f84;
+  --c-accent: #ff3838; /* > 5.3:1 on --c-bg */
+  --c-ph-a: #1f1d1b; /* placeholder stripes */
+  --c-ph-b: #1a1816;
   --c-shadow: rgb(0 0 0 / 0.55);
   --c-shadow-soft: rgb(0 0 0 / 0.35);
 }

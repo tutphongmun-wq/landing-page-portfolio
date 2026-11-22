@@ -1,12 +1,8 @@
 ---
-// Test section for Figma Frame 428 ("07 SYBIL HUSKY" Highlight) +
-// Worachet-style Full-Screen Editorial Case Study Reader (#read-sybil-husky).
-import '@fontsource/bbh-hegarty/400.css';
-import '@fontsource/kodchasan/400.css';
-import '@fontsource/kodchasan/500.css';
-import '@fontsource/kodchasan/700.css';
+// Highlight showcase ("07 SYBIL HUSKY") + Full-Screen Editorial Case Study Reader (#read-sybil-husky)
+// Polished under unslop Light/Polish Mode: 4px spacing scale, unified site typography,
+// warm studio dark ramp with 8% hairlines, and real project copy.
 import Picture from './Picture.astro';
-import Palette from './Palette.astro';
 import { assetUrl } from '../lib/media';
 import { projects } from '../data/projects';
 import { tools } from '../data/site';
@@ -16,20 +12,19 @@ const k2o = projects.find((p) => p.slug === 'k2o')!;
 const logoMarkSrc = assetUrl('media/07-sybil-logo-mark.webp');
 
 const overviewText =
-  'A collection of digital thumbnails and promotional visuals created in collaboration with MollageBKK, including entertainment content for Netflix Thailand. Each design combines photo compositing, retouching, and typography to create engaging, attention-grabbing visuals tailored to different content formats.';
+  'A fantasy-inspired visual identity and collectible card system for Sybil Husky. Blending Arctic folklore with clean vector craft, the project spans a minimal husky mark, six progression tiers, northern-lights world art, and a responsive landing page.';
 
 const roleBullets = [
-  'Designed editorial infographics and visual layouts.',
-  'Organized information through typography and visual hierarchy.',
-  'Created illustrations, icons, and supporting graphics.',
-  'Prepared final artwork for digital publishing.',
+  'Visual identity, logo mark, and overall art direction.',
+  'Character design across six collectible rarity tiers.',
+  'Northern-lights fantasy environment illustration.',
+  'Landing page UI layout and responsive web assets.',
 ];
 
-const problemBullets = [
-  'Designed editorial infographics and visual layouts.',
-  'Organized information through typography and visual hierarchy.',
-  'Created illustrations, icons, and supporting graphics.',
-  'Prepared final artwork for digital publishing.',
+const challengeBullets = [
+  'Keep the mascot silhouette legible from 24px avatars up to hero banners.',
+  'Build clear rarity distinction across six tiers while sharing one base anatomy.',
+  'Connect rich fantasy illustration with a clean, scannable landing page.',
 ];
 
 const sections = [
@@ -48,24 +43,24 @@ const sections = [
   aria-labelledby="sybil-test-title"
 >
   <div class="f428-canvas" data-ve-editorial="sybil-husky-test">
-    <!-- Frame 131: Header (07 + SYBIL HUSKY) & Frame 71 (Overview) -->
+    <!-- Header (07 + SYBIL HUSKY) & Overview -->
     <header class="f131" data-ve-free="sybil-test:header" data-ve-label="07 Header & Overview">
       <div class="f130">
         <p class="f-no" data-reveal>07</p>
-        <h3 id="sybil-test-title" class="f-title" data-reveal style="--reveal-d: 60ms">
+        <h3 id="sybil-test-title" class="f-title" data-reveal style="--reveal-d: 50ms">
           SYBIL HUSKY
         </h3>
       </div>
 
       <div class="f71">
-        <h4 class="f-overview-h" data-reveal style="--reveal-d: 110ms">Overview</h4>
-        <p class="f-overview-p" data-reveal style="--reveal-d: 150ms">
+        <h4 class="f-overview-h" data-reveal style="--reveal-d: 100ms">Overview</h4>
+        <p class="f-overview-p" data-reveal style="--reveal-d: 140ms">
           {overviewText}
         </p>
       </div>
     </header>
 
-    <!-- Frame 429: Gradient Highlight Card (1080 x 585 with 60px margin) -->
+    <!-- Highlight Card (1080 x 576 with 60px margin on 1200px frame) -->
     <div
       class="f429"
       data-ve-free="sybil-test:hero-card"
@@ -86,7 +81,7 @@ const sections = [
       />
     </div>
 
-    <!-- Bottom Row (top: 981px): Frame 430 Button + Frame 72 My Role + Frame 128 Problem Solve ?! -->
+    <!-- Bottom Row: Full Case Study CTA + My Role + The Challenge -->
     <div class="f-bottom-row">
       <a
         href="#read-sybil-husky"
@@ -95,26 +90,26 @@ const sections = [
         data-ve-free="sybil-test:cta"
         data-ve-label="07 Full Case Study Button"
       >
-        <span>FULL CASE STUDY</span>
+        <span>Full Case Study</span>
       </a>
 
       <div class="f72" data-ve-free="sybil-test:role" data-ve-label="07 My Role">
         <h4 class="f-col-h" data-reveal>My Role</h4>
-        <ul class="f-col-list" data-reveal style="--reveal-d: 70ms">
+        <ul class="f-col-list" data-reveal style="--reveal-d: 60ms">
           {roleBullets.map((item) => <li>{item}</li>)}
         </ul>
       </div>
 
-      <div class="f128" data-ve-free="sybil-test:problem" data-ve-label="07 Problem Solve">
-        <h4 class="f-col-h" data-reveal style="--reveal-d: 60ms">Problem Solve ?!</h4>
-        <ul class="f-col-list f-col-list-wide" data-reveal style="--reveal-d: 130ms">
-          {problemBullets.map((item) => <li>{item}</li>)}
+      <div class="f128" data-ve-free="sybil-test:problem" data-ve-label="07 The Challenge">
+        <h4 class="f-col-h" data-reveal style="--reveal-d: 60ms">The Challenge</h4>
+        <ul class="f-col-list" data-reveal style="--reveal-d: 120ms">
+          {challengeBullets.map((item) => <li>{item}</li>)}
         </ul>
       </div>
     </div>
   </div>
 
-  <!-- Worachet-style Full-Screen Editorial Case Study Reader (#read-sybil-husky) -->
+  <!-- Full-Screen Editorial Case Study Reader (#read-sybil-husky) -->
   <dialog class="cs-reader" data-sybil-case-dialog aria-labelledby="cs-main-title">
     <div class="cs-layout">
       <!-- Left Sticky Navigation Sidebar -->
@@ -147,7 +142,7 @@ const sections = [
         </div>
 
         <a href="#k2o" class="cs-next" data-cs-next="#k2o">
-          <span class="cs-next-lbl">NEXT</span>
+          <span class="cs-next-lbl">Next project</span>
           <span class="cs-next-title">{k2o.spine.label} <span aria-hidden="true">→</span></span>
         </a>
       </aside>
@@ -204,11 +199,11 @@ const sections = [
 
             <div class="cs-callout-grid">
               <div class="cs-callout">
-                <h3>01 · Recognizable Silhouette</h3>
+                <h3>01 · Recognizable silhouette</h3>
                 <p>Built the logo mark from sharp crescent curves so the husky ear-and-muzzle profile stays legible from a 24px favicon up to billboard scale.</p>
               </div>
               <div class="cs-callout">
-                <h3>02 · Cohesive Tier Progression</h3>
+                <h3>02 · Cohesive tier progression</h3>
                 <p>Designed a clear visual hierarchy across six rarity tiers so collectors can tell an Apprentice from a Super Special card at a glance.</p>
               </div>
             </div>
@@ -417,10 +412,10 @@ const sections = [
 </script>
 
 <style>
-  /* ================= Frame 428 Container ================= */
+  /* ================= Highlight Showcase (Warm Dark Ramp + 4px Grid) ================= */
   .sybil-highlight-test {
-    background: #101010;
-    color: #fbf5eb;
+    background: #141312;
+    color: #efe9de;
     position: relative;
     overflow: hidden;
   }
@@ -431,54 +426,50 @@ const sections = [
     max-width: 1200px;
     margin-inline: auto;
     box-sizing: border-box;
-    padding: 40px 60px 107px;
+    padding: 48px 60px 104px;
     display: flex;
     flex-direction: column;
   }
 
-  /* Frame 131: left 60px, top 40px, width 674px, gap 32px */
+  /* Header & Overview: 4px spacing scale */
   .f131 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 32px;
+    gap: 28px;
     width: 100%;
-    max-width: 674px;
+    max-width: 672px;
   }
 
-  /* Frame 130: gap 12px */
   .f130 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 8px;
     width: 100%;
   }
 
-  /* 07 */
   .f-no {
     margin: 0;
-    font-family: 'BBH Bartle', var(--f-heading);
-    font-style: normal;
+    font-family: var(--f-heading);
     font-weight: 400;
     font-size: 24px;
     line-height: 1.1;
-    color: #ff2b2b;
+    font-variant-numeric: tabular-nums;
+    color: #ff3838;
   }
 
-  /* SYBIL HUSKY */
   .f-title {
     margin: 0;
-    font-family: 'BBH Hegarty', 'Archivo Black', var(--f-display);
-    font-style: normal;
+    font-family: var(--f-display);
     font-weight: 400;
-    font-size: clamp(32px, 3.8vw, 46px);
-    line-height: 1.2;
+    font-size: clamp(32px, 3.8vw, 48px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
     text-transform: uppercase;
-    color: #fbf5eb;
+    color: #efe9de;
   }
 
-  /* Frame 71: Overview (gap 8px) */
   .f71 {
     display: flex;
     flex-direction: column;
@@ -489,68 +480,71 @@ const sections = [
 
   .f-overview-h {
     margin: 0;
-    font-family: 'Kodchasan', var(--f-body);
-    font-style: normal;
+    font-family: var(--f-body);
     font-weight: 700;
-    font-size: 20px;
-    line-height: 1.1;
-    color: #ff2b2b;
+    font-size: 18px;
+    line-height: 1.2;
+    color: #ff3838;
   }
 
   .f-overview-p {
     margin: 0;
-    font-family: 'Kodchasan', var(--f-body);
-    font-style: normal;
+    font-family: var(--f-body);
     font-weight: 400;
     font-size: 16px;
-    line-height: 1.4;
-    color: #ffffff;
+    line-height: 1.55;
+    color: #cbc4b8;
   }
 
-  /* Frame 429: Highlight Card (1080 x 585 with 60px margin on 1200px frame) */
+  /* Highlight Card (1080 x 576 with 60px margin on 1200px frame) */
   .f429 {
     box-sizing: border-box;
-    margin-top: 51px;
+    margin-top: 48px;
     width: 100%;
     max-width: 1080px;
-    min-height: 585px;
-    padding: 92px 194px 112px 137px;
+    min-height: 576px;
+    padding: 80px 96px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
-    border-radius: 26px;
+    border-radius: 24px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
     cursor: pointer;
     transition:
-      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 0.32s ease;
+      transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.24s ease;
   }
   .f429:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 22px 48px rgb(0 0 0 / 0.45);
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 44px rgb(0 0 0 / 0.42),
+      inset 0 0 0 1px rgb(255 255 255 / 0.6);
+  }
+  .f429:active {
+    transform: scale(0.99);
   }
   .f429:focus-visible {
-    outline: 3px solid #ff2b2b;
+    outline: 3px solid #ff3838;
     outline-offset: 4px;
   }
 
-  /* Group 354: 708.74 x 381 */
   .f-group354 {
     display: block;
     width: 100%;
-    max-width: 632px;
+    max-width: 624px;
     height: auto;
     object-fit: contain;
     user-select: none;
     -webkit-user-drag: none;
   }
 
-  /* Bottom Row at top: 981px (62px below Frame 429 bottom 919px) */
+  /* Bottom Row: 64px below card */
   .f-bottom-row {
-    margin-top: 62px;
+    margin-top: 64px;
     display: grid;
-    grid-template-columns: 248px minmax(0, 333px) minmax(0, 342px);
+    grid-template-columns: 248px minmax(0, 1fr) minmax(0, 1fr);
     column-gap: 48px;
     align-items: start;
   }
@@ -559,56 +553,55 @@ const sections = [
       width: 100%;
       max-width: 1080px;
       grid-template-columns: 248px 1fr 1fr;
-      column-gap: 78px;
+      column-gap: 80px;
     }
     .f72 {
-      width: 333px;
+      width: 332px;
     }
     .f128 {
-      width: 342px;
+      width: 344px;
     }
   }
 
-  /* Frame 430: FULL CASE STUDY Pill Button (248 x 80) */
+  /* Primary Action Button (Warm off-white primary on dark surface per unslop) */
   .f430-btn {
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 15px 10px;
-    gap: 10px;
+    padding: 16px 24px;
+    gap: 8px;
     width: 248px;
-    height: 80px;
-    background: #ffffff;
+    height: 72px;
+    background: #efe9de;
     border: 0;
     border-radius: 999px;
-    font-family: 'Kodchasan', var(--f-body);
-    font-style: normal;
+    font-family: var(--f-body);
     font-weight: 700;
-    font-size: 20px;
-    line-height: 1.4;
-    color: #000000;
+    font-size: 16px;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    color: #141312;
     text-decoration: none;
     cursor: pointer;
     transition:
-      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 0.2s ease,
-      color 0.2s ease,
-      box-shadow 0.22s ease;
+      transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.16s ease,
+      color 0.16s ease;
   }
   .f430-btn:hover {
-    background: #ff2b2b;
+    background: #ff3838;
     color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgb(255 43 43 / 0.35);
+  }
+  .f430-btn:active {
+    transform: scale(0.97);
   }
   .f430-btn:focus-visible {
-    outline: 3px solid #ff2b2b;
+    outline: 3px solid #ff3838;
     outline-offset: 4px;
   }
 
-  /* Frame 72 (My Role) & Frame 128 (Problem Solve ?!) */
   .f72,
   .f128 {
     display: flex;
@@ -619,26 +612,24 @@ const sections = [
 
   .f-col-h {
     margin: 0;
-    font-family: 'Kodchasan', var(--f-body);
-    font-style: normal;
+    font-family: var(--f-body);
     font-weight: 700;
-    font-size: 22px;
-    line-height: 1.1;
-    color: #ff2b2b;
+    font-size: 18px;
+    line-height: 1.2;
+    color: #ff3838;
   }
 
   .f-col-list {
     margin: 0;
-    padding-left: 1.25em;
-    font-family: 'Kodchasan', var(--f-body);
-    font-style: normal;
+    padding-left: 1.2em;
+    font-family: var(--f-body);
     font-weight: 400;
     font-size: 14px;
-    line-height: 1.4;
-    color: #fbf5eb;
+    line-height: 1.55;
+    color: #cbc4b8;
   }
   .f-col-list li + li {
-    margin-top: 2px;
+    margin-top: 4px;
   }
 
   @media (max-width: 1199px) {
@@ -655,7 +646,7 @@ const sections = [
     }
   }
 
-  /* ================= Worachet-style Full-Screen Editorial Case Study Reader ================= */
+  /* ================= Full-Screen Editorial Case Study Reader (Warm Dark Ramp) ================= */
   .cs-reader {
     width: 100vw;
     max-width: 100vw;
@@ -665,30 +656,30 @@ const sections = [
     padding: 0;
     border: 0;
     border-radius: 0;
-    background: #121212;
-    color: #f3efe8;
+    background: #161513;
+    color: #efe9de;
     overflow: hidden;
   }
   .cs-reader::backdrop {
-    background: rgb(0 0 0 / 0.85);
+    background: rgb(12 11 10 / 0.88);
   }
 
   .cs-layout {
     display: grid;
-    grid-template-columns: 270px minmax(0, 1fr);
+    grid-template-columns: 264px minmax(0, 1fr);
     width: 100%;
     height: 100dvh;
   }
 
-  /* Left Sidebar (All work + TOC + NEXT) */
+  /* Left Sidebar (All work + TOC + Next) */
   .cs-sidebar {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 40px 28px 36px 36px;
-    background: #101010;
-    border-right: 1px solid rgb(255 255 255 / 0.06);
+    padding: 40px 24px 36px 32px;
+    background: #12110f;
+    border-right: 1px solid rgb(239 233 222 / 0.08);
     height: 100dvh;
     user-select: none;
   }
@@ -697,32 +688,32 @@ const sections = [
     align-self: flex-start;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 2px;
+    gap: 8px;
+    padding: 8px 4px;
     border: 0;
     background: transparent;
-    color: rgb(243 239 232 / 0.72);
+    color: #aaa398;
     font: 500 14px / 1.2 var(--f-body);
     cursor: pointer;
-    transition: color 0.18s ease, transform 0.18s ease;
+    transition: color 0.16s ease, transform 0.16s ease;
   }
   .cs-back:hover {
-    color: #ffffff;
-    transform: translateX(-3px);
+    color: #efe9de;
+    transform: translateX(-2px);
   }
 
   .cs-toc-wrap {
     display: grid;
-    gap: 14px;
+    gap: 12px;
     margin-block: auto;
   }
 
   .cs-proj-name {
     margin: 0 0 4px 12px;
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 22px;
+    font-family: var(--f-display);
+    font-size: 18px;
     font-weight: 400;
-    color: #f3efe8;
+    color: #efe9de;
     letter-spacing: -0.01em;
   }
 
@@ -738,35 +729,38 @@ const sections = [
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
-    border-radius: 9px;
+    height: 36px;
+    padding-inline: 12px;
+    border-radius: 8px;
     border: 1px solid transparent;
-    color: rgb(243 239 232 / 0.42);
-    font: 500 13.5px / 1.2 var(--f-body);
+    color: #8a847a;
+    font: 500 14px / 1.2 var(--f-body);
     text-decoration: none;
     transition:
-      color 0.18s ease,
-      border-color 0.18s ease,
-      background-color 0.18s ease;
+      color 0.16s ease,
+      border-color 0.16s ease,
+      background-color 0.16s ease;
   }
   .cs-toc-link:hover {
-    color: rgb(243 239 232 / 0.82);
+    color: #efe9de;
   }
   .cs-toc-bar {
-    width: 14px;
+    width: 12px;
     height: 1.5px;
     background: currentColor;
     opacity: 0.45;
-    transition: width 0.22s ease, opacity 0.22s ease;
+    transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
   }
   .cs-toc-link.is-active {
-    color: #ffffff;
-    border-color: rgb(243 239 232 / 0.55);
-    background: rgb(255 255 255 / 0.03);
+    color: #efe9de;
+    border-color: rgb(239 233 222 / 0.16);
+    background: #1c1a18;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
   }
   .cs-toc-link.is-active .cs-toc-bar {
-    width: 24px;
+    width: 20px;
     opacity: 1;
+    background: #ff3838;
   }
 
   .cs-next {
@@ -774,20 +768,19 @@ const sections = [
     gap: 4px;
     padding-left: 12px;
     text-decoration: none;
-    color: #f3efe8;
+    color: #efe9de;
   }
   .cs-next-lbl {
-    font: 600 10.5px / 1 var(--f-body);
-    letter-spacing: 0.1em;
-    color: rgb(243 239 232 / 0.42);
+    font: 500 12px / 1.2 var(--f-body);
+    color: #8a847a;
   }
   .cs-next-title {
-    font: 500 14.5px / 1.3 var(--f-body);
-    color: rgb(243 239 232 / 0.85);
-    transition: color 0.18s ease;
+    font: 600 14px / 1.3 var(--f-body);
+    color: #efe9de;
+    transition: color 0.16s ease;
   }
   .cs-next:hover .cs-next-title {
-    color: #ff2b2b;
+    color: #ff3838;
   }
 
   /* Right Scrollable Reading Area */
@@ -796,7 +789,7 @@ const sections = [
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
-    padding: 52px clamp(24px, 6vw, 96px) 120px;
+    padding: 48px clamp(24px, 6vw, 96px) 120px;
     box-sizing: border-box;
   }
 
@@ -816,103 +809,104 @@ const sections = [
 
   .cs-hero-banner {
     width: 100%;
-    aspect-ratio: 16 / 9.2;
+    aspect-ratio: 16 / 9;
     border-radius: 20px;
     background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
     display: grid;
     place-items: center;
     padding: clamp(28px, 5vw, 64px);
     box-sizing: border-box;
-    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.42);
   }
 
   .cs-hero-logo {
     width: 100%;
-    max-width: 470px;
+    max-width: 468px;
     height: auto;
     object-fit: contain;
   }
 
   .cs-h1 {
     margin: 12px 0 0;
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--f-display);
     font-weight: 400;
-    font-size: clamp(38px, 4.6vw, 56px);
-    line-height: 1.08;
+    font-size: clamp(36px, 4.4vw, 52px);
+    line-height: 1.06;
     letter-spacing: -0.02em;
-    color: #ffffff;
+    color: #efe9de;
   }
 
   .cs-subtitle {
-    margin: -6px 0 0;
-    font: 400 clamp(17px, 1.5vw, 20px) / 1.5 var(--f-body);
-    color: rgb(243 239 232 / 0.58);
+    margin: -8px 0 0;
+    font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-body);
+    color: #aaa398;
     max-width: 60ch;
   }
 
   /* 3-Column Meta Row: Client | Dates | Role */
   .cs-meta-grid {
-    margin: 8px 0 12px;
-    padding-block: 22px;
-    border-top: 1px solid rgb(255 255 255 / 0.09);
-    border-bottom: 1px solid rgb(255 255 255 / 0.09);
+    margin: 8px 0;
+    padding-block: 20px;
+    border-top: 1px solid rgb(239 233 222 / 0.08);
+    border-bottom: 1px solid rgb(239 233 222 / 0.08);
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
   }
   .cs-meta-grid dt {
-    font: 500 12.5px / 1.3 var(--f-body);
-    color: rgb(243 239 232 / 0.44);
-    margin-bottom: 6px;
+    font: 500 12px / 1.3 var(--f-body);
+    color: #8a847a;
+    margin-bottom: 4px;
   }
   .cs-meta-grid dd {
     margin: 0;
-    font: 500 14.5px / 1.4 var(--f-body);
-    color: rgb(243 239 232 / 0.9);
+    font: 500 14px / 1.45 var(--f-body);
+    color: #efe9de;
   }
 
   .cs-h2 {
     margin: 0;
-    font-family: Georgia, 'Times New Roman', serif;
+    font-family: var(--f-display);
     font-weight: 400;
-    font-size: clamp(26px, 2.8vw, 34px);
-    line-height: 1.2;
-    color: #ffffff;
+    font-size: clamp(24px, 2.6vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: #efe9de;
   }
 
   .cs-prose {
     margin: 0;
-    font: 400 clamp(16px, 1.25vw, 18.5px) / 1.72 var(--f-body);
-    color: rgb(243 239 232 / 0.84);
+    font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-body);
+    color: #cbc4b8;
   }
   .cs-prose strong {
-    color: #ffffff;
+    color: #efe9de;
     font-weight: 600;
   }
 
   .cs-callout-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 18px;
-    margin-top: 6px;
+    gap: 16px;
+    margin-top: 4px;
   }
   .cs-callout {
-    padding: 22px 24px;
+    padding: 20px 24px;
     border-radius: 16px;
-    background: rgb(255 255 255 / 0.035);
-    border: 1px solid rgb(255 255 255 / 0.08);
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
     display: grid;
     gap: 8px;
   }
   .cs-callout h3 {
     margin: 0;
     font: 700 15px / 1.3 var(--f-body);
-    color: #ff2b2b;
+    color: #ff3838;
   }
   .cs-callout p {
     margin: 0;
-    font: 400 14.5px / 1.55 var(--f-body);
-    color: rgb(243 239 232 / 0.76);
+    font: 400 14px / 1.55 var(--f-body);
+    color: #cbc4b8;
   }
 
   .cs-figure {
@@ -921,11 +915,11 @@ const sections = [
     gap: 12px;
   }
   .cs-img-box {
-    border-radius: 18px;
+    border-radius: 16px;
     overflow: hidden;
-    background: #1a1a1a;
-    border: 1px solid rgb(255 255 255 / 0.08);
-    box-shadow: 0 20px 48px rgb(0 0 0 / 0.4);
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    box-shadow: 0 20px 48px rgb(0 0 0 / 0.36);
   }
   .cs-img-box :global(picture),
   .cs-img-box :global(img) {
@@ -934,16 +928,16 @@ const sections = [
     height: auto;
   }
   .cs-figure figcaption {
-    font: 400 13.5px / 1.45 var(--f-body);
-    color: rgb(243 239 232 / 0.5);
+    font: 400 13px / 1.45 var(--f-body);
+    color: #8a847a;
   }
 
   .cs-tools-bar {
     margin-top: 8px;
-    padding: 22px 24px;
+    padding: 20px 24px;
     border-radius: 16px;
-    background: rgb(255 255 255 / 0.03);
-    border: 1px solid rgb(255 255 255 / 0.08);
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -952,9 +946,7 @@ const sections = [
   }
   .cs-tools-lbl {
     font: 600 13px / 1 var(--f-body);
-    color: rgb(243 239 232 / 0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    color: #8a847a;
   }
   .cs-tools-list {
     display: flex;
@@ -963,14 +955,14 @@ const sections = [
   }
   .cs-tool-pill {
     padding: 6px 12px;
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.06);
-    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 8px;
+    background: #262421;
+    border: 1px solid rgb(239 233 222 / 0.08);
     font: 400 13px / 1.2 var(--f-body);
-    color: rgb(243 239 232 / 0.88);
+    color: #efe9de;
   }
   .cs-tool-pill strong {
-    color: #ff2b2b;
+    color: #ff3838;
     margin-right: 4px;
   }
 
@@ -983,9 +975,9 @@ const sections = [
       height: auto;
       flex-direction: row;
       align-items: center;
-      padding: 14px 20px;
+      padding: 16px 20px;
       border-right: 0;
-      border-bottom: 1px solid rgb(255 255 255 / 0.08);
+      border-bottom: 1px solid rgb(239 233 222 / 0.08);
     }
     .cs-toc-wrap {
       display: none;
@@ -996,7 +988,7 @@ const sections = [
     }
     .cs-meta-grid {
       grid-template-columns: 1fr;
-      gap: 14px;
+      gap: 16px;
     }
   }
 </style>

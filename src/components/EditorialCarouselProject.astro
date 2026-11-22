@@ -378,10 +378,10 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
   .ed-showcase {
     position: relative;
     display: grid;
-    gap: clamp(12px, 1.4vw, 16px);
-    border-radius: 24px;
-    padding: clamp(14px, 1.8vw, 22px);
-    background: color-mix(in srgb, var(--c-fg) 7%, var(--c-bg-raised));
+    gap: 16px;
+    border-radius: 20px;
+    padding: clamp(12px, 1.5vw, 16px);
+    background: color-mix(in srgb, var(--c-fg) 6%, var(--c-bg-raised));
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-fg) 8%, transparent);
     overflow: hidden;
   }
@@ -389,7 +389,7 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: grab;
     user-select: none;
     -webkit-user-select: none;
@@ -402,7 +402,7 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     cursor: grabbing;
   }
   .ed-track {
-    --ed-gap: clamp(14px, 1.5vw, 20px);
+    --ed-gap: 16px;
     display: flex;
     gap: var(--ed-gap);
   }
@@ -411,15 +411,15 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     flex: 0 0 calc((100% - var(--ed-gap) * 3) / 3.35);
     position: relative;
     aspect-ratio: 4 / 5;
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
     background: var(--c-bg);
-    box-shadow: 0 10px 24px rgb(0 0 0 / 0.14);
-    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s ease;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.14);
+    transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s ease;
   }
   .ed-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 32px rgb(0 0 0 / 0.22);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgb(0 0 0 / 0.2);
   }
   .ed-card-media {
     width: 100%;
@@ -437,20 +437,20 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
   }
   .ed-card-badge {
     position: absolute;
-    left: 10px;
-    bottom: 10px;
+    left: 12px;
+    bottom: 12px;
     z-index: 2;
     padding: 4px 8px;
     border-radius: 999px;
-    background: rgb(14 14 14 / 0.68);
+    background: rgb(14 14 14 / 0.72);
     backdrop-filter: blur(6px);
     color: rgb(255 255 255 / 0.9);
-    font: 600 11px / 1 var(--f-body);
+    font: 600 12px / 1 var(--f-body);
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     pointer-events: none;
     opacity: 0.85;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.18s ease;
   }
   .ed-card:hover .ed-card-badge {
     opacity: 1;
@@ -465,16 +465,16 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
   .ed-nav {
     display: grid;
     place-items: center;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     padding: 0;
-    border: 1px solid color-mix(in srgb, var(--c-fg) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c-fg) 14%, transparent);
     border-radius: 999px;
     background: color-mix(in srgb, var(--c-fg) 5%, transparent);
     color: var(--c-fg);
     cursor: pointer;
     flex: none;
-    transition: background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+    transition: background 0.16s ease, border-color 0.16s ease, opacity 0.16s ease;
   }
   .ed-nav:hover:not(:disabled) {
     background: var(--c-accent);
@@ -489,9 +489,9 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     position: relative;
     flex: 1;
     max-width: 420px;
-    height: 10px;
+    height: 12px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--c-fg) 12%, transparent);
+    background: color-mix(in srgb, var(--c-fg) 10%, transparent);
     cursor: pointer;
     touch-action: none;
   }
@@ -501,12 +501,12 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
   }
   .ed-scrollbar-thumb {
     position: absolute;
-    top: 2px;
+    top: 3px;
     left: 0;
     height: 6px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--c-fg) 58%, transparent);
-    transition: background 0.18s ease;
+    background: color-mix(in srgb, var(--c-fg) 56%, transparent);
+    transition: background 0.16s ease;
     will-change: transform, width;
   }
   .ed-scrollbar:hover .ed-scrollbar-thumb,
@@ -515,26 +515,26 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
   }
   .ed-expand {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 12px;
+    right: 12px;
     z-index: 3;
     display: grid;
     place-items: center;
     width: 36px;
     height: 36px;
     padding: 0;
-    border: 1px solid rgb(255 255 255 / 0.24);
-    border-radius: 10px;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    border-radius: 8px;
     background: rgb(16 16 16 / 0.74);
     backdrop-filter: blur(6px);
     color: #ffffff;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.16s ease;
   }
   .ed-expand:hover {
     background: var(--c-accent);
     border-color: var(--c-accent);
-    transform: scale(1.06);
+    transform: scale(1.04);
   }
   .ed-expand:focus-visible {
     outline: none;
@@ -549,7 +549,7 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
   }
   .ed-col {
     display: grid;
-    gap: 10px;
+    gap: 12px;
   }
   .ed-tools {
     list-style: none;
@@ -561,11 +561,11 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
   .ed-tool-row {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding-block: 10px;
+    gap: 16px;
+    padding-block: 12px;
   }
   .ed-tool-row:first-child {
-    padding-top: 2px;
+    padding-top: 4px;
   }
   .ed-tool-row + .ed-tool-row {
     border-top: 1px solid var(--c-line);
@@ -576,7 +576,7 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     width: 40px;
     height: 40px;
     border: 1.5px solid var(--c-fg);
-    border-radius: 11px;
+    border-radius: 8px;
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--c-fg);
