@@ -783,7 +783,7 @@ const sections = [
     color: #ff3838;
   }
 
-  /* Right Scrollable Reading Area (60px outer margin matching main Work page) */
+  /* Right Scrollable Reading Area */
   .cs-scroller {
     height: 100dvh;
     overflow-y: auto;
@@ -793,9 +793,10 @@ const sections = [
     box-sizing: border-box;
   }
 
+  /* Media spans 864px (exact +20% wider than the 720px text column) */
   .cs-article {
     width: 100%;
-    max-width: 1056px;
+    max-width: 864px;
     margin-inline: auto;
     display: grid;
     gap: 72px;
@@ -807,7 +808,7 @@ const sections = [
     scroll-margin-top: 48px;
   }
 
-  /* Editorial Breakout: text stays at comfortable ~720px measure while media spans full 1056px */
+  /* Centered 720px text column inside the 864px media frame */
   .cs-h1,
   .cs-subtitle,
   .cs-meta-grid,
@@ -818,29 +819,31 @@ const sections = [
   .cs-figure figcaption {
     width: 100%;
     max-width: 720px;
+    margin-inline: auto;
+    text-align: center;
   }
 
   .cs-hero-banner {
     width: 100%;
-    aspect-ratio: 16 / 8.8;
-    border-radius: 24px;
+    aspect-ratio: 16 / 9;
+    border-radius: 20px;
     background: linear-gradient(180deg, #bbdefb 0%, #ffffff 100%);
     display: grid;
     place-items: center;
-    padding: clamp(28px, 5vw, 64px);
+    padding: clamp(28px, 5vw, 56px);
     box-sizing: border-box;
     box-shadow: 0 24px 60px rgb(0 0 0 / 0.42);
   }
 
   .cs-hero-logo {
     width: 100%;
-    max-width: 560px;
+    max-width: 480px;
     height: auto;
     object-fit: contain;
   }
 
   .cs-h1 {
-    margin: 12px 0 0;
+    margin: 12px auto 0;
     font-family: var(--f-display);
     font-weight: 400;
     font-size: clamp(36px, 4.4vw, 52px);
@@ -850,14 +853,14 @@ const sections = [
   }
 
   .cs-subtitle {
-    margin: -8px 0 0;
+    margin: -8px auto 0;
     font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-body);
     color: #aaa398;
   }
 
   /* 3-Column Meta Row: Client | Dates | Role */
   .cs-meta-grid {
-    margin: 8px 0;
+    margin: 8px auto;
     padding-block: 20px;
     border-top: 1px solid rgb(239 233 222 / 0.08);
     border-bottom: 1px solid rgb(239 233 222 / 0.08);
@@ -877,7 +880,7 @@ const sections = [
   }
 
   .cs-h2 {
-    margin: 0;
+    margin: 0 auto;
     font-family: var(--f-display);
     font-weight: 400;
     font-size: clamp(24px, 2.6vw, 32px);
@@ -887,7 +890,7 @@ const sections = [
   }
 
   .cs-prose {
-    margin: 0;
+    margin: 0 auto;
     font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-body);
     color: #cbc4b8;
   }
@@ -927,7 +930,7 @@ const sections = [
     gap: 12px;
   }
   .cs-img-box {
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
     background: #1c1a18;
     border: 1px solid rgb(239 233 222 / 0.08);
@@ -953,7 +956,7 @@ const sections = [
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 16px;
     box-sizing: border-box;
   }
