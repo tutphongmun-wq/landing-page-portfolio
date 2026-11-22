@@ -247,73 +247,83 @@
     ]
   },
   "04-content-buyback": {
-    "width": 201,
-    "height": 201,
+    "width": 2048,
+    "height": 2048,
     "sizes": [
-      201
+      800,
+      1600
     ]
   },
   "04-content-call-center": {
-    "width": 200,
-    "height": 201,
+    "width": 1280,
+    "height": 1280,
     "sizes": [
-      200
+      800,
+      1280
     ]
   },
   "04-content-chatgpt": {
-    "width": 201,
-    "height": 200,
+    "width": 1280,
+    "height": 1280,
     "sizes": [
-      201
+      800,
+      1280
     ]
   },
   "04-content-credit-card": {
-    "width": 201,
-    "height": 201,
+    "width": 1280,
+    "height": 1280,
     "sizes": [
-      201
+      800,
+      1280
     ]
   },
   "04-content-dnft": {
-    "width": 200,
-    "height": 201,
+    "width": 1280,
+    "height": 1280,
     "sizes": [
-      200
+      800,
+      1280
     ]
   },
   "04-content-layer2": {
-    "width": 201,
-    "height": 201,
+    "width": 1280,
+    "height": 1280,
     "sizes": [
-      201
+      800,
+      1280
     ]
   },
   "04-content-mortgage": {
-    "width": 201,
-    "height": 200,
+    "width": 1280,
+    "height": 1280,
     "sizes": [
-      201
+      800,
+      1280
     ]
   },
   "04-content-post-luck": {
-    "width": 228,
-    "height": 308,
+    "width": 1140,
+    "height": 1540,
     "sizes": [
-      228
+      800,
+      1140
     ]
   },
   "04-content-post-tree-of-alpha": {
-    "width": 228,
-    "height": 308,
+    "width": 1140,
+    "height": 1540,
     "sizes": [
-      228
+      800,
+      1140
     ]
   },
   "04-content-webtoon": {
-    "width": 200,
-    "height": 200,
+    "width": 1280,
+    "height": 1280,
     "sizes": [
-      200
+      800,
+      1280
     ]
   },
   "05-info-bitcoin-timeline": {
