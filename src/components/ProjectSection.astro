@@ -160,8 +160,16 @@ const itemKey = (it: Item) =>
                   {p.no}
                 </p>
                 <h3 id={titleId} class="title display" data-reveal style="--reveal-d: 60ms">
-                  <span class="visually-hidden">Project {p.no}: </span>
-                  {p.title}
+                  <a
+                    class="title-link"
+                    href={`#read-${p.slug}`}
+                    data-open-case={p.slug}
+                    data-case-trigger
+                    aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+                  >
+                    <span class="visually-hidden">Project {p.no}: </span>
+                    {p.title}
+                  </a>
                 </h3>
 
                 <h4 data-reveal style="--reveal-d: 110ms">Description</h4>
@@ -295,6 +303,17 @@ const itemKey = (it: Item) =>
     padding-bottom: 18px;
     border-bottom: 1px solid var(--c-line);
     overflow-wrap: break-word;
+  }
+  .title-link {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.18s ease;
+  }
+  .title-link:hover,
+  .title-link:focus-visible {
+    color: var(--c-accent);
   }
   .info h4 {
     margin: 12px 0 0;

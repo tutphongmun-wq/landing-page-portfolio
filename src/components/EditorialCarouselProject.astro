@@ -27,8 +27,16 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
           {p.no} / {totalProjects}
         </p>
         <h3 id={titleId} class="ed-title display" data-reveal style="--reveal-d: 60ms">
-          <span class="visually-hidden">Project {p.no}: </span>
-          {p.title}
+          <a
+            class="ed-title-link"
+            href={`#read-${p.slug}`}
+            data-open-case={p.slug}
+            data-case-trigger
+            aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+          >
+            <span class="visually-hidden">Project {p.no}: </span>
+            {p.title}
+          </a>
         </h3>
       </div>
 
@@ -350,6 +358,17 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     line-height: 1.08;
     letter-spacing: -0.02em;
     text-transform: none;
+  }
+  .ed-title-link {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.18s ease;
+  }
+  .ed-title-link:hover,
+  .ed-title-link:focus-visible {
+    color: var(--c-accent);
   }
   .ed-overview {
     margin-top: 6px;

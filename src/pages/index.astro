@@ -11,7 +11,7 @@ import SideNav from '../components/SideNav.astro';
 import Lightbox from '../components/Lightbox.astro';
 import VisualEditor from '../components/VisualEditor.astro';
 import ScrollSnap from '../components/ScrollSnap.astro';
-import SybilHighlightTest from '../components/SybilHighlightTest.astro';
+import CaseStudyReaders from '../components/CaseStudyReaders.astro';
 import { projects } from '../data/projects';
 ---
 
@@ -24,13 +24,13 @@ import { projects } from '../data/projects';
       <ProjectIndex />
       <section aria-label="Projects">
         {projects.map((project) => <ProjectSection project={project} />)}
-        <SybilHighlightTest />
       </section>
       <About />
       <Experience />
     </div>
     <Contact />
   </main>
+  <CaseStudyReaders />
   <Lightbox />
   <VisualEditor />
   <ScrollSnap />

@@ -14,8 +14,9 @@ import data from '../data/k2o-map.json';
 interface Props {
   name: string; // media prefix, e.g. 01-k2o-map
   label: string;
+  idSuffix?: string;
 }
-const { name, label } = Astro.props;
+const { name, label, idSuffix } = Astro.props;
 const ready = hasPublic(`${name}-aw-1200.webp`);
 const src = (layer: string) => ({
   src: assetUrl(`media/${name}-${layer}-1200.webp`),
@@ -23,7 +24,7 @@ const src = (layer: string) => ({
 });
 const mapLayers = data.layers.filter((l) => l.id !== 'headline');
 const steps = data.layers.length; // the headline (last layer) lives in the panel
-const uid = `fm-${name}`;
+const uid = idSuffix ? `fm-${name}-${idSuffix}` : `fm-${name}`;
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 

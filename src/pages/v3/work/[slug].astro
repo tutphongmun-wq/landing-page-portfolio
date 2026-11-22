@@ -4,6 +4,7 @@
 import Base from '../../../layouts/Base.astro';
 import ProjectSection from '../../../components/ProjectSection.astro';
 import Lightbox from '../../../components/Lightbox.astro';
+import CaseStudyReaders from '../../../components/CaseStudyReaders.astro';
 import Picture from '../../../components/Picture.astro';
 import { projects, type Project } from '../../../data/projects';
 import { site } from '../../../data/site';
@@ -64,6 +65,7 @@ const desc = Array.isArray(p.description) ? p.description.join(' ') : p.descript
       </a>
     </nav>
   </main>
+  <CaseStudyReaders />
   <Lightbox />
 </Base>
 

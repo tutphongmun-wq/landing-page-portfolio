@@ -1,0 +1,1814 @@
+---
+// Unified Full-Screen Editorial Case Study Reader for ALL 7 projects (#read-<slug>)
+// + Floating Cursor Tooltip ("Click to Explore full project") triggered on main Work titles.
+//
+// Layout matches the approved Sybil Husky reader architecture:
+//   - Left sticky navigation sidebar (264px): Back to All work, Project Name, live TOC, optional Live Site pill, Next project
+//   - Right scrollable reading pane:
+//       - Flush-top, edge-to-edge full-width cover banner (486px height)
+//       - Centered 720px left-aligned editorial text column
+//       - Centered 864px media breakout column (+20% wider than text)
+import Picture from './Picture.astro';
+import Palette from './Palette.astro';
+import VideoSlot from './VideoSlot.astro';
+import ModelSlot from './ModelSlot.astro';
+import FestivalMap from './FestivalMap.astro';
+import { projects } from '../data/projects';
+import { caseStudies } from '../data/caseStudies';
+import { tools } from '../data/site';
+import { assetUrl, posterUrl } from '../lib/media';
+
+const sybilMintTiers = [
+  {
+    badge: 'Tier 01 · Apprentice',
+    title: 'Siberian Apprentice',
+    img: assetUrl('media/07-sybil-char-apprentice.webp'),
+    stats: '100 Runes · $100 · Base Tier',
+  },
+  {
+    badge: 'Tier 02 · Mage',
+    title: 'Siberian Mage',
+    img: assetUrl('media/07-sybil-char-mage.webp'),
+    stats: 'Bonus Frost Gear · Companion',
+  },
+  {
+    badge: 'Tier 03 · Sorcerer',
+    title: 'Siberian Sorcerer',
+    img: assetUrl('media/07-sybil-char-sorcerer.webp'),
+    stats: '660 Runes · $600 · +10% Bonus',
+  },
+  {
+    badge: 'Tier 04 · Supreme',
+    title: 'Siberian Supreme',
+    img: assetUrl('media/07-sybil-char-supreme.webp'),
+    stats: '1,820 Runes · $1,400 · +30% Bonus',
+  },
+  {
+    badge: 'Edition · Baby 01',
+    title: 'Baby Husky (Frost)',
+    img: assetUrl('media/07-sybil-char-baby1.webp'),
+    stats: 'Special Community Edition',
+  },
+  {
+    badge: 'Edition · Baby 02',
+    title: 'Baby Husky (Ember)',
+    img: assetUrl('media/07-sybil-char-baby2.webp'),
+    stats: 'Special Community Edition',
+  },
+];
+---
+
+<!-- Singleton Floating Cursor Tooltip for Project Titles -->
+<div class="case-cursor-tip" data-case-cursor-tip aria-hidden="true">
+  Click to Explore full project
+</div>
+
+<!-- Full-Screen Editorial Case Study Dialogs (#read-<slug>) -->
+{
+  projects.map((p, idx) => {
+    const cs = caseStudies[p.slug];
+    if (!cs) return null;
+    const nextProject = projects[(idx + 1) % projects.length];
+    const tocItems = [
+      { id: `${p.slug}-overview`, label: 'Overview' },
+      { id: `${p.slug}-challenge`, label: 'The challenge' },
+      ...cs.sections.map((s) => ({ id: `${p.slug}-${s.id}`, label: s.tocLabel })),
+      { id: `${p.slug}-outcome`, label: 'Outcome' },
+    ];
+
+    return (
+      <dialog
+        class="cs-reader"
+        data-case-dialog={p.slug}
+        aria-labelledby={`cs-title-${p.slug}`}
+      >
+        <div class="cs-layout">
+          <!-- Left Sticky Navigation Sidebar -->
+          <aside class="cs-sidebar" aria-label={`${p.title} case study navigation`}>
+            <button type="button" class="cs-back" data-close-case={p.slug}>
+              <span aria-hidden="true">←</span>
+              <span>All work</span>
+            </button>
+
+            <div class="cs-toc-wrap">
+              <p class="cs-proj-name">{cs.sidebarName}</p>
+              <nav aria-label="Table of contents">
+                <ul class="cs-toc" role="list">
+                  {tocItems.map((item, tIdx) => (
+                    <li>
+                      <a
+                        href={`#${item.id}`}
+                        class:list={['cs-toc-link', { 'is-active': tIdx === 0 }]}
+                        data-cs-toc={item.id}
+                      >
+                        <span class="cs-toc-bar" aria-hidden="true" />
+                        <span>{item.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </div>
+
+            <div class="cs-side-foot">
+              {cs.liveUrl && (
+                <a href={cs.liveUrl.href} rel="noopener" target="_blank" class="cs-live-pill">
+                  <span>{cs.liveUrl.label}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              )}
+              <a
+                href={`#read-${nextProject.slug}`}
+                class="cs-next"
+                data-next-case={nextProject.slug}
+              >
+                <span class="cs-next-lbl">Next project</span>
+                <span class="cs-next-title">
+                  {nextProject.spine.label} <span aria-hidden="true">→</span>
+                </span>
+              </a>
+            </div>
+          </aside>
+
+          <!-- Right Scrollable Editorial Reading Column -->
+          <div class="cs-scroller" data-cs-scroller tabindex="-1">
+            <article class="cs-scope">
+              <!-- Section 1: Overview + Full-Width Flush-Top Cover Banner -->
+              <section
+                id={`${p.slug}-overview`}
+                class="cs-sec cs-sec-overview"
+                data-cs-section
+              >
+                {cs.cover.kind === 'logo' && (
+                  <div class="cs-hero-banner is-logo" style={`background:${cs.cover.bg}`}>
+                    <img
+                      src={assetUrl(cs.cover.logoFile)}
+                      width="568"
+                      height="306"
+                      alt={cs.cover.alt}
+                      class="cs-hero-logo"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+
+                {cs.cover.kind === 'photo' && (
+                  <div
+                    class="cs-hero-banner is-photo"
+                    style={`background:${cs.cover.bg};--cover-pos:${cs.cover.position ?? 'center center'}`}
+                  >
+                    <Picture
+                      name={cs.cover.image}
+                      alt={cs.cover.alt}
+                      sizes="100vw"
+                      class="cs-hero-photo"
+                    />
+                  </div>
+                )}
+
+                {cs.cover.kind === 'framed' && (
+                  <div class="cs-hero-banner is-framed" style={`background:${cs.cover.bg}`}>
+                    <div
+                      class="cs-hero-framed-inner"
+                      style={cs.cover.maxWidth ? `max-width:${cs.cover.maxWidth}px` : undefined}
+                    >
+                      <Picture
+                        name={cs.cover.image}
+                        alt={cs.cover.alt}
+                        sizes="(min-width: 900px) 960px, 94vw"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {cs.cover.kind === 'trio' && (
+                  <div class="cs-hero-banner is-trio" style={`background:${cs.cover.bg}`}>
+                    <div
+                      class:list={['cs-hero-trio', cs.cover.aspect === '1 / 1' && 'is-square']}
+                    >
+                      {cs.cover.images.map((imgName, cIdx) => (
+                        <div class:list={['cs-trio-card', cIdx === 1 && 'is-center']}>
+                          <Picture
+                            name={imgName}
+                            alt={cs.cover.alts[cIdx]}
+                            sizes="(min-width: 900px) 320px, 34vw"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div class="cs-pad cs-sec">
+                  <h1 id={`cs-title-${p.slug}`} class="cs-h1">{p.title}</h1>
+                  <p class="cs-subtitle">{cs.subtitle}</p>
+
+                  <dl class="cs-meta-grid">
+                    {cs.meta.map((m) => (
+                      <div>
+                        <dt>{m.label}</dt>
+                        <dd>{m.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  {cs.overviewParagraphs.map((para) => (
+                    <p class="cs-prose">{para}</p>
+                  ))}
+                </div>
+              </section>
+
+              <div class="cs-article">
+                <!-- Section 2: The Challenge -->
+                <section id={`${p.slug}-challenge`} class="cs-sec" data-cs-section>
+                  <h2 class="cs-h2">The challenge</h2>
+                  {cs.challenge.paragraphs.map((para) => (
+                    <p class="cs-prose">{para}</p>
+                  ))}
+
+                  <div class="cs-callout-grid">
+                    {cs.challenge.callouts.map((c) => (
+                      <div class="cs-callout">
+                        <h3>{c.title}</h3>
+                        <p>{c.body}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <!-- Project-Specific Editorial Sections -->
+                {cs.sections.map((sec) => {
+                  const hasWorldToggle = sec.blocks.some((b) => b.kind === 'sybil-world');
+                  const hasLiveToggle = sec.blocks.some((b) => b.kind === 'sybil-live');
+
+                  return (
+                    <section id={`${p.slug}-${sec.id}`} class="cs-sec" data-cs-section>
+                      {hasWorldToggle ? (
+                        <div class="cs-sec-head-row">
+                          <h2 class="cs-h2">{sec.heading}</h2>
+                          <div class="cs-seg" role="group" aria-label="Switch artwork lighting">
+                            <button
+                              type="button"
+                              class="cs-seg-btn is-active"
+                              data-world-mode="night"
+                            >
+                              Night · Aurora
+                            </button>
+                            <button type="button" class="cs-seg-btn" data-world-mode="day">
+                              Day · Sunrise
+                            </button>
+                          </div>
+                        </div>
+                      ) : hasLiveToggle ? (
+                        <div class="cs-sec-head-row">
+                          <h2 class="cs-h2">{sec.heading}</h2>
+                          <div class="cs-seg" role="group" aria-label="Switch landing page preview">
+                            <button
+                              type="button"
+                              class="cs-seg-btn is-active"
+                              data-lp-mode="live"
+                            >
+                              Live Site (Interactive)
+                            </button>
+                            <button type="button" class="cs-seg-btn" data-lp-mode="mockup">
+                              Overview Mockup
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <h2 class="cs-h2">{sec.heading}</h2>
+                      )}
+
+                      {sec.paragraphs.map((para) => (
+                        <p class="cs-prose">{para}</p>
+                      ))}
+
+                      {sec.blocks.map((block) => {
+                        if (block.kind === 'figure') {
+                          const zUrl = posterUrl(block.image);
+                          return (
+                            <figure class="cs-figure">
+                              <div class="cs-img-box">
+                                {zUrl ? (
+                                  <button
+                                    type="button"
+                                    class="cs-zoom"
+                                    data-zoom={zUrl}
+                                    data-zoom-alt={block.alt}
+                                    aria-label={`View larger: ${block.alt}`}
+                                  >
+                                    <Picture
+                                      name={block.image}
+                                      alt=""
+                                      sizes="(min-width: 900px) 864px, 92vw"
+                                    />
+                                  </button>
+                                ) : (
+                                  <Picture
+                                    name={block.image}
+                                    alt={block.alt}
+                                    sizes="(min-width: 900px) 864px, 92vw"
+                                  />
+                                )}
+                              </div>
+                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                            </figure>
+                          );
+                        }
+
+                        if (block.kind === 'grid') {
+                          return (
+                            <figure class="cs-figure">
+                              <div
+                                class:list={[
+                                  'cs-gallery',
+                                  block.cols === 3 ? 'cols-3' : 'cols-2',
+                                  block.fit === 'contain' && 'is-contain',
+                                ]}
+                              >
+                                {block.items.map((item) => {
+                                  const zUrl = posterUrl(item.image);
+                                  const sizes =
+                                    block.cols === 3
+                                      ? '(min-width: 900px) 280px, 46vw'
+                                      : '(min-width: 900px) 424px, 92vw';
+                                  return (
+                                    <div class="cs-gallery-card">
+                                      <div
+                                        class="cs-gallery-media"
+                                        style={block.aspect ? `aspect-ratio:${block.aspect}` : undefined}
+                                      >
+                                        {zUrl ? (
+                                          <button
+                                            type="button"
+                                            class="cs-zoom"
+                                            data-zoom={zUrl}
+                                            data-zoom-alt={item.alt}
+                                            aria-label={`View larger: ${item.alt}`}
+                                          >
+                                            <Picture name={item.image} alt="" sizes={sizes} />
+                                          </button>
+                                        ) : (
+                                          <Picture name={item.image} alt={item.alt} sizes={sizes} />
+                                        )}
+                                      </div>
+                                      {item.label && <span class="cs-gallery-lbl">{item.label}</span>}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                            </figure>
+                          );
+                        }
+
+                        if (block.kind === 'palette' && p.palette) {
+                          return (
+                            <figure class="cs-figure">
+                              <div class="cs-palette-wrap">
+                                <Palette swatches={p.palette} variant="strip" />
+                              </div>
+                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                            </figure>
+                          );
+                        }
+
+                        if (block.kind === 'video') {
+                          return (
+                            <figure class="cs-figure">
+                              <div class="cs-media-frame">
+                                <VideoSlot
+                                  name={block.name}
+                                  label={block.label}
+                                  poster={block.poster}
+                                />
+                              </div>
+                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                            </figure>
+                          );
+                        }
+
+                        if (block.kind === 'model') {
+                          return (
+                            <figure class="cs-figure">
+                              <div class="cs-model-frame">
+                                <ModelSlot
+                                  name={block.name}
+                                  label={block.label}
+                                  poster={block.poster}
+                                />
+                              </div>
+                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                            </figure>
+                          );
+                        }
+
+                        if (block.kind === 'map') {
+                          return (
+                            <figure class="cs-figure">
+                              <div class="cs-map-frame">
+                                <FestivalMap
+                                  name={block.name}
+                                  label={block.label}
+                                  idSuffix="cs"
+                                />
+                              </div>
+                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                            </figure>
+                          );
+                        }
+
+                        if (block.kind === 'sybil-world') {
+                          return (
+                            <figure class="cs-figure">
+                              <div class="cs-world-stage" data-world-stage="night">
+                                <div class="cs-world-layer is-night">
+                                  <Picture
+                                    name="07-sybil-bg-night"
+                                    alt="Sybil Husky Arctic fortress under the northern lights (Night mode)"
+                                    sizes="(min-width: 900px) 864px, 92vw"
+                                  />
+                                </div>
+                                <div class="cs-world-layer is-day">
+                                  <Picture
+                                    name="07-sybil-bg-day"
+                                    alt="Sybil Husky Arctic fortress at alpine sunrise (Day mode)"
+                                    sizes="(min-width: 900px) 864px, 92vw"
+                                  />
+                                </div>
+                              </div>
+                              <figcaption data-world-caption>
+                                Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.
+                              </figcaption>
+                            </figure>
+                          );
+                        }
+
+                        if (block.kind === 'sybil-tiers') {
+                          const tierSheetZoom = posterUrl('07-sybil-tiers');
+                          return (
+                            <>
+                              <div class="cs-char-grid">
+                                {sybilMintTiers.map((tier) => (
+                                  <div class="cs-char-card">
+                                    <div class="cs-char-thumb">
+                                      <img
+                                        src={tier.img}
+                                        width="160"
+                                        height="160"
+                                        alt={tier.title}
+                                        loading="lazy"
+                                        decoding="async"
+                                      />
+                                    </div>
+                                    <div class="cs-char-meta">
+                                      <span class="cs-char-badge">{tier.badge}</span>
+                                      <strong>{tier.title}</strong>
+                                      <span class="cs-char-stats">{tier.stats}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <figure class="cs-figure">
+                                <div class="cs-img-box">
+                                  {tierSheetZoom ? (
+                                    <button
+                                      type="button"
+                                      class="cs-zoom"
+                                      data-zoom={tierSheetZoom}
+                                      data-zoom-alt="Complete six-tier Sybil Husky card design system"
+                                      aria-label="View larger: Complete six-tier Sybil Husky card design system"
+                                    >
+                                      <Picture
+                                        name="07-sybil-tiers"
+                                        alt=""
+                                        sizes="(min-width: 900px) 864px, 92vw"
+                                      />
+                                    </button>
+                                  ) : (
+                                    <Picture
+                                      name="07-sybil-tiers"
+                                      alt="Six husky character cards: Apprentice, Mage, Sorcerer, Supreme, Special, Super Special"
+                                      sizes="(min-width: 900px) 864px, 92vw"
+                                    />
+                                  )}
+                                </div>
+                                <figcaption>
+                                  Complete six-tier card design system exported from Figma for the mint flow.
+                                </figcaption>
+                              </figure>
+                            </>
+                          );
+                        }
+
+                        if (block.kind === 'sybil-live') {
+                          return (
+                            <div class="cs-browser-frame">
+                              <div class="cs-browser-bar">
+                                <div class="cs-browser-dots" aria-hidden="true">
+                                  <span />
+                                  <span />
+                                  <span />
+                                </div>
+                                <div class="cs-browser-url">
+                                  <span class="cs-live-badge">LIVE</span>
+                                  <span>sybil-husky.vercel.app</span>
+                                </div>
+                                <a
+                                  href={block.liveUrl}
+                                  rel="noopener"
+                                  target="_blank"
+                                  class="cs-browser-open"
+                                >
+                                  Open ↗
+                                </a>
+                              </div>
+
+                              <div class="cs-iframe-stage" data-iframe-stage>
+                                <iframe
+                                  class="cs-iframe"
+                                  data-sybil-iframe
+                                  data-src={block.liveUrl}
+                                  title="Sybil Husky live website preview"
+                                  loading="lazy"
+                                />
+                              </div>
+
+                              <div class="cs-shot-stage" data-shot-stage hidden>
+                                <Picture
+                                  name="07-sybil-landing"
+                                  alt="Sybil Husky landing page UI shown on laptops and as a section overview"
+                                  sizes="(min-width: 900px) 864px, 92vw"
+                                />
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return null;
+                      })}
+                    </section>
+                  );
+                })}
+
+                <!-- Final Section: Outcome & Tools -->
+                <section id={`${p.slug}-outcome`} class="cs-sec" data-cs-section>
+                  <h2 class="cs-h2">Outcome</h2>
+                  <p class="cs-prose">{cs.outcome}</p>
+
+                  <div class="cs-tools-bar">
+                    <span class="cs-tools-lbl">Tools &amp; Software</span>
+                    <div class="cs-tools-list">
+                      {p.tools.map((id) => (
+                        <span class="cs-tool-pill">
+                          <strong>{tools[id].abbr}</strong> {tools[id].name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </article>
+          </div>
+        </div>
+      </dialog>
+    );
+  })
+}
+
+<script>
+  // ================= Unified Full Case Study Dialog Controller =================
+  const dialogs = new Map<string, HTMLDialogElement>();
+  document.querySelectorAll<HTMLDialogElement>('[data-case-dialog]').forEach((dlg) => {
+    const slug = dlg.dataset.caseDialog;
+    if (slug) dialogs.set(slug, dlg);
+  });
+
+  const cursorTip = document.querySelector<HTMLElement>('[data-case-cursor-tip]');
+  const HASH_PREFIX = '#read-';
+  let activeSlug: string | null = null;
+
+  const hideCursorTip = () => {
+    cursorTip?.classList.remove('is-visible');
+  };
+
+  // Scale Sybil Husky 1920px live iframe inside its container
+  function scaleDialogIframes(dlg: HTMLDialogElement) {
+    const stage = dlg.querySelector<HTMLElement>('[data-iframe-stage]');
+    const frame = dlg.querySelector<HTMLIFrameElement>('[data-sybil-iframe]');
+    if (!stage || !frame) return;
+    const w = stage.clientWidth;
+    if (w <= 0) return;
+    const s = w / 1920;
+    const targetH = Math.round(Math.min(540, Math.max(320, w * 0.625)));
+    stage.style.height = `${targetH}px`;
+    frame.style.width = '1920px';
+    frame.style.height = `${Math.round(targetH / s)}px`;
+    frame.style.transform = `scale(${s.toFixed(4)})`;
+  }
+
+  function pauseDialogMedia(dlg: HTMLDialogElement) {
+    dlg.querySelectorAll<HTMLVideoElement>('video').forEach((v) => {
+      if (!v.paused) v.pause();
+    });
+  }
+
+  function closeAllDialogs(updateHash = false) {
+    const prevSlug = activeSlug;
+    dialogs.forEach((dlg) => {
+      if (dlg.open) {
+        pauseDialogMedia(dlg);
+        dlg.close();
+      }
+    });
+    activeSlug = null;
+    document.documentElement.style.overflow = '';
+    if (updateHash && location.hash.startsWith(HASH_PREFIX)) {
+      const fallbackHash = prevSlug && document.getElementById(prevSlug) ? `#${prevSlug}` : '#work';
+      history.pushState(null, '', fallbackHash);
+    }
+  }
+
+  function openCaseStudy(slug: string, pushHash = true) {
+    if (document.documentElement.classList.contains('ve-active')) return;
+    const dlg = dialogs.get(slug);
+    if (!dlg) return;
+
+    hideCursorTip();
+
+    // Close any other currently open case study dialog smoothly
+    dialogs.forEach((other, otherSlug) => {
+      if (otherSlug !== slug && other.open) {
+        pauseDialogMedia(other);
+        other.close();
+      }
+    });
+
+    activeSlug = slug;
+
+    const scroller = dlg.querySelector<HTMLElement>('[data-cs-scroller]');
+    const tocLinks = [...dlg.querySelectorAll<HTMLAnchorElement>('[data-cs-toc]')];
+    const sections = [...dlg.querySelectorAll<HTMLElement>('[data-cs-section]')];
+
+    if (!dlg.open) {
+      dlg.showModal();
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    if (scroller) {
+      scroller.scrollTop = 0;
+      scroller.focus({ preventScroll: true });
+    }
+    const firstId = sections[0]?.id;
+    if (firstId) {
+      tocLinks.forEach((l) => l.classList.toggle('is-active', l.dataset.csToc === firstId));
+    }
+
+    // Lazy-load live iframe if present (Sybil Husky)
+    const frame = dlg.querySelector<HTMLIFrameElement>('[data-sybil-iframe]');
+    if (frame && !frame.src && frame.dataset.src) {
+      frame.src = frame.dataset.src;
+    }
+    requestAnimationFrame(() => scaleDialogIframes(dlg));
+
+    const targetHash = `${HASH_PREFIX}${slug}`;
+    if (pushHash && location.hash !== targetHash) {
+      history.pushState({ caseStudy: slug }, '', targetHash);
+    }
+  }
+
+  // Wire per-dialog interactive controls (TOC, Close, Next Project, Sybil toggles)
+  dialogs.forEach((dlg, slug) => {
+    const scroller = dlg.querySelector<HTMLElement>('[data-cs-scroller]');
+    const tocLinks = [...dlg.querySelectorAll<HTMLAnchorElement>('[data-cs-toc]')];
+    const sections = [...dlg.querySelectorAll<HTMLElement>('[data-cs-section]')];
+    const closeBtn = dlg.querySelector<HTMLButtonElement>('[data-close-case]');
+    const nextLink = dlg.querySelector<HTMLAnchorElement>('[data-next-case]');
+
+    const setActiveToc = (id: string) => {
+      for (const link of tocLinks) {
+        link.classList.toggle('is-active', link.dataset.csToc === id);
+      }
+    };
+
+    closeBtn?.addEventListener('click', () => closeAllDialogs(true));
+
+    // Next project switches seamlessly into the next project's Full Case Study
+    nextLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const nextSlug = nextLink.dataset.nextCase;
+      if (nextSlug) openCaseStudy(nextSlug, true);
+    });
+
+    // TOC smooth scroll inside reader
+    tocLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = link.dataset.csToc;
+        const target = id ? dlg.querySelector<HTMLElement>(`#${CSS.escape(id)}`) : null;
+        if (target && scroller) {
+          setActiveToc(id!);
+          const isOverview = target.classList.contains('cs-sec-overview');
+          scroller.scrollTo({
+            top: isOverview ? 0 : Math.max(0, target.offsetTop - 48),
+            behavior: 'smooth',
+          });
+        }
+      });
+    });
+
+    // Live TOC spy on scroll
+    scroller?.addEventListener(
+      'scroll',
+      () => {
+        const cutoff = scroller.scrollTop + scroller.clientHeight * 0.28;
+        let currentId = sections[0]?.id || '';
+        for (const sec of sections) {
+          if (sec.offsetTop <= cutoff) currentId = sec.id;
+        }
+        if (currentId) setActiveToc(currentId);
+      },
+      { passive: true },
+    );
+
+    // Handle ESC / native dialog close
+    dlg.addEventListener('close', () => {
+      pauseDialogMedia(dlg);
+      if (activeSlug === slug) {
+        activeSlug = null;
+        document.documentElement.style.overflow = '';
+        if (location.hash === `${HASH_PREFIX}${slug}`) {
+          const fallbackHash = document.getElementById(slug) ? `#${slug}` : '#work';
+          history.replaceState(null, '', fallbackHash);
+        }
+      }
+    });
+
+    // Sybil Day/Night World Switcher
+    const worldStage = dlg.querySelector<HTMLElement>('[data-world-stage]');
+    const worldBtns = [...dlg.querySelectorAll<HTMLButtonElement>('[data-world-mode]')];
+    const worldCaption = dlg.querySelector<HTMLElement>('[data-world-caption]');
+    worldBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.worldMode || 'night';
+        if (worldStage) worldStage.dataset.worldStage = mode;
+        worldBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+        if (worldCaption) {
+          worldCaption.textContent =
+            mode === 'day'
+              ? 'Day mode artwork — 1920×1080 alpine sunrise key visual used in Light theme.'
+              : 'Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.';
+        }
+      });
+    });
+
+    // Sybil Live Site / Mockup Toggle
+    const lpBtns = [...dlg.querySelectorAll<HTMLButtonElement>('[data-lp-mode]')];
+    const iframeStage = dlg.querySelector<HTMLElement>('[data-iframe-stage]');
+    const shotStage = dlg.querySelector<HTMLElement>('[data-shot-stage]');
+    lpBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.lpMode || 'live';
+        lpBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+        if (iframeStage && shotStage) {
+          const isLive = mode === 'live';
+          iframeStage.hidden = !isLive;
+          shotStage.hidden = isLive;
+          if (isLive) {
+            const frame = dlg.querySelector<HTMLIFrameElement>('[data-sybil-iframe]');
+            if (frame && !frame.src && frame.dataset.src) frame.src = frame.dataset.src;
+            requestAnimationFrame(() => scaleDialogIframes(dlg));
+          }
+        }
+      });
+    });
+
+    if (iframeStage) {
+      new ResizeObserver(() => scaleDialogIframes(dlg)).observe(iframeStage);
+      window.addEventListener('resize', () => {
+        if (dlg.open) scaleDialogIframes(dlg);
+      });
+    }
+  });
+
+  // Global click delegation for all [data-open-case] triggers (project titles)
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as Element)?.closest<HTMLElement>('[data-open-case]');
+    if (!trigger) return;
+    if (document.documentElement.classList.contains('ve-active')) return;
+    const slug = trigger.dataset.openCase;
+    if (slug && dialogs.has(slug)) {
+      e.preventDefault();
+      openCaseStudy(slug, true);
+    }
+  });
+
+  // Hash & browser Back/Forward sync
+  const syncFromHash = () => {
+    if (location.hash.startsWith(HASH_PREFIX)) {
+      const slug = location.hash.slice(HASH_PREFIX.length);
+      if (dialogs.has(slug)) {
+        openCaseStudy(slug, false);
+        return;
+      }
+    }
+    if (activeSlug) {
+      closeAllDialogs(false);
+    }
+  };
+  window.addEventListener('hashchange', syncFromHash);
+  window.addEventListener('popstate', syncFromHash);
+  syncFromHash();
+
+  // ================= Floating Cursor Tooltip ("Click to Explore full project") =================
+  if (cursorTip) {
+    let hoveredTrigger: HTMLElement | null = null;
+
+    const positionTip = (x: number, y: number) => {
+      const offsetX = 14;
+      const offsetY = 16;
+      const rect = cursorTip.getBoundingClientRect();
+      const tipW = rect.width || 240;
+      const tipH = rect.height || 36;
+      const clampedX = Math.min(x + offsetX, window.innerWidth - tipW - 12);
+      const clampedY = Math.min(y + offsetY, window.innerHeight - tipH - 12);
+      cursorTip.style.transform = `translate3d(${Math.round(clampedX)}px, ${Math.round(clampedY)}px, 0)`;
+    };
+
+    document.addEventListener(
+      'pointerover',
+      (e) => {
+        if (e.pointerType === 'touch') return;
+        if (document.documentElement.classList.contains('ve-active')) return;
+        const trigger = (e.target as Element)?.closest<HTMLElement>('[data-case-trigger]');
+        if (!trigger) return;
+        hoveredTrigger = trigger;
+        positionTip(e.clientX, e.clientY);
+        cursorTip.classList.add('is-visible');
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      'pointermove',
+      (e) => {
+        if (!hoveredTrigger || e.pointerType === 'touch') return;
+        positionTip(e.clientX, e.clientY);
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      'pointerout',
+      (e) => {
+        if (!hoveredTrigger) return;
+        const next = (e.relatedTarget as Element | null)?.closest<HTMLElement>('[data-case-trigger]');
+        if (next === hoveredTrigger) return;
+        hoveredTrigger = null;
+        hideCursorTip();
+      },
+      { passive: true },
+    );
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (hoveredTrigger) {
+          hoveredTrigger = null;
+          hideCursorTip();
+        }
+      },
+      { passive: true },
+    );
+    window.addEventListener('blur', hideCursorTip);
+  }
+</script>
+
+<style>
+  /* ================= Floating Cursor Tooltip (Reference Pill Bubble) ================= */
+  .case-cursor-tip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+    padding: 10px 16px;
+    border-radius: 4px 18px 18px 18px;
+    background: #141312;
+    color: #f3f1ed;
+    border: 1px solid rgb(20 19 18 / 0.14);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.28);
+    font-family: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    opacity: 0;
+    scale: 0.94;
+    transform-origin: top left;
+    transition:
+      opacity 0.14s cubic-bezier(0.22, 1, 0.36, 1),
+      scale 0.14s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
+  }
+  :global(:root[data-theme='dark']) .case-cursor-tip {
+    background: #f3f1ed;
+    color: #141312;
+    border: 1px solid rgb(255 255 255 / 0.2);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.5);
+  }
+  .case-cursor-tip.is-visible {
+    opacity: 1;
+    scale: 1;
+  }
+  @media (any-hover: none) and (pointer: coarse) {
+    .case-cursor-tip {
+      display: none;
+    }
+  }
+
+  /* ================= Full-Screen Editorial Case Study Reader ================= */
+  .cs-reader {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #161513;
+    color: #efe9de;
+    overflow: hidden;
+  }
+  .cs-reader[open] {
+    animation: cs-slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes cs-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-reader[open] {
+      animation: none;
+    }
+  }
+  .cs-reader::backdrop {
+    background: rgb(12 11 10 / 0.9);
+  }
+
+  .cs-layout {
+    display: grid;
+    grid-template-columns: 264px minmax(0, 1fr);
+    width: 100%;
+    height: 100dvh;
+  }
+
+  .cs-sidebar {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px 24px 36px 32px;
+    background: #12110f;
+    border-right: 1px solid rgb(239 233 222 / 0.08);
+    height: 100dvh;
+    user-select: none;
+  }
+
+  .cs-back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px;
+    border: 0;
+    background: transparent;
+    color: #aaa398;
+    font: 500 14px / 1.2 var(--f-body);
+    cursor: pointer;
+    transition: color 0.16s ease, transform 0.16s ease;
+  }
+  .cs-back:hover {
+    color: #efe9de;
+    transform: translateX(-2px);
+  }
+
+  .cs-toc-wrap {
+    display: grid;
+    gap: 12px;
+    margin-block: auto;
+  }
+
+  .cs-proj-name {
+    margin: 0 0 4px 12px;
+    font-family: var(--f-display);
+    font-size: 18px;
+    font-weight: 400;
+    color: #efe9de;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  .cs-toc {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  .cs-toc-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 36px;
+    padding-inline: 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    color: #8a847a;
+    font: 500 14px / 1.2 var(--f-body);
+    text-decoration: none;
+    transition:
+      color 0.16s ease,
+      border-color 0.16s ease,
+      background-color 0.16s ease;
+  }
+  .cs-toc-link:hover {
+    color: #efe9de;
+  }
+  .cs-toc-bar {
+    width: 12px;
+    height: 1.5px;
+    background: currentColor;
+    opacity: 0.45;
+    flex: none;
+    transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+  }
+  .cs-toc-link.is-active {
+    color: #efe9de;
+    border-color: rgb(239 233 222 / 0.16);
+    background: #1c1a18;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+  }
+  .cs-toc-link.is-active .cs-toc-bar {
+    width: 20px;
+    opacity: 1;
+    background: #ff3838;
+  }
+
+  .cs-side-foot {
+    display: grid;
+    gap: 16px;
+  }
+  .cs-live-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.12);
+    color: #efe9de;
+    font: 600 13px / 1.2 var(--f-body);
+    text-decoration: none;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+  }
+  .cs-live-pill:hover {
+    background: #262421;
+    border-color: rgb(239 233 222 / 0.28);
+  }
+
+  .cs-next {
+    display: grid;
+    gap: 4px;
+    padding-left: 12px;
+    text-decoration: none;
+    color: #efe9de;
+  }
+  .cs-next-lbl {
+    font: 500 12px / 1.2 var(--f-body);
+    color: #8a847a;
+  }
+  .cs-next-title {
+    font: 600 14px / 1.3 var(--f-body);
+    color: #efe9de;
+    transition: color 0.16s ease;
+  }
+  .cs-next:hover .cs-next-title {
+    color: #ff3838;
+  }
+
+  /* Right Scrollable Reading Area */
+  .cs-scroller {
+    height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    padding: 0 0 120px;
+    box-sizing: border-box;
+  }
+  .cs-scroller:focus {
+    outline: none;
+  }
+
+  .cs-scope {
+    display: block;
+    width: 100%;
+  }
+
+  /* Centered 864px media column with 60px outer breathing room */
+  .cs-pad,
+  .cs-article {
+    width: 100%;
+    max-width: calc(864px + 120px);
+    padding-inline: 60px;
+    box-sizing: border-box;
+    margin-inline: auto;
+  }
+
+  .cs-article {
+    margin-top: 72px;
+    display: grid;
+    gap: 72px;
+  }
+
+  .cs-sec {
+    display: grid;
+    gap: 24px;
+    scroll-margin-top: 48px;
+  }
+  .cs-sec-overview {
+    scroll-margin-top: 0;
+  }
+
+  /* Left-aligned 720px text column centered inside the 864px media frame */
+  .cs-h1,
+  .cs-subtitle,
+  .cs-meta-grid,
+  .cs-h2,
+  .cs-prose,
+  .cs-callout-grid,
+  .cs-tools-bar,
+  .cs-sec-head-row,
+  .cs-figure figcaption {
+    width: 100%;
+    max-width: 720px;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  .cs-sec-head-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .cs-sec-head-row .cs-h2 {
+    width: auto;
+    margin: 0;
+  }
+
+  /* ================= Full-Width Flush-Top Cover Banner (486px) ================= */
+  .cs-hero-banner {
+    position: relative;
+    width: 100%;
+    height: 486px;
+    border-radius: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.42);
+  }
+  .cs-hero-banner.is-logo {
+    display: grid;
+    place-items: center;
+    padding: clamp(28px, 5vw, 56px);
+  }
+  .cs-hero-logo {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .cs-hero-banner.is-photo :global(picture),
+  .cs-hero-banner.is-photo :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--cover-pos, center center);
+  }
+  .cs-hero-banner.is-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.08) 0%, rgb(0 0 0 / 0) 55%, rgb(22 21 19 / 0.48) 100%);
+    pointer-events: none;
+  }
+
+  .cs-hero-banner.is-framed {
+    display: grid;
+    place-items: center;
+    padding: 36px 48px;
+  }
+  .cs-hero-framed-inner {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+  }
+  .cs-hero-framed-inner :global(picture),
+  .cs-hero-framed-inner :global(img) {
+    display: block;
+    max-width: 100%;
+    max-height: 414px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 20px 52px rgb(0 0 0 / 0.48);
+  }
+
+  .cs-hero-banner.is-trio {
+    display: grid;
+    place-items: center;
+    padding: 36px 48px;
+  }
+  .cs-hero-trio {
+    width: 100%;
+    max-width: 960px;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: center;
+  }
+  .cs-trio-card {
+    height: 356px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.12);
+    box-shadow: 0 18px 44px rgb(0 0 0 / 0.48);
+    transform: translateY(8px);
+  }
+  .cs-trio-card.is-center {
+    height: 396px;
+    transform: translateY(-4px);
+    box-shadow: 0 24px 56px rgb(0 0 0 / 0.62);
+  }
+  .cs-hero-trio.is-square {
+    max-width: 1020px;
+  }
+  .cs-hero-trio.is-square .cs-trio-card {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+  .cs-hero-trio.is-square .cs-trio-card.is-center {
+    height: auto;
+    aspect-ratio: 1 / 1;
+    transform: translateY(-8px) scale(1.04);
+  }
+  .cs-trio-card :global(picture),
+  .cs-trio-card :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ================= Editorial Typography ================= */
+  .cs-h1 {
+    margin: 12px auto 0;
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: clamp(36px, 4.4vw, 52px);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: #efe9de;
+  }
+
+  .cs-subtitle {
+    margin: -8px auto 0;
+    font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-body);
+    color: #aaa398;
+  }
+
+  .cs-meta-grid {
+    margin: 8px auto;
+    padding-block: 20px;
+    border-top: 1px solid rgb(239 233 222 / 0.08);
+    border-bottom: 1px solid rgb(239 233 222 / 0.08);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .cs-meta-grid dt {
+    font: 500 12px / 1.3 var(--f-body);
+    color: #8a847a;
+    margin-bottom: 4px;
+  }
+  .cs-meta-grid dd {
+    margin: 0;
+    font: 500 14px / 1.45 var(--f-body);
+    color: #efe9de;
+  }
+
+  .cs-h2 {
+    margin: 0 auto;
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: clamp(24px, 2.6vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: #efe9de;
+  }
+
+  .cs-prose {
+    margin: 0 auto;
+    font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-body);
+    color: #cbc4b8;
+  }
+
+  .cs-callout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .cs-callout {
+    padding: 20px 24px;
+    border-radius: 16px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    display: grid;
+    gap: 8px;
+  }
+  .cs-callout h3 {
+    margin: 0;
+    font: 700 15px / 1.3 var(--f-body);
+    color: #ff3838;
+  }
+  .cs-callout p {
+    margin: 0;
+    font: 400 14px / 1.55 var(--f-body);
+    color: #cbc4b8;
+  }
+
+  /* ================= Segmented Control Pill ================= */
+  .cs-seg {
+    display: inline-flex;
+    padding: 4px;
+    gap: 4px;
+    border-radius: 999px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.1);
+  }
+  .cs-seg-btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 14px;
+    background: transparent;
+    color: #968f84;
+    font: 600 12.5px / 1 var(--f-body);
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .cs-seg-btn:hover {
+    color: #efe9de;
+  }
+  .cs-seg-btn.is-active {
+    background: #efe9de;
+    color: #141312;
+  }
+
+  /* ================= Figures, Galleries & Interactive Media (864px) ================= */
+  .cs-figure {
+    margin: 8px 0 0;
+    display: grid;
+    gap: 12px;
+  }
+  .cs-img-box {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    box-shadow: 0 20px 48px rgb(0 0 0 / 0.36);
+  }
+  .cs-img-box :global(picture),
+  .cs-img-box :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .cs-figure figcaption {
+    font: 400 13px / 1.45 var(--f-body);
+    color: #8a847a;
+  }
+
+  .cs-zoom {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+    transition: filter 0.2s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cs-zoom:hover {
+    filter: brightness(1.06);
+  }
+  .cs-zoom:focus-visible {
+    outline: 2px solid #ff3838;
+    outline-offset: -2px;
+  }
+
+  /* Multi-column Galleries */
+  .cs-gallery {
+    display: grid;
+    gap: 16px;
+  }
+  .cs-gallery.cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cs-gallery.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cs-gallery-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    box-shadow: 0 14px 36px rgb(0 0 0 / 0.3);
+  }
+  .cs-gallery-media {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+    background: #141312;
+  }
+  .cs-gallery-media :global(picture),
+  .cs-gallery-media :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cs-gallery.is-contain .cs-gallery-media {
+    display: grid;
+    place-items: center;
+    padding: 14px;
+    box-sizing: border-box;
+    min-height: 220px;
+  }
+  .cs-gallery.is-contain .cs-gallery-media :global(picture),
+  .cs-gallery.is-contain .cs-gallery-media :global(img) {
+    width: 100%;
+    height: 100%;
+    max-height: 360px;
+    object-fit: contain;
+  }
+  .cs-gallery-lbl {
+    display: block;
+    padding: 10px 14px;
+    background: #1c1a18;
+    border-top: 1px solid rgb(239 233 222 / 0.06);
+    font: 500 12.5px / 1.3 var(--f-body);
+    color: #cbc4b8;
+  }
+
+  .cs-palette-wrap {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgb(239 233 222 / 0.08);
+  }
+
+  .cs-media-frame {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #12110f;
+    border: 1px solid rgb(239 233 222 / 0.1);
+    box-shadow: 0 20px 48px rgb(0 0 0 / 0.42);
+  }
+  .cs-media-frame :global(video) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+  }
+
+  .cs-model-frame {
+    width: 100%;
+    height: 520px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgb(0 242 255 / 0.18);
+    box-shadow: 0 20px 50px rgb(0 0 0 / 0.44);
+  }
+  .cs-model-frame :global(.model-slot) {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+
+  .cs-map-frame {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgb(239 233 222 / 0.1);
+    box-shadow: 0 20px 50px rgb(0 0 0 / 0.44);
+  }
+  .cs-map-frame :global(.fmap) {
+    border-radius: 0;
+  }
+  @media (min-width: 780px) {
+    .cs-map-frame :global(.fmap) {
+      grid-template-columns: minmax(0, 1.32fr) minmax(248px, 0.92fr);
+      height: 580px;
+    }
+    .cs-map-frame :global(.fm-stage) {
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .cs-map-frame :global(.fm-panel) {
+      overflow-y: auto;
+      border-top: 0;
+    }
+  }
+
+  /* ================= Sybil Husky Specific Interactive Blocks ================= */
+  .cs-world-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    box-shadow: 0 20px 48px rgb(0 0 0 / 0.36);
+  }
+  .cs-world-layer {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cs-world-layer :global(picture),
+  .cs-world-layer :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cs-world-stage[data-world-stage='night'] .is-day {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cs-world-stage[data-world-stage='day'] .is-night {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cs-char-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .cs-char-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+  }
+  .cs-char-thumb {
+    width: 68px;
+    height: 68px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex: none;
+    background: #262421;
+  }
+  .cs-char-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cs-char-meta {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+    text-align: left;
+  }
+  .cs-char-badge {
+    font: 700 11px / 1 var(--f-body);
+    color: #ff3838;
+  }
+  .cs-char-meta strong {
+    font: 700 14px / 1.2 var(--f-body);
+    color: #efe9de;
+  }
+  .cs-char-stats {
+    font: 400 12px / 1.3 var(--f-body);
+    color: #968f84;
+  }
+
+  .cs-browser-frame {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.12);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  }
+  .cs-browser-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #12110f;
+    border-bottom: 1px solid rgb(239 233 222 / 0.08);
+  }
+  .cs-browser-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .cs-browser-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgb(239 233 222 / 0.18);
+  }
+  .cs-browser-url {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    font: 500 12px / 1 var(--f-body);
+    color: #cbc4b8;
+  }
+  .cs-live-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgb(255 56 56 / 0.16);
+    color: #ff3838;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+  .cs-browser-open {
+    font: 600 12.5px / 1 var(--f-body);
+    color: #efe9de;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: rgb(239 233 222 / 0.08);
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .cs-browser-open:hover {
+    background: #ff3838;
+    color: #ffffff;
+  }
+
+  .cs-iframe-stage {
+    position: relative;
+    width: 100%;
+    height: 540px;
+    overflow: hidden;
+    background: #12110f;
+  }
+  .cs-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1200px;
+    border: 0;
+    transform-origin: top left;
+    transform: scale(0.45);
+  }
+  .cs-shot-stage :global(picture),
+  .cs-shot-stage :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ================= Outcome Tools Bar ================= */
+  .cs-tools-bar {
+    margin-top: 8px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-sizing: border-box;
+  }
+  .cs-tools-lbl {
+    font: 600 13px / 1 var(--f-body);
+    color: #8a847a;
+  }
+  .cs-tools-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cs-tool-pill {
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #262421;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    font: 400 13px / 1.2 var(--f-body);
+    color: #efe9de;
+  }
+  .cs-tool-pill strong {
+    color: #ff3838;
+    margin-right: 4px;
+  }
+
+  /* ================= Mobile / Tablet Responsive ================= */
+  @media (max-width: 900px) {
+    .cs-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+    }
+    .cs-sidebar {
+      height: auto;
+      flex-direction: row;
+      align-items: center;
+      padding: 16px 20px;
+      border-right: 0;
+      border-bottom: 1px solid rgb(239 233 222 / 0.08);
+    }
+    .cs-toc-wrap,
+    .cs-live-pill {
+      display: none;
+    }
+    .cs-scroller {
+      height: calc(100dvh - 56px);
+      padding: 0 0 80px;
+    }
+    .cs-pad,
+    .cs-article {
+      padding-inline: 20px;
+    }
+    .cs-hero-banner {
+      width: 100%;
+      height: clamp(240px, 56vw, 486px);
+    }
+    .cs-hero-banner.is-framed,
+    .cs-hero-banner.is-trio {
+      padding: 20px;
+    }
+    .cs-hero-trio {
+      gap: 12px;
+    }
+    .cs-trio-card,
+    .cs-trio-card.is-center {
+      height: clamp(160px, 40vw, 320px);
+      transform: none;
+    }
+    .cs-meta-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .cs-gallery.cols-2,
+    .cs-gallery.cols-3,
+    .cs-char-grid {
+      grid-template-columns: 1fr;
+    }
+    .cs-model-frame {
+      height: 360px;
+    }
+  }
+</style>
