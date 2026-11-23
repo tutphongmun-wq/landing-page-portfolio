@@ -4,6 +4,7 @@
 // bookshelf, the main links and the theme switch.
 import { projects } from '../data/projects';
 import ThemeToggle from './ThemeToggle.astro';
+import LangToggle from './LangToggle.astro';
 const total = String(projects.length).padStart(2, '0');
 ---
 
@@ -23,7 +24,10 @@ const total = String(projects.length).padStart(2, '0');
         <li><a href="#about">About</a></li>
         <li><a href="#experience">Experience</a></li>
         <li><a href="#contact">Contact</a></li>
-        <li><ThemeToggle /></li>
+        <li class="nav-utils">
+          <LangToggle variant="surface" />
+          <ThemeToggle />
+        </li>
       </ul>
     </nav>
   </div>
@@ -51,7 +55,14 @@ const total = String(projects.length).padStart(2, '0');
 
   // current project: the article crossing the middle of the viewport
   const articles = [...document.querySelectorAll<HTMLElement>('article.project')];
-  const titles = new Map(articles.map((a) => [a, a.querySelector('.title')?.lastChild?.textContent?.trim() ?? '']));
+  const titles = new Map(
+    articles.map((a) => [
+      a,
+      a.dataset.projectTitle ??
+        a.querySelector('[data-open-case]')?.textContent?.replace(/^Project\s+\d+:\s*/, '').trim() ??
+        '',
+    ]),
+  );
   const io = new IntersectionObserver(
     (entries) => {
       const hit = entries.find((e) => e.isIntersecting);
@@ -123,10 +134,14 @@ const total = String(projects.length).padStart(2, '0');
     display: none;
   }
   .now-no {
+    flex: none;
+    white-space: nowrap;
     font-family: var(--f-display);
     color: var(--c-accent);
   }
   .now-of {
+    flex: none;
+    white-space: nowrap;
     color: var(--c-muted);
   }
   .now-title {
@@ -152,6 +167,11 @@ const total = String(projects.length).padStart(2, '0');
     gap: clamp(12px, 2.5vw, 28px);
     margin: 0;
   }
+  .nav-utils {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
   nav a {
     display: inline-block;
     padding-block: 10px;
@@ -168,9 +188,35 @@ const total = String(projects.length).padStart(2, '0');
   }
 
   @media (max-width: 640px) {
-    /* phones: brand, current project, theme switch */
+    /* phones: brand, current project, lang + theme switch */
+    .bar {
+      gap: 8px;
+    }
+    .now {
+      flex: 1 1 0;
+      min-width: 0;
+      gap: 5px;
+      padding: 5px 10px;
+    }
+    nav {
+      flex: none;
+    }
+    nav ul {
+      gap: 0;
+    }
+    .nav-utils {
+      gap: 4px;
+    }
+    .sticky-nav :global(.lang-btn) {
+      padding: 4px 7px;
+      font-size: 10.5px;
+    }
+    .sticky-nav :global(.theme-toggle) {
+      min-width: 44px;
+    }
     nav li:not(:last-child),
-    .now-back {
+    .now-back,
+    .now-of {
       display: none;
     }
   }

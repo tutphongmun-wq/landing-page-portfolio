@@ -18,7 +18,7 @@ const titleId = `${p.slug}-title`;
 const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.kind === 'image');
 ---
 
-<article class="project project-editorial" id={p.slug} aria-labelledby={titleId}>
+<article class="project project-editorial" id={p.slug} data-project-title={p.title} aria-labelledby={titleId}>
   <div class="ed-shell" data-ve-editorial={p.slug}>
     <!-- Top Header & Overview -->
     <header class="ed-header">
@@ -42,17 +42,34 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
 
       <div class="ed-overview" data-ve-free={`${p.slug}:overview`} data-ve-label={`${p.no} Overview`}>
         <h4 class="ed-h4" data-reveal style="--reveal-d: 100ms">Overview</h4>
-        {
-          Array.isArray(p.description) ? (
-            <ul class="ed-bullets" data-reveal style="--reveal-d: 140ms">
-              {p.description.map((d) => (
-                <li>{d}</li>
-              ))}
-            </ul>
-          ) : (
-            <p data-reveal style="--reveal-d: 140ms">{p.description}</p>
-          )
-        }
+        <div data-reveal style="--reveal-d: 140ms">
+          <div data-lang-text="en">
+            {
+              Array.isArray(p.description) ? (
+                <ul class="ed-bullets">
+                  {p.description.map((d) => (
+                    <li>{d}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{p.description}</p>
+              )
+            }
+          </div>
+          <div data-lang-text="th">
+            {
+              Array.isArray(p.descriptionTh) ? (
+                <ul class="ed-bullets">
+                  {p.descriptionTh.map((d) => (
+                    <li>{d}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{p.descriptionTh}</p>
+              )
+            }
+          </div>
+        </div>
       </div>
     </header>
 
@@ -139,9 +156,14 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
     <footer class="ed-footer">
       <div class="ed-col" data-ve-free={`${p.slug}:my-role`} data-ve-label={`${p.no} My Role`}>
         <h4 class="ed-h4" data-reveal>My Role</h4>
-        <ul class="ed-bullets" data-reveal style="--reveal-d: 60ms">
-          {p.role.map((r) => <li>{r}</li>)}
-        </ul>
+        <div data-reveal style="--reveal-d: 60ms">
+          <ul class="ed-bullets" data-lang-text="en">
+            {p.role.map((r) => <li>{r}</li>)}
+          </ul>
+          <ul class="ed-bullets" data-lang-text="th">
+            {p.roleTh.map((r) => <li>{r}</li>)}
+          </ul>
+        </div>
       </div>
 
       <div class="ed-col" data-ve-free={`${p.slug}:tools`} data-ve-label={`${p.no} Tools & Software`}>

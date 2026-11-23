@@ -164,6 +164,14 @@ html.ve-active [data-reveal] {
   transform: none;
 }
 
+/* Bilingual long-form reading switch (defaults to EN when unset) */
+:root:not([data-lang='th']) [data-lang-text='th'] {
+  display: none !important;
+}
+:root[data-lang='th'] [data-lang-text='en'] {
+  display: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

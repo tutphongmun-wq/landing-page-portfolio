@@ -31,10 +31,14 @@ const ogImage = new URL(assetUrl('og.jpg'), Astro.site);
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#f2efea" />
     <script is:inline>
-      // Apply a saved theme choice before first paint (no flash).
+      // Apply saved theme & language choice before first paint (no flash).
       try {
         const t = localStorage.getItem('theme');
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        const l = localStorage.getItem('lang');
+        const lang = l === 'th' ? 'th' : 'en';
+        document.documentElement.dataset.lang = lang;
+        document.documentElement.lang = lang;
         if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
           document.documentElement.classList.add('has-reveal');
         }

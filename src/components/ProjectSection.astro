@@ -144,7 +144,7 @@ const itemKey = (it: Item) =>
   isEditorialCarousel ? (
     <EditorialCarouselProject project={p} />
   ) : (
-    <article class="project" id={p.slug} aria-labelledby={titleId}>
+    <article class="project" id={p.slug} data-project-title={p.title} aria-labelledby={titleId}>
       {
         slides.map((s, i) => (
           <section
@@ -173,22 +173,44 @@ const itemKey = (it: Item) =>
                 </h3>
 
                 <h4 data-reveal style="--reveal-d: 110ms">Description</h4>
-                {Array.isArray(p.description) ? (
-                  <ul class="bullets" data-reveal style="--reveal-d: 140ms">
-                    {p.description.map((d) => (
-                      <li>{d}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p data-reveal style="--reveal-d: 140ms">{p.description}</p>
-                )}
+                <div data-reveal style="--reveal-d: 140ms">
+                  <div data-lang-text="en">
+                    {Array.isArray(p.description) ? (
+                      <ul class="bullets">
+                        {p.description.map((d) => (
+                          <li>{d}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>{p.description}</p>
+                    )}
+                  </div>
+                  <div data-lang-text="th">
+                    {Array.isArray(p.descriptionTh) ? (
+                      <ul class="bullets">
+                        {p.descriptionTh.map((d) => (
+                          <li>{d}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>{p.descriptionTh}</p>
+                    )}
+                  </div>
+                </div>
 
                 <h4 data-reveal style="--reveal-d: 180ms">My Role</h4>
-                <ul class="bullets" data-reveal style="--reveal-d: 210ms">
-                  {p.role.map((r) => (
-                    <li>{r}</li>
-                  ))}
-                </ul>
+                <div data-reveal style="--reveal-d: 210ms">
+                  <ul class="bullets" data-lang-text="en">
+                    {p.role.map((r) => (
+                      <li>{r}</li>
+                    ))}
+                  </ul>
+                  <ul class="bullets" data-lang-text="th">
+                    {p.roleTh.map((r) => (
+                      <li>{r}</li>
+                    ))}
+                  </ul>
+                </div>
 
                 <h4 data-reveal style="--reveal-d: 240ms">Tools &amp; Software</h4>
                 <div data-reveal style="--reveal-d: 270ms">

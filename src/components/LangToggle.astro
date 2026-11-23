@@ -1,0 +1,152 @@
+---
+// Bilingual switcher (EN | TH) that toggles long-form reading sections cleanly
+// between English (default) and Thai, persisted in localStorage ('lang').
+interface Props {
+  variant?: 'hero' | 'surface' | 'dark' | 'compact';
+}
+const { variant = 'surface' } = Astro.props;
+---
+
+<div class:list={['lang-switch', `is-${variant}`]} role="group" aria-label="Language switch">
+  <button type="button" class="lang-btn" data-set-lang="en" aria-pressed="true">
+    EN
+  </button>
+  <button type="button" class="lang-btn" data-set-lang="th" aria-pressed="false">
+    TH
+  </button>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const getLang = (): 'en' | 'th' => (root.dataset.lang === 'th' ? 'th' : 'en');
+
+  const syncLangUI = (lang: 'en' | 'th') => {
+    root.dataset.lang = lang;
+    root.lang = lang;
+    document.querySelectorAll<HTMLButtonElement>('[data-set-lang]').forEach((btn) => {
+      const active = btn.dataset.setLang === lang;
+      btn.setAttribute('aria-pressed', String(active));
+      btn.classList.toggle('is-active', active);
+    });
+  };
+
+  if (!(window as unknown as { __punLangWired?: boolean }).__punLangWired) {
+    (window as unknown as { __punLangWired?: boolean }).__punLangWired = true;
+    document.addEventListener('click', (e) => {
+      const btn = (e.target as Element)?.closest<HTMLButtonElement>('[data-set-lang]');
+      if (!btn) return;
+      const next = btn.dataset.setLang === 'th' ? 'th' : 'en';
+      try {
+        localStorage.setItem('lang', next);
+      } catch {}
+      syncLangUI(next);
+    });
+  }
+
+  syncLangUI(getLang());
+</script>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    gap: 2px;
+    border-radius: 999px;
+    user-select: none;
+  }
+
+  .lang-btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 5px 10px;
+    background: transparent;
+    font: 700 11.5px / 1 var(--f-body);
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition:
+      background-color 0.16s ease,
+      color 0.16s ease;
+  }
+
+  /* Variant: Hero (on red #e8222b background) */
+  .lang-switch.is-hero {
+    background: rgb(0 0 0 / 0.12);
+    border: 1px solid rgb(0 0 0 / 0.22);
+  }
+  .lang-switch.is-hero .lang-btn {
+    color: #111;
+  }
+  :global(:root:not([data-lang='th'])) .lang-switch.is-hero .lang-btn[data-set-lang='en'],
+  :global(:root[data-lang='th']) .lang-switch.is-hero .lang-btn[data-set-lang='th'] {
+    background: #111;
+    color: #f2f2f2;
+  }
+
+  /* Variant: Surface (StickyNav & /v3/ topbar, follows theme tokens) */
+  .lang-switch.is-surface {
+    background: var(--c-bg-raised);
+    border: 1px solid var(--c-line);
+  }
+  .lang-switch.is-surface .lang-btn {
+    color: var(--c-muted);
+  }
+  .lang-switch.is-surface .lang-btn:hover {
+    color: var(--c-fg);
+  }
+  :global(:root:not([data-lang='th'])) .lang-switch.is-surface .lang-btn[data-set-lang='en'],
+  :global(:root[data-lang='th']) .lang-switch.is-surface .lang-btn[data-set-lang='th'] {
+    background: var(--c-fg);
+    color: var(--c-bg);
+  }
+
+  /* Variant: Compact (SideNav header) */
+  .lang-switch.is-compact {
+    padding: 2px;
+    gap: 1px;
+    background: var(--c-bg-raised);
+    border: 1px solid var(--c-line);
+  }
+  .lang-switch.is-compact .lang-btn {
+    padding: 4px 8px;
+    font-size: 10.5px;
+  }
+  .lang-switch.is-compact .lang-btn {
+    color: var(--c-muted);
+  }
+  .lang-switch.is-compact .lang-btn:hover {
+    color: var(--c-fg);
+  }
+  :global(:root:not([data-lang='th'])) .lang-switch.is-compact .lang-btn[data-set-lang='en'],
+  :global(:root[data-lang='th']) .lang-switch.is-compact .lang-btn[data-set-lang='th'] {
+    background: var(--c-fg);
+    color: var(--c-bg);
+  }
+
+  /* Variant: Dark (inside Full Case Study sidebar) */
+  .lang-switch.is-dark {
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.14);
+  }
+  .lang-switch.is-dark .lang-btn {
+    padding: 5px 9px;
+    font-size: 11px;
+    color: #8a847a;
+  }
+  .lang-switch.is-dark .lang-btn:hover {
+    color: #efe9de;
+  }
+  :global(:root:not([data-lang='th'])) .lang-switch.is-dark .lang-btn[data-set-lang='en'],
+  :global(:root[data-lang='th']) .lang-switch.is-dark .lang-btn[data-set-lang='th'] {
+    background: #efe9de;
+    color: #141312;
+  }
+
+  .lang-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+  .lang-switch.is-hero .lang-btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--c-hero), 0 0 0 4px #000;
+  }
+</style>

@@ -2,6 +2,7 @@
 import HoloCard from './HoloCard.astro';
 import { contact, profile } from '../data/site';
 const [intro, ...rest] = profile.about;
+const [introTh, ...restTh] = profile.aboutTh;
 ---
 
 <section class="about" id="about" aria-labelledby="about-title">
@@ -12,9 +13,21 @@ const [intro, ...rest] = profile.about;
   <div class="about-body">
     <h2 id="about-title" class="section-title display" style="--fit: 6.7" data-reveal>About<br />me</h2>
     <p class="about-intro" data-reveal style="--reveal-d: 70ms">
-      My name is <mark>{profile.fullName}</mark>, but you can call me {profile.nickname}.
+      <span data-lang-text="en">
+        My name is <mark>{profile.fullName}</mark>, but you can call me {profile.nickname}.
+      </span>
+      <span data-lang-text="th">
+        สวัสดีครับ ผมชื่อ <mark>{profile.fullNameTh}</mark> เรียกสั้น ๆ ว่า {profile.nicknameTh} นะครับ
+      </span>
     </p>
-    {rest.map((p, i) => <p data-reveal style={`--reveal-d: ${130 + i * 60}ms`}>{p}</p>)}
+    {
+      rest.map((p, i) => (
+        <p data-reveal style={`--reveal-d: ${130 + i * 60}ms`}>
+          <span data-lang-text="en">{p}</span>
+          <span data-lang-text="th">{restTh[i] ?? p}</span>
+        </p>
+      ))
+    }
 
     <ul class="contact-row" role="list" aria-label="Contact" data-reveal style={`--reveal-d: ${130 + rest.length * 60}ms`}>
       <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>

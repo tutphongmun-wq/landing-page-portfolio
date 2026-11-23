@@ -5,6 +5,7 @@ import Base from '../../../layouts/Base.astro';
 import ProjectSection from '../../../components/ProjectSection.astro';
 import Lightbox from '../../../components/Lightbox.astro';
 import CaseStudyReaders from '../../../components/CaseStudyReaders.astro';
+import LangToggle from '../../../components/LangToggle.astro';
 import Picture from '../../../components/Picture.astro';
 import { projects, type Project } from '../../../data/projects';
 import { site } from '../../../data/site';
@@ -45,7 +46,10 @@ const desc = Array.isArray(p.description) ? p.description.join(' ') : p.descript
         }
       </ol>
     </nav>
-    <a class="back" href={`${home}#work`}>← All work</a>
+    <div class="topbar-right">
+      <LangToggle variant="surface" />
+      <a class="back" href={`${home}#work`}>← All work</a>
+    </div>
   </header>
 
   <main id="main" class="detail">
@@ -117,6 +121,11 @@ const desc = Array.isArray(p.description) ? p.description.join(' ') : p.descript
     background: var(--c);
     border-color: var(--c);
     color: #111;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   .back {
     color: var(--c-fg);

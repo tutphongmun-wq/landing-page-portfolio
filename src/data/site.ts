@@ -12,7 +12,9 @@ export const site = {
 
 export const profile = {
   fullName: 'Tutphong Mungkalakul',
+  fullNameTh: 'ทัตพงศ์ มงคลกุล',
   nickname: 'Pun',
+  nicknameTh: 'ปั้น',
   role: 'Graphic & Visual Designer',
   direction: 'growing into UI and web',
   availability: 'Open to work · Visual, Graphic & UI/Web roles',
@@ -22,6 +24,10 @@ export const profile = {
   about: [
     "My name is Tutphong Mungkalakul, but you can call me Pun.",
     "I graduated with a degree in Fine and Applied Arts (Graphic Design) from Sripatum University. I'm passionate about visual communication especially in areas like infographics, motion graphics, and UX/UI design. I'm always eager to learn new tools and improve my skills to create better, smarter design solutions.",
+  ],
+  aboutTh: [
+    'สวัสดีครับ ผมชื่อ ทัตพงศ์ มงคลกุล เรียกสั้น ๆ ว่า ปั้น นะครับ',
+    'สำเร็จการศึกษาจากคณะศิลปกรรมศาสตร์ สาขาการออกแบบกราฟิก มหาวิทยาลัยศรีปทุม มีความหลงใหลในงานสื่อสารด้วยภาพ (Visual Communication) โดยเฉพาะสาย Infographic, Motion Graphics และการออกแบบ UX/UI พร้อมเรียนรู้เครื่องมือใหม่ ๆ และพัฒนาทักษะอยู่เสมอ เพื่อสร้างสรรค์งานออกแบบที่ฉลาดและตอบโจทย์ยิ่งขึ้น',
   ],
 };
 
@@ -38,6 +44,7 @@ export interface Job {
   title: string;
   company: string;
   summary: string;
+  summaryTh: string;
 }
 
 // Frame 2. Enter to Start summary lightly rewritten from first person to
@@ -49,6 +56,8 @@ export const experience: Job[] = [
     company: 'S2O Festival',
     summary:
       'Developed key visual concepts, festival branding, and merchandise designs for S2O and K2O Songkran Music Festival campaigns, creating visual assets across digital, print, and event applications.',
+    summaryTh:
+      'ออกแบบและพัฒนาคอนเซปต์ Key Visual ระบบภาพลักษณ์เทศกาล รวมถึงสินค้าที่ระลึก (Merchandise) สำหรับแคมเปญ S2O และ K2O Songkran Music Festival ครอบคลุมทั้งสื่อดิจิทัล สิ่งพิมพ์ และชิ้นงานหน้างานจริง',
   },
   {
     period: 'Jan – Apr 2025',
@@ -56,6 +65,8 @@ export const experience: Job[] = [
     company: 'MollageBKK',
     summary:
       'Created visual artwork and thumbnails for MollageBKK, a creative media house behind film, ad, and branded content projects with international clients like Netflix Thailand.',
+    summaryTh:
+      'สร้างสรรค์ภาพ Artwork และ Thumbnail ให้กับ MollageBKK โปรดักชันเฮาส์เบื้องหลังโปรเจกต์ภาพยนตร์ โฆษณา และ Branded Content สำหรับลูกค้าระดับสากลอย่าง Netflix Thailand',
   },
   {
     period: 'Mar – Aug 2024',
@@ -63,6 +74,8 @@ export const experience: Job[] = [
     company: 'Binance TH',
     summary:
       "Created campaign visuals and social media assets for Thailand's leading cryptocurrency exchange, collaborating with marketing teams to support promotional campaigns.",
+    summaryTh:
+      'ออกแบบภาพแคมเปญการตลาดและชิ้นงานโซเชียลมีเดียให้กับกระดานเทรดคริปโตชั้นนำของไทย ร่วมงานใกล้ชิดกับทีมการตลาดเพื่อสนับสนุนแคมเปญโปรโมตต่าง ๆ',
   },
   {
     period: '2022 – 2024',
@@ -70,6 +83,8 @@ export const experience: Job[] = [
     company: 'Enter to Start Co., Ltd.',
     summary:
       'Created artwork for social media posts, events, and video projects, including illustrations, infographics, posters, banners, and motion graphics.',
+    summaryTh:
+      'สร้างสรรค์ชิ้นงานกราฟิกสำหรับโซเชียลมีเดีย อีเวนต์ และโปรเจกต์วิดีโอ ทั้งภาพประกอบ Infographic โปสเตอร์ แบนเนอร์ และ Motion Graphics',
   },
 ];
 

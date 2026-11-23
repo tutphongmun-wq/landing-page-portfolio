@@ -5,11 +5,15 @@
 import { projects } from '../data/projects';
 import { contact, profile } from '../data/site';
 import ThemeToggle from './ThemeToggle.astro';
+import LangToggle from './LangToggle.astro';
 ---
 
 <aside class="side-nav" data-side-nav aria-label="Section navigation" inert>
   <div class="side-head">
-    <a class="brand" href="#top" aria-label="Pun, back to top">PUN</a>
+    <div class="side-top-row">
+      <a class="brand" href="#top" aria-label="Pun, back to top">PUN</a>
+      <LangToggle variant="compact" />
+    </div>
     <p class="role">{profile.role}</p>
   </div>
 
@@ -203,6 +207,12 @@ import ThemeToggle from './ThemeToggle.astro';
 
     .side-head {
       padding-left: 2px;
+    }
+    .side-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
     .brand {
       display: inline-block;

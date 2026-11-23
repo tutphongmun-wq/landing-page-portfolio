@@ -13,6 +13,7 @@ import Palette from './Palette.astro';
 import VideoSlot from './VideoSlot.astro';
 import ModelSlot from './ModelSlot.astro';
 import FestivalMap from './FestivalMap.astro';
+import LangToggle from './LangToggle.astro';
 import { projects } from '../data/projects';
 import { caseStudies } from '../data/caseStudies';
 import { tools } from '../data/site';
@@ -85,10 +86,13 @@ const sybilMintTiers = [
         <div class="cs-layout">
           <!-- Left Sticky Navigation Sidebar -->
           <aside class="cs-sidebar" aria-label={`${p.title} case study navigation`}>
-            <button type="button" class="cs-back" data-close-case={p.slug}>
-              <span aria-hidden="true">←</span>
-              <span>All work</span>
-            </button>
+            <div class="cs-side-top">
+              <button type="button" class="cs-back" data-close-case={p.slug}>
+                <span aria-hidden="true">←</span>
+                <span>All work</span>
+              </button>
+              <LangToggle variant="dark" />
+            </div>
 
             <div class="cs-toc-wrap">
               <p class="cs-proj-name">{cs.sidebarName}</p>
@@ -202,7 +206,10 @@ const sybilMintTiers = [
 
                 <div class="cs-pad cs-sec">
                   <h1 id={`cs-title-${p.slug}`} class="cs-h1">{p.title}</h1>
-                  <p class="cs-subtitle">{cs.subtitle}</p>
+                  <p class="cs-subtitle">
+                    <span data-lang-text="en">{cs.subtitle}</span>
+                    <span data-lang-text="th">{cs.subtitleTh}</span>
+                  </p>
 
                   <dl class="cs-meta-grid">
                     {cs.meta.map((m) => (
@@ -213,8 +220,11 @@ const sybilMintTiers = [
                     ))}
                   </dl>
 
-                  {cs.overviewParagraphs.map((para) => (
-                    <p class="cs-prose">{para}</p>
+                  {cs.overviewParagraphs.map((para, oIdx) => (
+                    <p class="cs-prose">
+                      <span data-lang-text="en">{para}</span>
+                      <span data-lang-text="th">{cs.overviewParagraphsTh[oIdx] ?? para}</span>
+                    </p>
                   ))}
                 </div>
               </section>
@@ -223,15 +233,24 @@ const sybilMintTiers = [
                 <!-- Section 2: The Challenge -->
                 <section id={`${p.slug}-challenge`} class="cs-sec" data-cs-section>
                   <h2 class="cs-h2">The challenge</h2>
-                  {cs.challenge.paragraphs.map((para) => (
-                    <p class="cs-prose">{para}</p>
+                  {cs.challenge.paragraphs.map((para, cIdx) => (
+                    <p class="cs-prose">
+                      <span data-lang-text="en">{para}</span>
+                      <span data-lang-text="th">{cs.challenge.paragraphsTh[cIdx] ?? para}</span>
+                    </p>
                   ))}
 
                   <div class="cs-callout-grid">
                     {cs.challenge.callouts.map((c) => (
                       <div class="cs-callout">
-                        <h3>{c.title}</h3>
-                        <p>{c.body}</p>
+                        <h3>
+                          <span data-lang-text="en">{c.title}</span>
+                          <span data-lang-text="th">{c.titleTh}</span>
+                        </h3>
+                        <p>
+                          <span data-lang-text="en">{c.body}</span>
+                          <span data-lang-text="th">{c.bodyTh}</span>
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -280,8 +299,11 @@ const sybilMintTiers = [
                         <h2 class="cs-h2">{sec.heading}</h2>
                       )}
 
-                      {sec.paragraphs.map((para) => (
-                        <p class="cs-prose">{para}</p>
+                      {sec.paragraphs.map((para, sIdx) => (
+                        <p class="cs-prose">
+                          <span data-lang-text="en">{para}</span>
+                          <span data-lang-text="th">{sec.paragraphsTh[sIdx] ?? para}</span>
+                        </p>
                       ))}
 
                       {sec.blocks.map((block) => {
@@ -312,7 +334,12 @@ const sybilMintTiers = [
                                   />
                                 )}
                               </div>
-                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
                             </figure>
                           );
                         }
@@ -358,7 +385,12 @@ const sybilMintTiers = [
                                   );
                                 })}
                               </div>
-                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
                             </figure>
                           );
                         }
@@ -369,7 +401,12 @@ const sybilMintTiers = [
                               <div class="cs-palette-wrap">
                                 <Palette swatches={p.palette} variant="strip" />
                               </div>
-                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
                             </figure>
                           );
                         }
@@ -384,7 +421,12 @@ const sybilMintTiers = [
                                   poster={block.poster}
                                 />
                               </div>
-                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
                             </figure>
                           );
                         }
@@ -399,7 +441,12 @@ const sybilMintTiers = [
                                   poster={block.poster}
                                 />
                               </div>
-                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
                             </figure>
                           );
                         }
@@ -414,7 +461,12 @@ const sybilMintTiers = [
                                   idSuffix="cs"
                                 />
                               </div>
-                              {block.caption && <figcaption>{block.caption}</figcaption>}
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
                             </figure>
                           );
                         }
@@ -439,7 +491,12 @@ const sybilMintTiers = [
                                 </div>
                               </div>
                               <figcaption data-world-caption>
-                                Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.
+                                <span data-lang-text="en" data-world-en>
+                                  Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.
+                                </span>
+                                <span data-lang-text="th" data-world-th>
+                                  ภาพโหมดกลางคืน (Night Mode) — 1920×1080 ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง
+                                </span>
                               </figcaption>
                             </figure>
                           );
@@ -496,7 +553,12 @@ const sybilMintTiers = [
                                   )}
                                 </div>
                                 <figcaption>
-                                  Complete six-tier card design system exported from Figma for the mint flow.
+                                  <span data-lang-text="en">
+                                    Complete six-tier card design system exported from Figma for the mint flow.
+                                  </span>
+                                  <span data-lang-text="th">
+                                    ระบบออกแบบการ์ด NFT ครบทั้ง 6 ระดับที่ส่งต่อจาก Figma สู่หน้า Mint บนเว็บจริง
+                                  </span>
                                 </figcaption>
                               </figure>
                             </>
@@ -556,7 +618,10 @@ const sybilMintTiers = [
                 <!-- Final Section: Outcome & Tools -->
                 <section id={`${p.slug}-outcome`} class="cs-sec" data-cs-section>
                   <h2 class="cs-h2">Outcome</h2>
-                  <p class="cs-prose">{cs.outcome}</p>
+                  <p class="cs-prose">
+                    <span data-lang-text="en">{cs.outcome}</span>
+                    <span data-lang-text="th">{cs.outcomeTh}</span>
+                  </p>
 
                   <div class="cs-tools-bar">
                     <span class="cs-tools-lbl">Tools &amp; Software</span>
@@ -751,17 +816,24 @@ const sybilMintTiers = [
     // Sybil Day/Night World Switcher
     const worldStage = dlg.querySelector<HTMLElement>('[data-world-stage]');
     const worldBtns = [...dlg.querySelectorAll<HTMLButtonElement>('[data-world-mode]')];
-    const worldCaption = dlg.querySelector<HTMLElement>('[data-world-caption]');
+    const worldCaptionEn = dlg.querySelector<HTMLElement>('[data-world-en]');
+    const worldCaptionTh = dlg.querySelector<HTMLElement>('[data-world-th]');
     worldBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const mode = btn.dataset.worldMode || 'night';
         if (worldStage) worldStage.dataset.worldStage = mode;
         worldBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
-        if (worldCaption) {
-          worldCaption.textContent =
+        if (worldCaptionEn) {
+          worldCaptionEn.textContent =
             mode === 'day'
               ? 'Day mode artwork — 1920×1080 alpine sunrise key visual used in Light theme.'
               : 'Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.';
+        }
+        if (worldCaptionTh) {
+          worldCaptionTh.textContent =
+            mode === 'day'
+              ? 'ภาพโหมดกลางวัน (Day Mode) — 1920×1080 ฉากแสงอาทิตย์ยามเช้าสำหรับ Light Theme บนเว็บไซต์จริง'
+              : 'ภาพโหมดกลางคืน (Night Mode) — 1920×1080 ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง';
         }
       });
     });
@@ -986,6 +1058,14 @@ const sybilMintTiers = [
     border-right: 1px solid rgb(239 233 222 / 0.08);
     height: 100dvh;
     user-select: none;
+  }
+
+  .cs-side-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
   }
 
   .cs-back {
@@ -1766,9 +1846,15 @@ const sybilMintTiers = [
       height: auto;
       flex-direction: row;
       align-items: center;
-      padding: 16px 20px;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 20px;
       border-right: 0;
       border-bottom: 1px solid rgb(239 233 222 / 0.08);
+    }
+    .cs-side-top {
+      width: auto;
+      gap: 12px;
     }
     .cs-toc-wrap,
     .cs-live-pill {

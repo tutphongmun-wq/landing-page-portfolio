@@ -16,7 +16,10 @@ import ToolChips from './ToolChips.astro';
               <span class="title">{job.title}</span>
             </p>
             <h3 class="company">{job.company}</h3>
-            <p class="summary">{job.summary}</p>
+            <p class="summary">
+              <span data-lang-text="en">{job.summary}</span>
+              <span data-lang-text="th">{job.summaryTh}</span>
+            </p>
           </li>
         ))
       }

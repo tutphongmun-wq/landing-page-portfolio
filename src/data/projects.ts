@@ -23,7 +23,9 @@ export interface Project {
   indexTitle?: string;
   client?: string;
   description: string | string[]; // string[] renders as bullets
+  descriptionTh: string | string[];
   role: string[];
+  roleTh: string[];
   tools: ToolId[];
   palette?: Swatch[];
   // Bookshelf book: short spine label + book color (bright, to stand off the dark page)
@@ -40,7 +42,10 @@ export const projects: Project[] = [
     client: 'S2O Festival',
     description:
       "A visual campaign for K2O Songkran Music Festival, developed under S2O Festival. Inspired by Songkran's water celebrations, the project extends a bold underwater visual direction across key visuals, artist posters, merchandise, and on-site festival materials.",
+    descriptionTh:
+      'แคมเปญภาพลักษณ์สำหรับ K2O Songkran Music Festival ภายใต้เครือ S2O Festival ต่อยอดแรงบันดาลใจจากเทศกาลสงกรานต์สู่งานภาพใต้น้ำ ตั้งแต่ Key Visual โปสเตอร์ศิลปิน Merchandise จนถึงสื่อภายในงาน',
     role: ['Key visual and artist posters', 'K2O and S2O merchandise design', 'Festival map and event artwork'],
+    roleTh: ['ออกแบบ Key Visual และโปสเตอร์ศิลปิน', 'ออกแบบสินค้าที่ระลึก K2O และ S2O', 'ออกแบบแผนที่เทศกาลและสื่อหน้างาน'],
     tools: ['ps', 'ai', 'ae', 'pr', 'blender'],
     palette: [
       { hex: '#FF0033', name: 'Neon Red' },
@@ -78,10 +83,17 @@ export const projects: Project[] = [
     client: 'Enter to Start',
     description:
       'A visual identity and promotional campaign for Startup Standup Comedy, an event combining investment insights with stand-up comedy. The design brings both worlds together through bold typography, vibrant colors, and playful visuals.',
+    descriptionTh:
+      'อัตลักษณ์ภาพและแคมเปญโปรโมตงาน Startup Standup Comedy อีเวนต์ที่ผสานความรู้การลงทุนเข้ากับเดี่ยวไมโครโฟน ผ่านตัวอักษรขนาดใหญ่ สีสันจัดจ้าน และภาพเล่าเรื่องที่สนุกเข้าถึงง่าย',
     role: [
       'Developed the key visual and supporting graphics.',
       'Designed promotional materials for print and digital platforms.',
       'Adapted the visual identity across posters, banners, and event signage.',
+    ],
+    roleTh: [
+      'พัฒนา Key Visual และกราฟิกประกอบหลัก',
+      'ออกแบบสื่อโปรโมตทั้งสิ่งพิมพ์และดิจิทัล',
+      'ปรับใช้อัตลักษณ์ภาพกับโปสเตอร์ แบนเนอร์ และป้ายหน้างาน',
     ],
     tools: ['ps', 'ai', 'ae', 'pr'],
     palette: [
@@ -108,7 +120,10 @@ export const projects: Project[] = [
     client: 'MollageBKK / Netflix Thailand',
     description:
       'A collection of digital thumbnails and promotional visuals created in collaboration with MollageBKK, including entertainment content for Netflix Thailand. Each design combines photo compositing, retouching, and typography to create engaging, attention-grabbing visuals tailored to different content formats.',
+    descriptionTh:
+      'รวมผลงาน Thumbnail ดิจิทัลและภาพโปรโมตที่ร่วมงานกับ MollageBKK รวมถึงคอนเทนต์บันเทิงให้ Netflix Thailand ผสานการตัดต่อภาพ รีทัช และ Typography เพื่อดึงดูดสายตาตั้งแต่แรกเห็น',
     role: ['Visual Concept & Composition', 'Photo Compositing & Retouching', 'Typography & Final Artwork'],
+    roleTh: ['คิดคอนเซปต์ภาพและจัดองค์ประกอบ', 'ตัดต่อภาพ (Compositing) และรีทัช', 'ออกแบบ Typography และทำ Final Artwork'],
     tools: ['ps', 'ai'],
     media: [
       { kind: 'image', name: '03-thumbs-poster-ice', alt: 'Thai word-game poster: a cast of eight posing among ice cubes, with bold Thai headline type' },
@@ -130,11 +145,19 @@ export const projects: Project[] = [
     client: 'Enter to Start (includes one Binance TH post)',
     description:
       'A collection of editorial-style social media visuals for Enter to Start, covering finance, cryptocurrency, and technology topics. Each design combines bold typography, collage-style graphics, and visual storytelling to make complex subjects more approachable and engaging.',
+    descriptionTh:
+      'ชุดภาพคอนเทนต์โซเชียลมีเดียสไตล์ Editorial สำหรับ Enter to Start ครอบคลุมเรื่องการเงิน คริปโต และเทคโนโลยี ผสมผสานตัวอักษรเด่นกับงานคอลลาจเพื่อย่อยเรื่องยากให้น่าอ่าน',
     role: [
       'Developed visual concepts for editorial content.',
       'Designed collage-based graphics and compositions.',
       'Translated complex topics into clear visual narratives.',
       'Prepared final artwork for social media publishing.',
+    ],
+    roleTh: [
+      'พัฒนาคอนเซปต์ภาพสำหรับคอนเทนต์เชิงบรรณาธิการ',
+      'ออกแบบกราฟิกและองค์ประกอบสไตล์คอลลาจ',
+      'ย่อยเรื่องซับซ้อนให้เล่าเรื่องด้วยภาพได้ชัดเจน',
+      'เตรียมไฟล์ Final Artwork พร้อมลงโซเชียลมีเดีย',
     ],
     tools: ['ps', 'ai'],
     media: [
@@ -159,11 +182,19 @@ export const projects: Project[] = [
     client: 'Enter to Start',
     description:
       'A collection of editorial infographics covering cryptocurrency, finance, technology, and business. Combining data visualization, illustration, and structured layouts, each design presents complex information in a clear, engaging, and accessible format.',
+    descriptionTh:
+      'ชุด Infographic เชิงบรรณาธิการครอบคลุมเนื้อหาคริปโต การเงิน เทคโนโลยี และธุรกิจ ผสาน Data Visualization ภาพประกอบ และโครงสร้างเลย์เอาต์ที่อ่านง่ายและชวนติดตาม',
     role: [
       'Designed editorial infographics and visual layouts.',
       'Organized information through typography and visual hierarchy.',
       'Created illustrations, icons, and supporting graphics.',
       'Prepared final artwork for digital publishing.',
+    ],
+    roleTh: [
+      'ออกแบบ Infographic และการจัดวางเลย์เอาต์',
+      'จัดลำดับข้อมูลด้วย Typography และ Visual Hierarchy',
+      'วาดภาพประกอบ ไอคอน และกราฟิกเสริมเนื้อหา',
+      'เตรียมไฟล์ Final Artwork สำหรับเผยแพร่ออนไลน์',
     ],
     tools: ['ps', 'ai'],
     media: [
@@ -184,11 +215,19 @@ export const projects: Project[] = [
     indexTitle: '16 Personalities',
     description:
       'An illustrated editorial book exploring the 16 MBTI personality types through original character designs and visual storytelling. Each personality features a distinct character, color palette, and thematic environment, bringing all 16 personalities to life through playful illustrations and engaging layouts.',
+    descriptionTh:
+      'หนังสือภาพประกอบที่ถ่ายทอดบุคลิกภาพ MBTI ทั้ง 16 แบบ ผ่านคาแรคเตอร์ที่ออกแบบขึ้นใหม่และฉากประจำตัว แต่ละกลุ่มบุคลิกมีชุดสีและอารมณ์เฉพาะตัว ชวนให้พลิกอ่านทุกหน้า',
     role: [
       "Designed the book's editorial layout and visual identity.",
       'Illustrated 16 personality-inspired characters.',
       'Created thematic graphics and supporting illustrations.',
       'Prepared print-ready artwork for production.',
+    ],
+    roleTh: [
+      'ออกแบบเลย์เอาต์หนังสือและอัตลักษณ์หลัก',
+      'ออกแบบและวาดคาแรคเตอร์ทั้ง 16 บุคลิกภาพ',
+      'สร้างสรรค์ฉากประกอบและกราฟิกประจำหน้า',
+      'เตรียมไฟล์อาร์ตเวิร์กพร้อมส่งโรงพิมพ์',
     ],
     tools: ['ps', 'ai', 'ae', 'id'],
     palette: [
@@ -219,7 +258,14 @@ export const projects: Project[] = [
       'Created fantasy-inspired environments and illustrations.',
       'Designed the landing page interface and supporting visual assets.',
     ],
+    descriptionTh: [
+      'พัฒนาอัตลักษณ์ภาพ (Visual Identity) และทิศทางศิลป์โดยรวม',
+      'ออกแบบคาแรคเตอร์ 6 ระดับและการ์ด NFT สะสม',
+      'วาดฉากและภาพประกอบโลกแฟนตาซีขั้วโลก',
+      'ออกแบบหน้า Landing Page UI และกราฟิกประกอบเว็บไซต์',
+    ],
     role: ['Visual Identity', 'Character Design', 'Illustration', 'Landing Page UI', 'NFT Card Design', 'Art Direction'],
+    roleTh: ['อัตลักษณ์ภาพ', 'ออกแบบคาแรคเตอร์', 'ภาพประกอบ', 'Landing Page UI', 'ออกแบบการ์ด NFT', 'กำหนดทิศทางศิลป์'],
     tools: ['ps', 'ai', 'lr', 'figma', 'procreate'],
     media: [
       { kind: 'image', name: '07-sybil-logo', alt: 'Sybil Husky logo: a minimal husky head mark above the wordmark' },
