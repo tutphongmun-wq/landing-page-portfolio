@@ -249,7 +249,11 @@ const itemKey = (it: Item) =>
                   {it.type === 'model' && <ModelSlot name={it.m.name} label={it.m.label} poster={it.m.poster} />}
                   {it.type === 'map' && <FestivalMap name={it.m.name} label={it.m.label} />}
                   {it.type === 'palette' && p.palette && (
-                    <Palette swatches={p.palette} variant="fill" vertical={it.box[3] - it.box[1] > it.box[2] - it.box[0]} />
+                    <Palette
+                      swatches={p.palette}
+                      variant={p.slug === 'startup-standup' ? 'bencho' : 'fill'}
+                      vertical={it.box[3] - it.box[1] > it.box[2] - it.box[0]}
+                    />
                   )}
                   {it.type === 'label' && (
                     <h4 class="slide-label">

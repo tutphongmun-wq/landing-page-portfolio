@@ -514,7 +514,7 @@ const sybilMintTiers = [
                           return (
                             <figure class="cs-figure">
                               <div class="cs-palette-wrap">
-                                <Palette swatches={p.palette} variant="strip" />
+                                <Palette swatches={p.palette} variant={p.slug === 'startup-standup' ? 'bencho' : 'strip'} />
                               </div>
                               {block.caption && (
                                 <figcaption>
