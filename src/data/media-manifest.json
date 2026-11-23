@@ -1,23 +1,26 @@
 {
   "01-k2o-kv": {
-    "width": 335,
-    "height": 419,
+    "width": 2160,
+    "height": 2700,
     "sizes": [
-      335
+      800,
+      1600
     ]
   },
   "01-k2o-logo": {
-    "width": 160,
-    "height": 176,
+    "width": 2250,
+    "height": 2250,
     "sizes": [
-      160
+      800,
+      1200
     ]
   },
   "01-k2o-logo-water": {
-    "width": 160,
-    "height": 176,
+    "width": 2048,
+    "height": 2048,
     "sizes": [
-      160
+      800,
+      1600
     ]
   },
   "01-k2o-map": {
@@ -71,45 +74,51 @@
     ]
   },
   "01-k2o-poster-bus": {
-    "width": 176,
-    "height": 224,
+    "width": 2160,
+    "height": 2700,
     "sizes": [
-      176
+      800,
+      1600
     ]
   },
   "01-k2o-poster-daou": {
-    "width": 176,
-    "height": 224,
+    "width": 2160,
+    "height": 2700,
     "sizes": [
-      176
+      800,
+      1600
     ]
   },
   "01-k2o-poster-fiftyfifty": {
-    "width": 177,
-    "height": 224,
+    "width": 2160,
+    "height": 2700,
     "sizes": [
-      177
+      800,
+      1600
     ]
   },
   "01-k2o-poster-kissoflife": {
-    "width": 176,
-    "height": 223,
+    "width": 2160,
+    "height": 2700,
     "sizes": [
-      176
+      800,
+      1600
     ]
   },
   "01-k2o-poster-lngshot": {
-    "width": 176,
-    "height": 223,
+    "width": 2160,
+    "height": 2700,
     "sizes": [
-      176
+      800,
+      1600
     ]
   },
   "01-k2o-poster-riize": {
-    "width": 177,
-    "height": 223,
+    "width": 2160,
+    "height": 2700,
     "sizes": [
-      177
+      800,
+      1600
     ]
   },
   "02-standup-banners": {
