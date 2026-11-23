@@ -71,6 +71,7 @@ const sybilMintTiers = [
     if (!cs) return null;
     const nextProject = projects[(idx + 1) % projects.length];
     const isSybilPreview = p.slug === 'sybil-husky';
+    const isK2oHook = p.slug === 'k2o';
     const tocItems = isSybilPreview
       ? [
           { id: `${p.slug}-overview`, label: 'Overview' },
@@ -103,20 +104,48 @@ const sybilMintTiers = [
             <div class="cs-toc-wrap">
               <p class="cs-proj-name">{cs.sidebarName}</p>
               <nav aria-label="Table of contents">
-                <ul class="cs-toc" role="list">
-                  {tocItems.map((item, tIdx) => (
-                    <li>
+                {isK2oHook ? (
+                  <div class="cs-hook-list" data-hook-sidebar>
+                    <span class="cs-hook-rail is-hover" data-hook-rail="hover" aria-hidden="true">
+                      <span class="cs-hook-stem" data-hook-stem></span>
+                      <svg width="12" height="7" viewBox="0 0 12 7" fill="none" class="cs-hook-corner" data-hook-corner>
+                        <path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
+                      </svg>
+                    </span>
+                    <span class="cs-hook-rail is-accent" data-hook-rail="active" aria-hidden="true">
+                      <span class="cs-hook-stem" data-hook-stem></span>
+                      <svg width="12" height="7" viewBox="0 0 12 7" fill="none" class="cs-hook-corner" data-hook-corner>
+                        <path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
+                      </svg>
+                    </span>
+                    {tocItems.map((item, tIdx) => (
                       <a
                         href={`#${item.id}`}
-                        class:list={['cs-toc-link', { 'is-active': tIdx === 0 }]}
+                        class:list={['cs-hook-item', { 'is-active': tIdx === 0 }]}
                         data-cs-toc={item.id}
+                        data-hook-item
+                        aria-current={tIdx === 0 ? 'location' : undefined}
                       >
-                        <span class="cs-toc-bar" aria-hidden="true" />
-                        <span>{item.label}</span>
+                        {item.label}
                       </a>
-                    </li>
-                  ))}
-                </ul>
+                    ))}
+                  </div>
+                ) : (
+                  <ul class="cs-toc" role="list">
+                    {tocItems.map((item, tIdx) => (
+                      <li>
+                        <a
+                          href={`#${item.id}`}
+                          class:list={['cs-toc-link', { 'is-active': tIdx === 0 }]}
+                          data-cs-toc={item.id}
+                        >
+                          <span class="cs-toc-bar" aria-hidden="true" />
+                          <span>{item.label}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </nav>
             </div>
 
@@ -818,7 +847,13 @@ const sybilMintTiers = [
     }
     const firstId = sections[0]?.id;
     if (firstId) {
-      tocLinks.forEach((l) => l.classList.toggle('is-active', l.dataset.csToc === firstId));
+      tocLinks.forEach((l) => {
+        const hit = l.dataset.csToc === firstId;
+        l.classList.toggle('is-active', hit);
+        if (hit) l.setAttribute('aria-current', 'location');
+        else l.removeAttribute('aria-current');
+      });
+      dlg.dispatchEvent(new CustomEvent('cs-hook-sync'));
     }
 
     // Lazy-load live iframe if present (Sybil Husky)
@@ -842,10 +877,173 @@ const sybilMintTiers = [
     const closeBtn = dlg.querySelector<HTMLButtonElement>('[data-close-case]');
     const nextLink = dlg.querySelector<HTMLAnchorElement>('[data-next-case]');
 
+    // RareUI Hook Sidebar spring controller (present when [data-hook-sidebar] is used, e.g. K2O)
+    const hookRoot = dlg.querySelector<HTMLElement>('[data-hook-sidebar]');
+    let syncHookSidebar = () => {};
+    if (hookRoot) {
+      const hookItems = [...hookRoot.querySelectorAll<HTMLAnchorElement>('[data-hook-item]')];
+      const hoverRail = hookRoot.querySelector<HTMLElement>('[data-hook-rail="hover"]');
+      const activeRail = hookRoot.querySelector<HTMLElement>('[data-hook-rail="active"]');
+      const hStem = hoverRail?.querySelector<HTMLElement>('[data-hook-stem]');
+      const hCorner = hoverRail?.querySelector<SVGElement>('[data-hook-corner]');
+      const aStem = activeRail?.querySelector<HTMLElement>('[data-hook-stem]');
+      const aCorner = activeRail?.querySelector<SVGElement>('[data-hook-corner]');
+
+      if (hookItems.length && hoverRail && activeRail && hStem && hCorner && aStem && aCorner) {
+        const CORNER = 6;
+        const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let centers: number[] = [];
+        let hoverIdx: number | null = null;
+        let pointerInside = false;
+        let focusInside = false;
+        let placed = false;
+
+        const aTop = { val: 0, vel: 0, target: 0 };
+        const aY = { val: 16, vel: 0, target: 16 };
+        const hTop = { val: 0, vel: 0, target: 0 };
+        const hY = { val: 16, vel: 0, target: 16 };
+        let rafId = 0;
+        let lastTs = 0;
+
+        const stepSpring = (s: { val: number; vel: number; target: number }, dtSec: number): boolean => {
+          const steps = Math.max(1, Math.ceil(dtSec / 0.004));
+          const h = dtSec / steps;
+          for (let i = 0; i < steps; i++) {
+            const force = -420 * (s.val - s.target) - 34 * s.vel;
+            s.vel += (force / 0.7) * h;
+            s.val += s.vel * h;
+          }
+          if (Math.abs(s.target - s.val) < 0.08 && Math.abs(s.vel) < 0.08) {
+            s.val = s.target;
+            s.vel = 0;
+            return false;
+          }
+          return true;
+        };
+
+        const renderRails = () => {
+          aStem.style.top = `${aTop.val.toFixed(2)}px`;
+          aStem.style.height = `${Math.max(0, aY.val - CORNER - aTop.val).toFixed(2)}px`;
+          aCorner.style.top = `${(aY.val - CORNER).toFixed(2)}px`;
+
+          hStem.style.top = `${hTop.val.toFixed(2)}px`;
+          hStem.style.height = `${Math.max(0, hY.val - CORNER - hTop.val).toFixed(2)}px`;
+          hCorner.style.top = `${(hY.val - CORNER).toFixed(2)}px`;
+        };
+
+        const animTick = (ts: number) => {
+          const dt = lastTs ? Math.min(0.04, (ts - lastTs) * 0.001) : 1 / 60;
+          lastTs = ts;
+          if (reduceMq.matches) {
+            aTop.val = aTop.target;
+            aTop.vel = 0;
+            aY.val = aY.target;
+            aY.vel = 0;
+            hTop.val = hTop.target;
+            hTop.vel = 0;
+            hY.val = hY.target;
+            hY.vel = 0;
+            renderRails();
+            rafId = 0;
+            lastTs = 0;
+            return;
+          }
+          const m1 = stepSpring(aTop, dt);
+          const m2 = stepSpring(aY, dt);
+          const m3 = stepSpring(hTop, dt);
+          const m4 = stepSpring(hY, dt);
+          renderRails();
+          if (m1 || m2 || m3 || m4) {
+            rafId = requestAnimationFrame(animTick);
+          } else {
+            rafId = 0;
+            lastTs = 0;
+          }
+        };
+
+        const schedule = () => {
+          if (!rafId) {
+            lastTs = 0;
+            rafId = requestAnimationFrame(animTick);
+          }
+        };
+
+        const measure = () => {
+          centers = hookItems.map((el) => el.offsetTop + el.offsetHeight * 0.5);
+        };
+
+        syncHookSidebar = () => {
+          measure();
+          const activeIndex = hookItems.findIndex((el) => el.classList.contains('is-active'));
+          const activeCenter = activeIndex >= 0 ? (centers[activeIndex] ?? null) : null;
+          const hoverCenter = hoverIdx !== null ? (centers[hoverIdx] ?? null) : null;
+
+          activeRail.classList.toggle('is-visible', activeCenter !== null);
+          if (activeCenter !== null) {
+            aTop.target = 0;
+            aY.target = activeCenter;
+            if (!placed && activeCenter > 0) {
+              placed = true;
+              aTop.val = 0;
+              aY.val = activeCenter;
+            }
+          }
+
+          const showHover = (pointerInside || focusInside) && hoverIdx !== null && hoverIdx !== activeIndex && hoverCenter !== null;
+          hoverRail.classList.toggle('is-visible', showHover);
+          if (hoverCenter !== null) {
+            const from =
+              activeCenter !== null && hoverCenter <= activeCenter
+                ? Math.max(0, hoverCenter - CORNER)
+                : (activeCenter ?? 0);
+            if (!hoverRail.classList.contains('is-ready')) {
+              hoverRail.classList.add('is-ready');
+              hTop.val = from;
+              hY.val = hoverCenter;
+            }
+            hTop.target = from;
+            hY.target = hoverCenter;
+          }
+
+          renderRails();
+          schedule();
+        };
+
+        hookItems.forEach((item, idx) => {
+          item.addEventListener('pointerenter', () => {
+            hoverIdx = idx;
+            pointerInside = true;
+            syncHookSidebar();
+          });
+          item.addEventListener('focus', () => {
+            hoverIdx = idx;
+            focusInside = true;
+            syncHookSidebar();
+          });
+          item.addEventListener('blur', () => {
+            focusInside = false;
+            syncHookSidebar();
+          });
+        });
+
+        hookRoot.addEventListener('pointerleave', () => {
+          pointerInside = false;
+          syncHookSidebar();
+        });
+
+        new ResizeObserver(syncHookSidebar).observe(hookRoot);
+        dlg.addEventListener('cs-hook-sync', () => requestAnimationFrame(syncHookSidebar));
+      }
+    }
+
     const setActiveToc = (id: string) => {
       for (const link of tocLinks) {
-        link.classList.toggle('is-active', link.dataset.csToc === id);
+        const hit = link.dataset.csToc === id;
+        link.classList.toggle('is-active', hit);
+        if (hit) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
       }
+      syncHookSidebar();
     };
 
     closeBtn?.addEventListener('click', () => closeAllDialogs(true));
@@ -858,6 +1056,13 @@ const sybilMintTiers = [
       if (nextSlug) openCaseStudy(nextSlug, true);
     });
 
+    let tocPinnedUntil = 0;
+    const clearPin = () => {
+      tocPinnedUntil = 0;
+    };
+    scroller?.addEventListener('wheel', clearPin, { passive: true });
+    scroller?.addEventListener('touchstart', clearPin, { passive: true });
+
     // TOC smooth scroll inside reader
     tocLinks.forEach((link) => {
       link.addEventListener('click', (e) => {
@@ -866,6 +1071,7 @@ const sybilMintTiers = [
         const id = link.dataset.csToc;
         const target = id ? dlg.querySelector<HTMLElement>(`#${CSS.escape(id)}`) : null;
         if (target && scroller) {
+          tocPinnedUntil = performance.now() + 900;
           setActiveToc(id!);
           const isOverview = target.classList.contains('cs-sec-overview');
           scroller.scrollTo({
@@ -880,6 +1086,13 @@ const sybilMintTiers = [
     scroller?.addEventListener(
       'scroll',
       () => {
+        if (performance.now() < tocPinnedUntil) return;
+        const atBottom =
+          scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= 24;
+        if (atBottom && sections.length) {
+          setActiveToc(sections[sections.length - 1].id);
+          return;
+        }
         const cutoff = scroller.scrollTop + scroller.clientHeight * 0.28;
         let currentId = sections[0]?.id || '';
         for (const sec of sections) {
@@ -1237,6 +1450,69 @@ const sybilMintTiers = [
     width: 20px;
     opacity: 1;
     background: #ff3838;
+  }
+
+  /* RareUI Hook Sidebar (K2O trial) */
+  .cs-hook-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cs-hook-rail {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .cs-hook-rail.is-visible {
+    opacity: 1;
+  }
+  .cs-hook-rail.is-hover {
+    color: rgb(239 233 222 / 0.3);
+  }
+  .cs-hook-rail.is-accent {
+    color: #ff3838;
+  }
+  .cs-hook-stem {
+    position: absolute;
+    left: 2px;
+    top: 0;
+    width: 1px;
+    background-image: repeating-linear-gradient(
+      to top,
+      transparent 0 2px,
+      currentColor 2px 4px
+    );
+  }
+  .cs-hook-corner {
+    position: absolute;
+    left: 2px;
+    top: 0;
+    overflow: visible;
+  }
+  .cs-hook-item {
+    display: block;
+    border-radius: 8px;
+    padding: 6px 8px 6px 20px;
+    text-align: left;
+    font: 500 14px / 1.4 var(--f-body);
+    color: rgb(239 233 222 / 0.5);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .cs-hook-item:hover {
+    color: rgb(239 233 222 / 0.8);
+  }
+  .cs-hook-item.is-active {
+    color: #efe9de;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-hook-rail,
+    .cs-hook-item {
+      transition: none;
+    }
   }
 
   .cs-side-foot {
