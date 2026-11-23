@@ -70,12 +70,18 @@ const sybilMintTiers = [
     const cs = caseStudies[p.slug];
     if (!cs) return null;
     const nextProject = projects[(idx + 1) % projects.length];
-    const tocItems = [
-      { id: `${p.slug}-overview`, label: 'Overview' },
-      { id: `${p.slug}-challenge`, label: 'The challenge' },
-      ...cs.sections.map((s) => ({ id: `${p.slug}-${s.id}`, label: s.tocLabel })),
-      { id: `${p.slug}-outcome`, label: 'Outcome' },
-    ];
+    const isSybilPreview = p.slug === 'sybil-husky';
+    const tocItems = isSybilPreview
+      ? [
+          { id: `${p.slug}-overview`, label: 'Overview' },
+          ...cs.sections.map((s) => ({ id: `${p.slug}-${s.id}`, label: s.tocLabel })),
+        ]
+      : [
+          { id: `${p.slug}-overview`, label: 'Overview' },
+          { id: `${p.slug}-challenge`, label: 'The challenge' },
+          ...cs.sections.map((s) => ({ id: `${p.slug}-${s.id}`, label: s.tocLabel })),
+          { id: `${p.slug}-outcome`, label: 'Outcome' },
+        ];
 
     return (
       <dialog
@@ -85,11 +91,11 @@ const sybilMintTiers = [
       >
         <div class="cs-layout">
           <!-- Left Sticky Navigation Sidebar -->
-          <aside class="cs-sidebar" aria-label={`${p.title} case study navigation`}>
+          <aside class="cs-sidebar" aria-label={`${p.title} project navigation`}>
             <div class="cs-side-top">
               <button type="button" class="cs-back" data-close-case={p.slug}>
                 <span aria-hidden="true">←</span>
-                <span>All work</span>
+                <span>All projects</span>
               </button>
               <LangToggle variant="dark" />
             </div>
@@ -113,6 +119,34 @@ const sybilMintTiers = [
                 </ul>
               </nav>
             </div>
+
+            {isSybilPreview && (
+              <div class="cs-opt-a" aria-label="Option A Sidebar Spec Card">
+                <span class="cs-opt-badge">Option A · Sidebar Spec</span>
+                <dl class="cs-opt-a-list">
+                  <div>
+                    <dt>Client</dt>
+                    <dd>SybilHusky Collective</dd>
+                  </div>
+                  <div>
+                    <dt>Category</dt>
+                    <dd>Branding, Character &amp; Web UI</dd>
+                  </div>
+                  <div>
+                    <dt>Deliverables</dt>
+                    <dd>Logo, 6 Tiers, Next.js Site</dd>
+                  </div>
+                  <div>
+                    <dt>Tools</dt>
+                    <dd class="cs-opt-a-tools">
+                      {p.tools.map((id) => (
+                        <span>{tools[id].abbr}</span>
+                      ))}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            )}
 
             <div class="cs-side-foot">
               {cs.liveUrl && (
@@ -211,14 +245,62 @@ const sybilMintTiers = [
                     <span data-lang-text="th">{cs.subtitleTh}</span>
                   </p>
 
-                  <dl class="cs-meta-grid">
-                    {cs.meta.map((m) => (
-                      <div>
-                        <dt>{m.label}</dt>
-                        <dd>{m.value}</dd>
+                  {
+                    isSybilPreview ? (
+                      <div class="cs-spec-compare" aria-label="Layout comparison B and C">
+                        <!-- Option B: 4-Box Bento Spec Cards -->
+                        <div class="cs-opt-group">
+                          <span class="cs-opt-badge">Option B · Bento Spec Cards</span>
+                          <dl class="cs-bento-specs">
+                            <div class="cs-bento-card">
+                              <dt>Client</dt>
+                              <dd>SybilHusky Collective</dd>
+                            </div>
+                            <div class="cs-bento-card">
+                              <dt>Category</dt>
+                              <dd>Branding, Character &amp; Web UI</dd>
+                            </div>
+                            <div class="cs-bento-card">
+                              <dt>Deliverables</dt>
+                              <dd>Logo, 6 NFT Tiers, Day/Night Art, Next.js Site</dd>
+                            </div>
+                            <div class="cs-bento-card">
+                              <dt>Tools</dt>
+                              <dd class="cs-bento-tools">
+                                {p.tools.map((id) => (
+                                  <span title={tools[id].name}>{tools[id].abbr}</span>
+                                ))}
+                              </dd>
+                            </div>
+                          </dl>
+                        </div>
+
+                        <!-- Option C: Minimal Inline Spec Tags -->
+                        <div class="cs-opt-group">
+                          <span class="cs-opt-badge">Option C · Inline Spec Tags</span>
+                          <div class="cs-inline-specs">
+                            <span class="cs-spec-chip"><strong>Client</strong> SybilHusky Collective</span>
+                            <span class="cs-spec-chip"><strong>Category</strong> Branding, Character &amp; Web UI</span>
+                            <span class="cs-spec-chip"><strong>Deliverables</strong> Logo · 6 NFT Tiers · Next.js 16</span>
+                            {p.tools.map((id) => (
+                              <span class="cs-spec-chip is-tool">
+                                <strong>{tools[id].abbr}</strong> {tools[id].name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                    ))}
-                  </dl>
+                    ) : (
+                      <dl class="cs-meta-grid">
+                        {cs.meta.map((m) => (
+                          <div>
+                            <dt>{m.label}</dt>
+                            <dd>{m.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )
+                  }
 
                   {cs.overviewParagraphs.map((para, oIdx) => (
                     <p class="cs-prose">
@@ -230,31 +312,35 @@ const sybilMintTiers = [
               </section>
 
               <div class="cs-article">
-                <!-- Section 2: The Challenge -->
-                <section id={`${p.slug}-challenge`} class="cs-sec" data-cs-section>
-                  <h2 class="cs-h2">The challenge</h2>
-                  {cs.challenge.paragraphs.map((para, cIdx) => (
-                    <p class="cs-prose">
-                      <span data-lang-text="en">{para}</span>
-                      <span data-lang-text="th">{cs.challenge.paragraphsTh[cIdx] ?? para}</span>
-                    </p>
-                  ))}
-
-                  <div class="cs-callout-grid">
-                    {cs.challenge.callouts.map((c) => (
-                      <div class="cs-callout">
-                        <h3>
-                          <span data-lang-text="en">{c.title}</span>
-                          <span data-lang-text="th">{c.titleTh}</span>
-                        </h3>
-                        <p>
-                          <span data-lang-text="en">{c.body}</span>
-                          <span data-lang-text="th">{c.bodyTh}</span>
+                <!-- Section 2: The Challenge (hidden on showcase preview) -->
+                {
+                  !isSybilPreview && (
+                    <section id={`${p.slug}-challenge`} class="cs-sec" data-cs-section>
+                      <h2 class="cs-h2">The challenge</h2>
+                      {cs.challenge.paragraphs.map((para, cIdx) => (
+                        <p class="cs-prose">
+                          <span data-lang-text="en">{para}</span>
+                          <span data-lang-text="th">{cs.challenge.paragraphsTh[cIdx] ?? para}</span>
                         </p>
+                      ))}
+
+                      <div class="cs-callout-grid">
+                        {cs.challenge.callouts.map((c) => (
+                          <div class="cs-callout">
+                            <h3>
+                              <span data-lang-text="en">{c.title}</span>
+                              <span data-lang-text="th">{c.titleTh}</span>
+                            </h3>
+                            <p>
+                              <span data-lang-text="en">{c.body}</span>
+                              <span data-lang-text="th">{c.bodyTh}</span>
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </section>
+                    </section>
+                  )
+                }
 
                 <!-- Project-Specific Editorial Sections -->
                 {cs.sections.map((sec) => {
@@ -615,25 +701,29 @@ const sybilMintTiers = [
                   );
                 })}
 
-                <!-- Final Section: Outcome & Tools -->
-                <section id={`${p.slug}-outcome`} class="cs-sec" data-cs-section>
-                  <h2 class="cs-h2">Outcome</h2>
-                  <p class="cs-prose">
-                    <span data-lang-text="en">{cs.outcome}</span>
-                    <span data-lang-text="th">{cs.outcomeTh}</span>
-                  </p>
+                <!-- Final Section: Outcome & Tools (hidden on showcase preview) -->
+                {
+                  !isSybilPreview && (
+                    <section id={`${p.slug}-outcome`} class="cs-sec" data-cs-section>
+                      <h2 class="cs-h2">Outcome</h2>
+                      <p class="cs-prose">
+                        <span data-lang-text="en">{cs.outcome}</span>
+                        <span data-lang-text="th">{cs.outcomeTh}</span>
+                      </p>
 
-                  <div class="cs-tools-bar">
-                    <span class="cs-tools-lbl">Tools &amp; Software</span>
-                    <div class="cs-tools-list">
-                      {p.tools.map((id) => (
-                        <span class="cs-tool-pill">
-                          <strong>{tools[id].abbr}</strong> {tools[id].name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </section>
+                      <div class="cs-tools-bar">
+                        <span class="cs-tools-lbl">Tools &amp; Software</span>
+                        <div class="cs-tools-list">
+                          {p.tools.map((id) => (
+                            <span class="cs-tool-pill">
+                              <strong>{tools[id].abbr}</strong> {tools[id].name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+                  )
+                }
               </div>
             </article>
           </div>
@@ -1408,6 +1498,143 @@ const sybilMintTiers = [
     color: #efe9de;
   }
 
+  /* ================= Showcase Spec Options A / B / C Comparison ================= */
+  .cs-opt-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgb(255 56 56 / 0.14);
+    border: 1px solid rgb(255 56 56 / 0.3);
+    color: #ff6b6b;
+    font: 700 10.5px / 1.1 var(--f-body);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  /* Option A: Sidebar Spec Sheet */
+  .cs-opt-a {
+    margin-block: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #1a1816;
+    border: 1px solid rgb(239 233 222 / 0.1);
+    display: grid;
+    gap: 10px;
+  }
+  .cs-opt-a .cs-opt-badge {
+    justify-self: start;
+  }
+  .cs-opt-a-list {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .cs-opt-a-list dt {
+    font: 500 10.5px / 1.2 var(--f-body);
+    color: #8a847a;
+  }
+  .cs-opt-a-list dd {
+    margin: 2px 0 0;
+    font: 500 12px / 1.35 var(--f-body);
+    color: #efe9de;
+  }
+  .cs-opt-a-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .cs-opt-a-tools span {
+    padding: 3px 6px;
+    border-radius: 5px;
+    background: #262421;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    font: 700 10.5px / 1 var(--f-body);
+    color: #ff6b6b;
+  }
+
+  /* Option B + C Container in Right Column */
+  .cs-spec-compare {
+    width: 100%;
+    max-width: 720px;
+    margin: 8px auto;
+    display: grid;
+    gap: 20px;
+    text-align: left;
+  }
+  .cs-opt-group {
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+  }
+
+  /* Option B: 4-Box Bento Spec Cards */
+  .cs-bento-specs {
+    width: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .cs-bento-card {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.08);
+    display: grid;
+    gap: 4px;
+    align-content: start;
+  }
+  .cs-bento-card dt {
+    font: 500 11.5px / 1.2 var(--f-body);
+    color: #8a847a;
+  }
+  .cs-bento-card dd {
+    margin: 0;
+    font: 600 14px / 1.4 var(--f-body);
+    color: #efe9de;
+  }
+  .cs-bento-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 2px;
+  }
+  .cs-bento-tools span {
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #262421;
+    border: 1px solid rgb(239 233 222 / 0.1);
+    font: 700 12px / 1 var(--f-body);
+    color: #ff6b6b;
+  }
+
+  /* Option C: Inline Spec Tags */
+  .cs-inline-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cs-spec-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #1c1a18;
+    border: 1px solid rgb(239 233 222 / 0.1);
+    font: 500 12.5px / 1.1 var(--f-body);
+    color: #efe9de;
+  }
+  .cs-spec-chip strong {
+    color: #8a847a;
+    font-weight: 500;
+  }
+  .cs-spec-chip.is-tool strong {
+    color: #ff6b6b;
+    font-weight: 700;
+  }
+
   .cs-h2 {
     margin: 0 auto;
     font-family: var(--f-display);
@@ -1857,6 +2084,7 @@ const sybilMintTiers = [
       gap: 12px;
     }
     .cs-toc-wrap,
+    .cs-opt-a,
     .cs-live-pill {
       display: none;
     }
@@ -1884,9 +2112,10 @@ const sybilMintTiers = [
       height: clamp(160px, 40vw, 320px);
       transform: none;
     }
-    .cs-meta-grid {
+    .cs-meta-grid,
+    .cs-bento-specs {
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 12px;
     }
     .cs-gallery.cols-2,
     .cs-gallery.cols-3,

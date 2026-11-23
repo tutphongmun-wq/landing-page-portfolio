@@ -93,7 +93,7 @@ export default function HeroShapes() {
         colors={colors}
         interactive={fine}
         followCursor={fine}
-        aria-label="Playful 3D shapes falling onto the PORTFOLIO wordmark and piling up. With a mouse, drag a shape or click empty space to add one."
+        aria-label="Playful 3D shapes falling around the centered intro text and piling up. With a mouse, drag a shape or click empty space to add one."
       />
     </div>
   );

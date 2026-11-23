@@ -6,7 +6,7 @@ export const site = {
   url: 'https://example.vercel.app', // [TODO] set once the Vercel domain is decided
   title: 'Tutphong "Pun" Mungkalakul — Graphic & Visual Designer',
   description:
-    'Portfolio of Tutphong "Pun" Mungkalakul, a Thai Graphic & Visual Designer growing into UI and web design. Key visuals, campaigns, editorial and character work.',
+    'Selected creative projects by Tutphong "Pun" Mungkalakul, a Thai Graphic & Visual Designer growing into UI and web design. Key visuals, campaigns, editorial, and character work.',
   lang: 'en',
 };
 
