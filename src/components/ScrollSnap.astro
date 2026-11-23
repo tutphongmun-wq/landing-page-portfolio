@@ -5,25 +5,12 @@
 //   - Physics:
 //       targetY += wheelDelta * wheelMultiplier
 //       currentY = damp(currentY, targetY, lerp, dt)   (frame-rate independent 60/120Hz)
-//   - Presets (switchable live via bottom-left pill or Shift+S):
+//   - Presets (switchable live via bottom-left SideNav panel or Shift+S):
 //       1) Light   (lerp 0.14,  wheel 1.00)
 //       2) Studio  (lerp 0.085, wheel 0.85)  <- Default (Worachet / Awwwards feel)
 //       3) Heavy   (lerp 0.055, wheel 0.75)
 //       4) Off     (native browser scroll)
 ---
-
-<div class="scroll-tuner" data-scroll-tuner aria-label="Scroll feel presets">
-  <span class="st-label">Scroll Weight</span>
-  <div class="st-group" role="group" aria-label="Inertia level">
-    <button type="button" class="st-btn" data-preset="light" title="Light inertia (lerp 0.14)">Light</button>
-    <button type="button" class="st-btn is-active" data-preset="studio" title="Studio / Worachet feel (lerp 0.085, weight 0.85)">Studio</button>
-    <button type="button" class="st-btn" data-preset="heavy" title="Heavy editorial inertia (lerp 0.055, weight 0.75)">Heavy</button>
-    <button type="button" class="st-btn" data-preset="off" title="Native browser scroll">Off</button>
-  </div>
-  <button type="button" class="st-snap is-on" data-snap-toggle title="Toggle magnetic snap on project heads">
-    Magnet: ON
-  </button>
-</div>
 
 <script>
   const SNAP_SELECTOR = '#top, #work, article.project, #about, #experience, #contact';
@@ -341,71 +328,3 @@
     }
   });
 </script>
-
-<style>
-  .scroll-tuner {
-    position: fixed;
-    left: 16px;
-    bottom: 16px;
-    z-index: 90;
-    display: none;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgb(18 18 18 / 0.84);
-    backdrop-filter: blur(10px);
-    box-shadow:
-      0 8px 24px rgb(0 0 0 / 0.25),
-      inset 0 0 0 1px rgb(255 255 255 / 0.14);
-    color: #f2f2f2;
-    font: 600 11px / 1 var(--f-body);
-    user-select: none;
-  }
-  @media (min-width: 1200px) {
-    .scroll-tuner {
-      display: inline-flex;
-    }
-  }
-  :global(html.ve-active) .scroll-tuner {
-    display: none;
-  }
-  .st-label {
-    color: rgb(255 255 255 / 0.65);
-    padding-left: 4px;
-    letter-spacing: 0.03em;
-  }
-  .st-group {
-    display: inline-flex;
-    gap: 3px;
-    padding: 2px;
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.08);
-  }
-  .st-btn,
-  .st-snap {
-    border: 0;
-    border-radius: 999px;
-    padding: 5px 9px;
-    background: transparent;
-    color: rgb(255 255 255 / 0.72);
-    font: 600 11px / 1 var(--f-body);
-    cursor: pointer;
-    transition: background 0.16s ease, color 0.16s ease;
-  }
-  .st-btn:hover,
-  .st-snap:hover {
-    color: #ffffff;
-  }
-  .st-btn.is-active {
-    background: #e8222b;
-    color: #ffffff;
-  }
-  .st-snap {
-    background: rgb(255 255 255 / 0.08);
-  }
-  .st-snap.is-on {
-    background: rgb(255 255 255 / 0.18);
-    color: #ffffff;
-  }
-</style>
