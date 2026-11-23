@@ -1,12 +1,15 @@
 ---
 import { profile } from '../data/site';
+import { assetUrl } from '../lib/media';
 import ThemeToggle from './ThemeToggle.astro';
 import LangToggle from './LangToggle.astro';
-import HeroShapes from './HeroShapes';
+import HeroGridDistortion from './HeroGridDistortion';
 ---
 
 <header class="hero" id="top">
-  <div class="shapes"><HeroShapes client:load /></div>
+  <div class="shapes">
+    <HeroGridDistortion client:load imageSrc={assetUrl('media/hero-grid-bg.webp')} />
+  </div>
   <nav class="hero-nav container" aria-label="Primary">
     <a class="brand" href="#top" aria-label="Pun, back to top">PUN</a>
     <ul role="list">
@@ -72,6 +75,7 @@ import HeroShapes from './HeroShapes';
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     padding-block: 20px;
   }
   .brand {
@@ -80,6 +84,7 @@ import HeroShapes from './HeroShapes';
     color: var(--c-ink-display);
     text-decoration: none;
     letter-spacing: -0.02em;
+    flex: none;
   }
   .hero-nav ul {
     display: flex;
@@ -103,9 +108,12 @@ import HeroShapes from './HeroShapes';
     text-decoration: underline;
   }
   @media (max-width: 480px) {
+    .hero-nav .brand {
+      font-size: 1.25rem;
+    }
     .hero-nav ul {
-      gap: 10px;
-      font-size: 0.875rem;
+      gap: 9px;
+      font-size: 0.8125rem;
     }
     .hero-utils {
       gap: 4px;
