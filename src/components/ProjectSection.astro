@@ -15,16 +15,12 @@ import mapData from '../data/k2o-map.json';
 import ToolChips from './ToolChips.astro';
 import Palette from './Palette.astro';
 import EditorialCarouselProject from './EditorialCarouselProject.astro';
-import K2oShowcaseCard from './K2oShowcaseCard.astro';
-import ThumbnailsShowcaseCard from './ThumbnailsShowcaseCard.astro';
 
 interface Props {
   project: Project;
 }
 const { project: p } = Astro.props;
 const isEditorialCarousel = p.slug === 'infographic';
-const isK2oShowcase = p.slug === 'k2o';
-const isThumbnailsShowcase = p.slug === 'thumbnails-posters';
 const titleId = `${p.slug}-title`;
 
 const media = new Map(p.media.map((m) => [m.kind === 'embed' ? m.id : m.name + ':' + m.kind, m]));
@@ -145,11 +141,7 @@ const itemKey = (it: Item) =>
 ---
 
 {
-  isK2oShowcase ? (
-    <K2oShowcaseCard project={p} />
-  ) : isThumbnailsShowcase ? (
-    <ThumbnailsShowcaseCard project={p} />
-  ) : isEditorialCarousel ? (
+  isEditorialCarousel ? (
     <EditorialCarouselProject project={p} />
   ) : (
     <article class="project" id={p.slug} data-project-title={p.title} aria-labelledby={titleId}>
