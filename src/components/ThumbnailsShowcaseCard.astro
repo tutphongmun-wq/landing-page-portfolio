@@ -1,0 +1,345 @@
+---
+// Main-page showcase layout trial for Project 03 (Thumbnails & Posters),
+// matching Figma Frame 438: asymmetrical 1180px frame (padding 120/40/120/80,
+// right-aligned 1020px column), mono index, uppercase Archivo Black title,
+// 1020x574 (16:9) rounded-32 visual stage, and 902px lower overview + specs grid.
+import type { Project } from '../data/projects';
+import { caseStudies } from '../data/caseStudies';
+import Picture from './Picture.astro';
+
+interface Props {
+  project: Project;
+}
+const { project: p } = Astro.props;
+const cs = caseStudies[p.slug];
+const titleId = `${p.slug}-title`;
+---
+
+<article class="project tp-frame" id={p.slug} data-project-title={p.title} aria-labelledby={titleId}>
+  <div class="tp-surface">
+    <div class="tp-stage">
+      <div class="tp-col">
+        <header class="tp-head" data-reveal>
+          <p class="tp-no" aria-hidden="true">{p.no}</p>
+          <h3 id={titleId} class="tp-title">
+            <a
+              class="tp-title-link"
+              href={`#read-${p.slug}`}
+              data-open-case={p.slug}
+              data-case-trigger
+              aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+            >
+              <span class="visually-hidden">Project {p.no}: </span>
+              {p.title}
+            </a>
+          </h3>
+        </header>
+
+        <a
+          class="tp-media"
+          href={`#read-${p.slug}`}
+          data-open-case={p.slug}
+          data-case-trigger
+          aria-label={`Open full case study for ${p.title}`}
+          data-reveal
+          style="--reveal-d: 80ms"
+        >
+          <Picture
+            name="03-thumbs-netflix-snow"
+            alt="Netflix Thailand snow challenge Sapporo trip YouTube thumbnail crafted in collaboration with MollageBKK"
+            sizes="(min-width: 1200px) 1020px, 94vw"
+          />
+        </a>
+
+        <div class="tp-lower" data-reveal style="--reveal-d: 140ms">
+          <div class="tp-left">
+            <div class="tp-overview-wrap">
+              <h4 class="tp-kicker">Overview</h4>
+              <p class="tp-overview">
+                <span data-lang-text="en">{cs?.subtitle ?? p.description}</span>
+                <span data-lang-text="th">{cs?.subtitleTh ?? p.descriptionTh}</span>
+              </p>
+            </div>
+
+            <a
+              class="tp-cta"
+              href={`#read-${p.slug}`}
+              data-open-case={p.slug}
+            >
+              <span>FULL CASE STUDY</span>
+            </a>
+          </div>
+
+          <dl class="tp-specs">
+            <div class="tp-spec-row">
+              <dt class="tp-kicker">Category</dt>
+              <dd class="tp-spec-val">Poster</dd>
+            </div>
+            <div class="tp-spec-row">
+              <dt class="tp-kicker">Scope</dt>
+              <dd class="tp-spec-val">Entertainment</dd>
+            </div>
+            <div class="tp-spec-row">
+              <dt class="tp-kicker">Tools</dt>
+              <dd class="tp-spec-val">Photoshop, Illustrator</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  .tp-frame {
+    position: relative;
+  }
+  .tp-frame::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: var(--c-line);
+  }
+
+  .tp-surface {
+    width: 100%;
+    background: var(--c-bg);
+    transition: background-color 0.25s ease;
+  }
+  :global(:root[data-theme='dark']) .tp-surface {
+    background: #242424;
+  }
+
+  /* Frame 438: 1180px canvas with asymmetrical padding (120 40 120 80) and right-aligned 1020px stack */
+  .tp-stage {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(64px, 8.3vw, 120px) clamp(20px, 2.8vw, 40px) clamp(64px, 8.3vw, 120px) clamp(20px, 5.5vw, 80px);
+  }
+
+  /* Frame 445 */
+  .tp-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(26px, 2.6vw, 37px);
+    width: 100%;
+    max-width: 1020px;
+  }
+
+  /* Frame 130 */
+  .tp-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .tp-no {
+    margin: 0;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 400;
+    font-size: clamp(18px, 1.8vw, 24px);
+    line-height: 1.1;
+    color: var(--c-accent);
+  }
+  :global(:root[data-theme='dark']) .tp-no {
+    color: #ff2b2b;
+  }
+
+  .tp-title {
+    margin: 0;
+    width: 100%;
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: clamp(2.1rem, 1.35rem + 3.6vw, 4rem);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    color: var(--c-fg);
+  }
+  :global(:root[data-theme='dark']) .tp-title {
+    color: #fbf5eb;
+  }
+
+  .tp-title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.18s ease;
+  }
+  .tp-title-link:hover {
+    opacity: 0.86;
+  }
+
+  /* Rectangle 172: 1020 x 574 (16:9), border-radius 32px */
+  .tp-media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1020 / 574;
+    border-radius: clamp(20px, 2.6vw, 32px);
+    overflow: hidden;
+    background: linear-gradient(180deg, #d9d9d9 0%, #737373 100%);
+    box-shadow: 0 24px 54px rgb(0 0 0 / 0.16);
+    text-decoration: none;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+  }
+  :global(:root[data-theme='dark']) .tp-media {
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.42);
+  }
+  .tp-media:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 30px 64px rgb(0 0 0 / 0.24);
+  }
+  .tp-media :global(picture),
+  .tp-media :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tp-media:hover :global(img) {
+    transform: scale(1.025);
+  }
+
+  /* Frame 444: 902px wide (542px left + 57px gap + 303px right), flush-left under media */
+  .tp-lower {
+    display: grid;
+    grid-template-columns: minmax(0, 542fr) minmax(0, 303fr);
+    align-items: start;
+    gap: clamp(32px, 4.2vw, 57px);
+    width: 100%;
+    max-width: 902px;
+  }
+
+  .tp-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  .tp-overview-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .tp-kicker {
+    margin: 0;
+    font-family: 'Kodchasan', var(--f-body);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--c-accent);
+  }
+  :global(:root[data-theme='dark']) .tp-kicker {
+    color: #ff2b2b;
+  }
+
+  .tp-overview {
+    margin: 0;
+    font-family: 'Kodchasan', var(--f-body);
+    font-weight: 500;
+    font-size: clamp(17px, 1.38vw, 20px);
+    line-height: 1.4;
+    color: var(--c-fg);
+  }
+  :global(:root[data-theme='dark']) .tp-overview {
+    color: #ffffff;
+  }
+
+  .tp-cta {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 248px;
+    height: 80px;
+    padding: 15px 10px;
+    border-radius: 999px;
+    background: var(--c-fg);
+    color: var(--c-bg);
+    font-family: 'Kodchasan', var(--f-body);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.4;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition:
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  :global(:root[data-theme='dark']) .tp-cta {
+    background: #ffffff;
+    color: #000000;
+  }
+  .tp-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgb(0 0 0 / 0.22);
+  }
+  .tp-cta:active {
+    transform: scale(0.97);
+  }
+
+  .tp-specs {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin: 0;
+    width: 100%;
+  }
+
+  .tp-spec-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  .tp-spec-row:not(:last-child) {
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--c-line);
+  }
+  :global(:root[data-theme='dark']) .tp-spec-row:not(:last-child) {
+    border-bottom-color: #5a5a5a;
+  }
+
+  .tp-spec-val {
+    margin: 0;
+    font-family: 'Kodchasan', var(--f-body);
+    font-weight: 700;
+    font-size: clamp(20px, 1.7vw, 24px);
+    line-height: 1.4;
+    color: var(--c-fg);
+  }
+  :global(:root[data-theme='dark']) .tp-spec-val {
+    color: #ffffff;
+  }
+
+  @media (max-width: 900px) {
+    .tp-stage {
+      justify-content: center;
+      padding: clamp(48px, 8vw, 72px) 20px;
+    }
+    .tp-lower {
+      grid-template-columns: 1fr;
+      gap: 36px;
+      max-width: none;
+    }
+    .tp-cta {
+      width: 224px;
+      height: 64px;
+      font-size: 17px;
+    }
+  }
+</style>
