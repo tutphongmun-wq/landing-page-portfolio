@@ -111,26 +111,23 @@ const titleId = `${p.slug}-title`;
     background: #242424;
   }
 
-  /* Frame 438: 1180px canvas with asymmetrical padding (120 40 120 80) and right-aligned 1020px stack */
+  /* Frame 438: full fluid width with asymmetrical padding — 80px left (from sidebar), 40px right (to viewport edge) */
   .tp-stage {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: clamp(64px, 8.3vw, 120px) clamp(20px, 2.8vw, 40px) clamp(64px, 8.3vw, 120px) clamp(20px, 5.5vw, 80px);
+    padding: clamp(72px, 7.5vw, 120px) 40px clamp(72px, 7.5vw, 120px) 80px;
   }
 
-  /* Frame 445 */
+  /* Frame 445: stretches full width inside 80px / 40px bounds so media hugs the edges */
   .tp-col {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: clamp(26px, 2.6vw, 37px);
     width: 100%;
-    max-width: 1020px;
   }
 
   /* Frame 130 */
@@ -209,14 +206,14 @@ const titleId = `${p.slug}-title`;
     transform: scale(1.025);
   }
 
-  /* Frame 444: 902px wide (542px left + 57px gap + 303px right), flush-left under media */
+  /* Frame 444: proportional ~88.4% of .tp-col (902/1020 in Figma), flush-left under media */
   .tp-lower {
     display: grid;
     grid-template-columns: minmax(0, 542fr) minmax(0, 303fr);
     align-items: start;
-    gap: clamp(32px, 4.2vw, 57px);
-    width: 100%;
-    max-width: 902px;
+    gap: clamp(32px, 4.2vw, 64px);
+    width: min(100%, 88.4%);
+    max-width: 1180px;
   }
 
   .tp-left {
@@ -334,6 +331,7 @@ const titleId = `${p.slug}-title`;
     .tp-lower {
       grid-template-columns: 1fr;
       gap: 36px;
+      width: 100%;
       max-width: none;
     }
     .tp-cta {
