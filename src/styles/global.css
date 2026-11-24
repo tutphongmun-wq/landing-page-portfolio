@@ -18,7 +18,7 @@ html {
 
 @media (min-width: 1200px) {
   :root {
-    --sidebar-w: clamp(216px, 16.5vw, 244px);
+    --sidebar-w: 256px;
   }
   html {
     scroll-padding-top: 24px; /* side nav replaces top bar on desktop */

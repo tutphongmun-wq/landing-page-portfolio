@@ -1,6 +1,6 @@
 // Editorial Full Case Study definitions for all 7 portfolio projects (Bilingual EN + TH body copy).
 // Every project shares the same Worachet-inspired full-screen reader shell
-// (264px sticky TOC sidebar, flush-top 486px full-width cover, 720px text column,
+// (256px sticky TOC sidebar, flush-top 486px full-width cover, 720px text column,
 // 864px media breakout) while telling its own authentic visual and process story.
 
 export type CaseCover =
