@@ -14,6 +14,7 @@ import VideoSlot from './VideoSlot.astro';
 import ModelSlot from './ModelSlot.astro';
 import FestivalMap from './FestivalMap.astro';
 import LangToggle from './LangToggle.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { projects } from '../data/projects';
 import { caseStudies } from '../data/caseStudies';
 import { tools } from '../data/site';
@@ -98,7 +99,10 @@ const sybilMintTiers = [
                 <span aria-hidden="true">←</span>
                 <span>All projects</span>
               </button>
-              <LangToggle variant="dark" />
+              <div class="cs-side-tools">
+                <LangToggle variant="compact" />
+                <ThemeToggle compact />
+              </div>
             </div>
 
             <div class="cs-toc-wrap">
@@ -1310,6 +1314,21 @@ const sybilMintTiers = [
 
   /* ================= Full-Screen Editorial Case Study Reader ================= */
   .cs-reader {
+    --cs-bg: #fbf5eb;
+    --cs-side-bg: #fbf5eb;
+    --cs-surface: #ffffff;
+    --cs-surface-2: #f2ebe0;
+    --cs-fg: #171514;
+    --cs-fg-soft: #3b3732;
+    --cs-muted: #6b655e;
+    --cs-line: rgb(23 21 20 / 0.1);
+    --cs-line-strong: rgb(23 21 20 / 0.16);
+    --cs-accent: #ff2b2b;
+    --cs-accent-soft: rgb(255 43 43 / 0.1);
+    --cs-accent-border: rgb(255 43 43 / 0.28);
+    --cs-shadow: rgb(23 21 20 / 0.12);
+    --cs-inset: rgb(255 255 255 / 0.72);
+
     width: 100vw;
     max-width: 100vw;
     height: 100dvh;
@@ -1318,9 +1337,26 @@ const sybilMintTiers = [
     padding: 0;
     border: 0;
     border-radius: 0;
-    background: #161513;
-    color: #efe9de;
+    background: var(--cs-bg);
+    color: var(--cs-fg);
     overflow: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  :global(:root[data-theme='dark']) .cs-reader {
+    --cs-bg: #242424;
+    --cs-side-bg: #242424;
+    --cs-surface: #2d2d2d;
+    --cs-surface-2: #363636;
+    --cs-fg: #fbf5eb;
+    --cs-fg-soft: #d6d0c6;
+    --cs-muted: #9e988e;
+    --cs-line: rgb(251 245 235 / 0.1);
+    --cs-line-strong: rgb(251 245 235 / 0.18);
+    --cs-accent: #ff2b2b;
+    --cs-accent-soft: rgb(255 43 43 / 0.14);
+    --cs-accent-border: rgb(255 43 43 / 0.34);
+    --cs-shadow: rgb(0 0 0 / 0.42);
+    --cs-inset: rgb(255 255 255 / 0.08);
   }
   .cs-reader[open] {
     animation: cs-slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1341,7 +1377,10 @@ const sybilMintTiers = [
     }
   }
   .cs-reader::backdrop {
-    background: rgb(12 11 10 / 0.9);
+    background: rgb(23 21 20 / 0.6);
+  }
+  :global(:root[data-theme='dark']) .cs-reader::backdrop {
+    background: rgb(18 18 18 / 0.88);
   }
 
   .cs-layout {
@@ -1357,35 +1396,48 @@ const sybilMintTiers = [
     flex-direction: column;
     justify-content: space-between;
     padding: 40px 24px 36px 32px;
-    background: #12110f;
-    border-right: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-side-bg);
+    border-right: 1px solid var(--cs-line);
     height: 100dvh;
     user-select: none;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
   }
 
   .cs-side-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 6px;
     width: 100%;
+  }
+
+  .cs-side-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+  }
+  .cs-side-tools :global(.theme-toggle.is-compact) {
+    width: 28px;
+    height: 28px;
   }
 
   .cs-back {
     align-self: flex-start;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 4px;
+    gap: 6px;
+    padding: 6px 0;
     border: 0;
     background: transparent;
-    color: #aaa398;
+    color: var(--cs-muted);
     font: 400 14px / 1.25 var(--f-nav);
+    white-space: nowrap;
     cursor: pointer;
     transition: color 0.16s ease, transform 0.16s ease;
   }
   .cs-back:hover {
-    color: #efe9de;
+    color: var(--cs-fg);
     transform: translateX(-2px);
   }
 
@@ -1400,7 +1452,7 @@ const sybilMintTiers = [
     font-family: var(--f-display);
     font-size: 18px;
     font-weight: 400;
-    color: #efe9de;
+    color: var(--cs-fg);
     letter-spacing: -0.01em;
     line-height: 1.15;
   }
@@ -1421,7 +1473,7 @@ const sybilMintTiers = [
     padding-inline: 12px;
     border-radius: 8px;
     border: 1px solid transparent;
-    color: #8a847a;
+    color: var(--cs-muted);
     font: 400 14px / 1.25 var(--f-nav);
     text-decoration: none;
     transition:
@@ -1430,7 +1482,7 @@ const sybilMintTiers = [
       background-color 0.16s ease;
   }
   .cs-toc-link:hover {
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-toc-bar {
     width: 12px;
@@ -1441,15 +1493,15 @@ const sybilMintTiers = [
     transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
   }
   .cs-toc-link.is-active {
-    color: #efe9de;
-    border-color: rgb(239 233 222 / 0.16);
-    background: #1c1a18;
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+    color: var(--cs-fg);
+    border-color: var(--cs-line-strong);
+    background: var(--cs-surface);
+    box-shadow: inset 0 1px 0 var(--cs-inset);
   }
   .cs-toc-link.is-active .cs-toc-bar {
     width: 20px;
     opacity: 1;
-    background: #ff3838;
+    background: var(--cs-accent);
   }
 
   /* RareUI Hook Sidebar (K2O trial) */
@@ -1470,10 +1522,10 @@ const sybilMintTiers = [
     opacity: 1;
   }
   .cs-hook-rail.is-hover {
-    color: rgb(239 233 222 / 0.3);
+    color: color-mix(in srgb, var(--cs-fg) 30%, transparent);
   }
   .cs-hook-rail.is-accent {
-    color: #ff3838;
+    color: var(--cs-accent);
   }
   .cs-hook-stem {
     position: absolute;
@@ -1498,15 +1550,15 @@ const sybilMintTiers = [
     padding: 6px 8px 6px 20px;
     text-align: left;
     font: 400 14px / 1.4 var(--f-nav);
-    color: rgb(239 233 222 / 0.5);
+    color: color-mix(in srgb, var(--cs-fg) 52%, transparent);
     text-decoration: none;
     transition: color 0.2s ease;
   }
   .cs-hook-item:hover {
-    color: rgb(239 233 222 / 0.8);
+    color: color-mix(in srgb, var(--cs-fg) 84%, transparent);
   }
   .cs-hook-item.is-active {
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   @media (prefers-reduced-motion: reduce) {
     .cs-hook-rail,
@@ -1525,16 +1577,16 @@ const sybilMintTiers = [
     justify-content: space-between;
     padding: 10px 14px;
     border-radius: 8px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.12);
-    color: #efe9de;
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line-strong);
+    color: var(--cs-fg);
     font: 400 13px / 1.2 var(--f-nav);
     text-decoration: none;
     transition: border-color 0.16s ease, background-color 0.16s ease;
   }
   .cs-live-pill:hover {
-    background: #262421;
-    border-color: rgb(239 233 222 / 0.28);
+    background: var(--cs-surface-2);
+    border-color: var(--cs-fg);
   }
 
   .cs-next {
@@ -1542,19 +1594,19 @@ const sybilMintTiers = [
     gap: 4px;
     padding-left: 12px;
     text-decoration: none;
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-next-lbl {
     font: 400 12px / 1.2 var(--f-nav);
-    color: #8a847a;
+    color: var(--cs-muted);
   }
   .cs-next-title {
     font: 400 14px / 1.3 var(--f-nav);
-    color: #efe9de;
+    color: var(--cs-fg);
     transition: color 0.16s ease;
   }
   .cs-next:hover .cs-next-title {
-    color: #ff3838;
+    color: var(--cs-accent);
   }
 
   /* Right Scrollable Reading Area */
@@ -1636,7 +1688,7 @@ const sybilMintTiers = [
     border-radius: 0;
     overflow: hidden;
     box-sizing: border-box;
-    box-shadow: 0 24px 60px rgb(0 0 0 / 0.42);
+    box-shadow: 0 20px 48px var(--cs-shadow);
   }
   .cs-hero-banner.is-logo {
     display: grid;
@@ -1662,8 +1714,11 @@ const sybilMintTiers = [
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgb(0 0 0 / 0.08) 0%, rgb(0 0 0 / 0) 55%, rgb(22 21 19 / 0.48) 100%);
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.04) 0%, rgb(0 0 0 / 0) 60%, rgb(0 0 0 / 0.18) 100%);
     pointer-events: none;
+  }
+  :global(:root[data-theme='dark']) .cs-hero-banner.is-photo::after {
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.08) 0%, rgb(0 0 0 / 0) 55%, rgb(36 36 36 / 0.54) 100%);
   }
 
   .cs-hero-banner.is-framed {
@@ -1745,33 +1800,33 @@ const sybilMintTiers = [
     font-size: clamp(36px, 4.4vw, 52px);
     line-height: 1.06;
     letter-spacing: -0.02em;
-    color: #efe9de;
+    color: var(--cs-fg);
   }
 
   .cs-subtitle {
     margin: -8px auto 0;
     font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-body);
-    color: #aaa398;
+    color: var(--cs-muted);
   }
 
   .cs-meta-grid {
     margin: 8px auto;
     padding-block: 20px;
-    border-top: 1px solid rgb(239 233 222 / 0.08);
-    border-bottom: 1px solid rgb(239 233 222 / 0.08);
+    border-top: 1px solid var(--cs-line);
+    border-bottom: 1px solid var(--cs-line);
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
   }
   .cs-meta-grid dt {
     font: 500 12px / 1.3 var(--f-body);
-    color: #8a847a;
+    color: var(--cs-muted);
     margin-bottom: 4px;
   }
   .cs-meta-grid dd {
     margin: 0;
     font: 500 14px / 1.45 var(--f-body);
-    color: #efe9de;
+    color: var(--cs-fg);
   }
 
   /* ================= Showcase Spec Options A / B / C Comparison ================= */
@@ -1779,9 +1834,9 @@ const sybilMintTiers = [
     display: inline-block;
     padding: 3px 8px;
     border-radius: 999px;
-    background: rgb(255 56 56 / 0.14);
-    border: 1px solid rgb(255 56 56 / 0.3);
-    color: #ff6b6b;
+    background: var(--cs-accent-soft);
+    border: 1px solid var(--cs-accent-border);
+    color: var(--cs-accent);
     font: 700 10.5px / 1.1 var(--f-body);
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -1792,8 +1847,8 @@ const sybilMintTiers = [
     margin-block: 12px;
     padding: 12px;
     border-radius: 12px;
-    background: #1a1816;
-    border: 1px solid rgb(239 233 222 / 0.1);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
     display: grid;
     gap: 10px;
   }
@@ -1807,12 +1862,12 @@ const sybilMintTiers = [
   }
   .cs-opt-a-list dt {
     font: 500 10.5px / 1.2 var(--f-body);
-    color: #8a847a;
+    color: var(--cs-muted);
   }
   .cs-opt-a-list dd {
     margin: 2px 0 0;
     font: 500 12px / 1.35 var(--f-body);
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-opt-a-tools {
     display: flex;
@@ -1823,10 +1878,10 @@ const sybilMintTiers = [
   .cs-opt-a-tools span {
     padding: 3px 6px;
     border-radius: 5px;
-    background: #262421;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface-2);
+    border: 1px solid var(--cs-line);
     font: 700 10.5px / 1 var(--f-body);
-    color: #ff6b6b;
+    color: var(--cs-accent);
   }
 
   /* Option B + C Container in Right Column */
@@ -1855,20 +1910,20 @@ const sybilMintTiers = [
   .cs-bento-card {
     padding: 14px 16px;
     border-radius: 14px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
     display: grid;
     gap: 4px;
     align-content: start;
   }
   .cs-bento-card dt {
     font: 500 11.5px / 1.2 var(--f-body);
-    color: #8a847a;
+    color: var(--cs-muted);
   }
   .cs-bento-card dd {
     margin: 0;
     font: 600 14px / 1.4 var(--f-body);
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-bento-tools {
     display: flex;
@@ -1879,10 +1934,10 @@ const sybilMintTiers = [
   .cs-bento-tools span {
     padding: 4px 8px;
     border-radius: 6px;
-    background: #262421;
-    border: 1px solid rgb(239 233 222 / 0.1);
+    background: var(--cs-surface-2);
+    border: 1px solid var(--cs-line);
     font: 700 12px / 1 var(--f-body);
-    color: #ff6b6b;
+    color: var(--cs-accent);
   }
 
   /* Option C: Inline Spec Tags */
@@ -1897,17 +1952,17 @@ const sybilMintTiers = [
     gap: 6px;
     padding: 7px 12px;
     border-radius: 999px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.1);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
     font: 500 12.5px / 1.1 var(--f-body);
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-spec-chip strong {
-    color: #8a847a;
+    color: var(--cs-muted);
     font-weight: 500;
   }
   .cs-spec-chip.is-tool strong {
-    color: #ff6b6b;
+    color: var(--cs-accent);
     font-weight: 700;
   }
 
@@ -1918,13 +1973,13 @@ const sybilMintTiers = [
     font-size: clamp(24px, 2.6vw, 32px);
     line-height: 1.15;
     letter-spacing: -0.015em;
-    color: #efe9de;
+    color: var(--cs-fg);
   }
 
   .cs-prose {
     margin: 0 auto;
     font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-body);
-    color: #cbc4b8;
+    color: var(--cs-fg-soft);
   }
 
   .cs-callout-grid {
@@ -1936,20 +1991,20 @@ const sybilMintTiers = [
   .cs-callout {
     padding: 20px 24px;
     border-radius: 16px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
     display: grid;
     gap: 8px;
   }
   .cs-callout h3 {
     margin: 0;
     font: 700 15px / 1.3 var(--f-body);
-    color: #ff3838;
+    color: var(--cs-accent);
   }
   .cs-callout p {
     margin: 0;
     font: 400 14px / 1.55 var(--f-body);
-    color: #cbc4b8;
+    color: var(--cs-fg-soft);
   }
 
   /* ================= Segmented Control Pill ================= */
@@ -1958,25 +2013,25 @@ const sybilMintTiers = [
     padding: 4px;
     gap: 4px;
     border-radius: 999px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.1);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
   }
   .cs-seg-btn {
     border: 0;
     border-radius: 999px;
     padding: 7px 14px;
     background: transparent;
-    color: #968f84;
+    color: var(--cs-muted);
     font: 600 12.5px / 1 var(--f-body);
     cursor: pointer;
     transition: background-color 0.16s ease, color 0.16s ease;
   }
   .cs-seg-btn:hover {
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-seg-btn.is-active {
-    background: #efe9de;
-    color: #141312;
+    background: var(--cs-fg);
+    color: var(--cs-bg);
   }
 
   /* ================= Figures, Galleries & Interactive Media (864px) ================= */
@@ -1988,9 +2043,9 @@ const sybilMintTiers = [
   .cs-img-box {
     border-radius: 16px;
     overflow: hidden;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
-    box-shadow: 0 20px 48px rgb(0 0 0 / 0.36);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
+    box-shadow: 0 20px 48px var(--cs-shadow);
   }
   .cs-img-box :global(picture),
   .cs-img-box :global(img) {
@@ -2000,7 +2055,7 @@ const sybilMintTiers = [
   }
   .cs-figure figcaption {
     font: 400 13px / 1.45 var(--f-body);
-    color: #8a847a;
+    color: var(--cs-muted);
   }
 
   .cs-zoom {
@@ -2017,7 +2072,7 @@ const sybilMintTiers = [
     filter: brightness(1.06);
   }
   .cs-zoom:focus-visible {
-    outline: 2px solid #ff3838;
+    outline: 2px solid var(--cs-accent);
     outline-offset: -2px;
   }
 
@@ -2037,16 +2092,16 @@ const sybilMintTiers = [
     flex-direction: column;
     border-radius: 14px;
     overflow: hidden;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
-    box-shadow: 0 14px 36px rgb(0 0 0 / 0.3);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
+    box-shadow: 0 14px 36px var(--cs-shadow);
   }
   .cs-gallery-media {
     position: relative;
     flex: 1;
     width: 100%;
     overflow: hidden;
-    background: #141312;
+    background: var(--cs-surface-2);
   }
   .cs-gallery-media :global(picture),
   .cs-gallery-media :global(img) {
@@ -2072,24 +2127,24 @@ const sybilMintTiers = [
   .cs-gallery-lbl {
     display: block;
     padding: 10px 14px;
-    background: #1c1a18;
-    border-top: 1px solid rgb(239 233 222 / 0.06);
+    background: var(--cs-surface);
+    border-top: 1px solid var(--cs-line);
     font: 500 12.5px / 1.3 var(--f-body);
-    color: #cbc4b8;
+    color: var(--cs-fg-soft);
   }
 
   .cs-palette-wrap {
     border-radius: 14px;
     overflow: hidden;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    border: 1px solid var(--cs-line);
   }
 
   .cs-media-frame {
     border-radius: 16px;
     overflow: hidden;
-    background: #12110f;
-    border: 1px solid rgb(239 233 222 / 0.1);
-    box-shadow: 0 20px 48px rgb(0 0 0 / 0.42);
+    background: #141414;
+    border: 1px solid var(--cs-line);
+    box-shadow: 0 20px 48px var(--cs-shadow);
   }
   .cs-media-frame :global(video) {
     display: block;
@@ -2104,7 +2159,7 @@ const sybilMintTiers = [
     border-radius: 16px;
     overflow: hidden;
     border: 1px solid rgb(0 242 255 / 0.18);
-    box-shadow: 0 20px 50px rgb(0 0 0 / 0.44);
+    box-shadow: 0 20px 50px var(--cs-shadow);
   }
   .cs-model-frame :global(.model-slot) {
     width: 100%;
@@ -2117,8 +2172,8 @@ const sybilMintTiers = [
     width: 100%;
     border-radius: 16px;
     overflow: hidden;
-    border: 1px solid rgb(239 233 222 / 0.1);
-    box-shadow: 0 20px 50px rgb(0 0 0 / 0.44);
+    border: 1px solid var(--cs-line);
+    box-shadow: 0 20px 50px var(--cs-shadow);
   }
   .cs-map-frame :global(.fmap) {
     border-radius: 0;
@@ -2145,9 +2200,9 @@ const sybilMintTiers = [
     aspect-ratio: 16 / 9;
     border-radius: 16px;
     overflow: hidden;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
-    box-shadow: 0 20px 48px rgb(0 0 0 / 0.36);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
+    box-shadow: 0 20px 48px var(--cs-shadow);
   }
   .cs-world-layer {
     position: absolute;
@@ -2182,8 +2237,8 @@ const sybilMintTiers = [
     gap: 14px;
     padding: 12px;
     border-radius: 14px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
   }
   .cs-char-thumb {
     width: 68px;
@@ -2191,7 +2246,7 @@ const sybilMintTiers = [
     border-radius: 10px;
     overflow: hidden;
     flex: none;
-    background: #262421;
+    background: var(--cs-surface-2);
   }
   .cs-char-thumb img {
     display: block;
@@ -2207,24 +2262,24 @@ const sybilMintTiers = [
   }
   .cs-char-badge {
     font: 700 11px / 1 var(--f-body);
-    color: #ff3838;
+    color: var(--cs-accent);
   }
   .cs-char-meta strong {
     font: 700 14px / 1.2 var(--f-body);
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-char-stats {
     font: 400 12px / 1.3 var(--f-body);
-    color: #968f84;
+    color: var(--cs-muted);
   }
 
   .cs-browser-frame {
     width: 100%;
     border-radius: 16px;
     overflow: hidden;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.12);
-    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line-strong);
+    box-shadow: 0 24px 60px var(--cs-shadow);
   }
   .cs-browser-bar {
     display: flex;
@@ -2232,8 +2287,8 @@ const sybilMintTiers = [
     justify-content: space-between;
     gap: 12px;
     padding: 12px 16px;
-    background: #12110f;
-    border-bottom: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface-2);
+    border-bottom: 1px solid var(--cs-line);
   }
   .cs-browser-dots {
     display: flex;
@@ -2243,7 +2298,7 @@ const sybilMintTiers = [
     width: 10px;
     height: 10px;
     border-radius: 999px;
-    background: rgb(239 233 222 / 0.18);
+    background: var(--cs-line-strong);
   }
   .cs-browser-url {
     display: inline-flex;
@@ -2251,31 +2306,31 @@ const sybilMintTiers = [
     gap: 8px;
     padding: 5px 12px;
     border-radius: 999px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
     font: 500 12px / 1 var(--f-body);
-    color: #cbc4b8;
+    color: var(--cs-fg-soft);
   }
   .cs-live-badge {
     padding: 2px 6px;
     border-radius: 4px;
-    background: rgb(255 56 56 / 0.16);
-    color: #ff3838;
+    background: var(--cs-accent-soft);
+    color: var(--cs-accent);
     font-weight: 700;
     font-size: 10px;
     letter-spacing: 0.04em;
   }
   .cs-browser-open {
     font: 600 12.5px / 1 var(--f-body);
-    color: #efe9de;
+    color: var(--cs-fg);
     text-decoration: none;
     padding: 6px 10px;
     border-radius: 6px;
-    background: rgb(239 233 222 / 0.08);
+    background: var(--cs-line);
     transition: background-color 0.16s ease, color 0.16s ease;
   }
   .cs-browser-open:hover {
-    background: #ff3838;
+    background: var(--cs-accent);
     color: #ffffff;
   }
 
@@ -2284,7 +2339,7 @@ const sybilMintTiers = [
     width: 100%;
     height: 540px;
     overflow: hidden;
-    background: #12110f;
+    background: #141414;
   }
   .cs-iframe {
     position: absolute;
@@ -2308,8 +2363,8 @@ const sybilMintTiers = [
     margin-top: 8px;
     padding: 20px 24px;
     border-radius: 16px;
-    background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface);
+    border: 1px solid var(--cs-line);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -2319,7 +2374,7 @@ const sybilMintTiers = [
   }
   .cs-tools-lbl {
     font: 600 13px / 1 var(--f-body);
-    color: #8a847a;
+    color: var(--cs-muted);
   }
   .cs-tools-list {
     display: flex;
@@ -2329,14 +2384,54 @@ const sybilMintTiers = [
   .cs-tool-pill {
     padding: 6px 12px;
     border-radius: 8px;
-    background: #262421;
-    border: 1px solid rgb(239 233 222 / 0.08);
+    background: var(--cs-surface-2);
+    border: 1px solid var(--cs-line);
     font: 400 13px / 1.2 var(--f-body);
-    color: #efe9de;
+    color: var(--cs-fg);
   }
   .cs-tool-pill strong {
-    color: #ff3838;
+    color: var(--cs-accent);
     margin-right: 4px;
+  }
+
+  /* ================= K2O Typography Trial: Clash Display Medium + Satoshi Light/Regular ================= */
+  .cs-reader[data-case-dialog='k2o'] .cs-proj-name,
+  .cs-reader[data-case-dialog='k2o'] .cs-h1,
+  .cs-reader[data-case-dialog='k2o'] .cs-h2,
+  .cs-reader[data-case-dialog='k2o'] .cs-callout h3 {
+    font-family: var(--f-clash);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .cs-reader[data-case-dialog='k2o'] .cs-h1 {
+    font-size: clamp(38px, 4.6vw, 56px);
+    line-height: 1.04;
+  }
+  .cs-reader[data-case-dialog='k2o'] .cs-h2 {
+    font-size: clamp(26px, 2.7vw, 34px);
+    line-height: 1.12;
+  }
+  .cs-reader[data-case-dialog='k2o'] .cs-callout h3 {
+    font-size: 16.5px;
+    line-height: 1.3;
+  }
+  /* Larger body copy (16–19px) -> Satoshi Light (300) */
+  .cs-reader[data-case-dialog='k2o'] .cs-subtitle,
+  .cs-reader[data-case-dialog='k2o'] .cs-prose {
+    font-family: var(--f-nav);
+    font-weight: 300;
+  }
+  /* Compact body, metadata & captions (12–14.5px) -> Satoshi Regular (400) */
+  .cs-reader[data-case-dialog='k2o'] .cs-meta-grid dt,
+  .cs-reader[data-case-dialog='k2o'] .cs-meta-grid dd,
+  .cs-reader[data-case-dialog='k2o'] .cs-callout p,
+  .cs-reader[data-case-dialog='k2o'] .cs-figure figcaption,
+  .cs-reader[data-case-dialog='k2o'] .cs-gallery-lbl,
+  .cs-reader[data-case-dialog='k2o'] .cs-tools-lbl,
+  .cs-reader[data-case-dialog='k2o'] .cs-tool-pill,
+  .cs-reader[data-case-dialog='k2o'] .cs-seg-btn {
+    font-family: var(--f-nav);
+    font-weight: 400;
   }
 
   /* ================= Mobile / Tablet Responsive ================= */
@@ -2353,7 +2448,7 @@ const sybilMintTiers = [
       gap: 12px;
       padding: 14px 20px;
       border-right: 0;
-      border-bottom: 1px solid rgb(239 233 222 / 0.08);
+      border-bottom: 1px solid var(--cs-line);
     }
     .cs-side-top {
       width: auto;

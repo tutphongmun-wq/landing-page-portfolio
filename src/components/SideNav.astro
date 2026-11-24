@@ -503,7 +503,8 @@ import LangToggle from './LangToggle.astro';
       justify-content: space-between;
       gap: 16px;
       padding: 36px 24px 24px 32px;
-      background: color-mix(in srgb, var(--c-bg) 94%, transparent);
+      background: color-mix(in srgb, var(--c-bg) 96%, transparent);
+      border-right: 1px solid var(--c-line);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       transform: translateX(-104%);
@@ -685,8 +686,8 @@ import LangToggle from './LangToggle.astro';
       box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.72);
     }
     :global(:root[data-theme='dark']) .rail-link.is-active .rail-label {
-      border-color: rgb(239 233 222 / 0.16);
-      background: #1c1a18;
+      border-color: rgb(251 245 235 / 0.16);
+      background: var(--c-bg-raised);
       box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
     }
 

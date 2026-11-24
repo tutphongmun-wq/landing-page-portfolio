@@ -29,7 +29,7 @@ const SETTINGS = {
     hoverFollow: 0.16,
     hoverFade: 0.8,
     hoverEffect: 'rings',
-    backgroundColor: '#e8222b',
+    backgroundColor: '#ff2b2b',
     gradientColors: ['#c3141d', '#e2262f'],
     grain: 0.4,
     lineColor: '#ff9da1',

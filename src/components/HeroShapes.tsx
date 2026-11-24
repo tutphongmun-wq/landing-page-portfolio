@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ShapePhysics, type ShapePhysicsHandle } from './reactdrops/shape-physics';
 import { solidPalette } from './reactdrops/solid-shapes';
 
-export const heroShapesBackground = '#e8222b';
+export const heroShapesBackground = '#ff2b2b';
 const colors = solidPalette.filter((c) => c !== '#ea4044');
 
 type Rect = { x: number; y: number; w: number; h: number };

@@ -7,20 +7,20 @@
   color-scheme: light;
 
   /* Color — light (default) */
-  --c-bg: #f2efea;
+  --c-bg: #fbf5eb;
   --c-bg-raised: #ffffff;
-  --c-line: #d9d3cb;
+  --c-line: #e4ddd2;
   --c-fg: #171514;
   --c-fg-soft: #3b3732;
   --c-muted: #6b655e;
-  --c-accent: #c8121b; /* 5.1:1 on --c-bg */
-  --c-ph-a: #e9e4dd;
-  --c-ph-b: #e2ddd5;
+  --c-accent: #ff2b2b;
+  --c-ph-a: #f0e9dd;
+  --c-ph-b: #e9e0d3;
   --c-shadow: rgb(40 20 10 / 0.22);
   --c-shadow-soft: rgb(40 20 10 / 0.14);
 
   /* Fixed colors (same in both themes) */
-  --c-hero: #e8222b;
+  --c-hero: #ff2b2b;
   --c-ink: #000; /* small text on red needs pure black for contrast */
   --c-ink-display: #111; /* >= 3:1 on the darker swirl bands for large text */
 
@@ -29,6 +29,7 @@
   --f-heading: 'BBH Bartle', 'Archivo Black', 'Arial Black', system-ui, sans-serif; /* section headings + wordmark */
   --f-body: 'IBM Plex Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --f-nav: 'Satoshi', var(--f-body);
+  --f-clash: 'Clash Display', 'IBM Plex Sans Thai', system-ui, sans-serif;
   --fs-0: 0.875rem;
   --fs-1: 1rem;
   --fs-2: 1.125rem;
@@ -48,15 +49,15 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --c-bg: #141312;
-  --c-bg-raised: #1c1a18;
-  --c-line: rgb(239 233 222 / 0.12);
-  --c-fg: #efe9de;
-  --c-fg-soft: #cbc4b8; /* running copy */
-  --c-muted: #968f84;
-  --c-accent: #ff3838; /* > 5.3:1 on --c-bg */
-  --c-ph-a: #1f1d1b; /* placeholder stripes */
-  --c-ph-b: #1a1816;
+  --c-bg: #242424;
+  --c-bg-raised: #2d2d2d;
+  --c-line: rgb(251 245 235 / 0.12);
+  --c-fg: #fbf5eb;
+  --c-fg-soft: #d6d0c6; /* running copy */
+  --c-muted: #9e988e;
+  --c-accent: #ff2b2b;
+  --c-ph-a: #2b2b2b; /* placeholder stripes */
+  --c-ph-b: #313131;
   --c-shadow: rgb(0 0 0 / 0.55);
   --c-shadow-soft: rgb(0 0 0 / 0.35);
 }
