@@ -102,9 +102,9 @@ const titleId = `${p.slug}-title`;
 
   .k2o-surface {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    padding: clamp(48px, 4.8vw, 62px) clamp(20px, 4.2vw, 60px);
+    padding: clamp(48px, 4.8vw, 62px) 40px clamp(48px, 4.8vw, 62px) 80px;
     background: var(--c-bg);
     transition: background-color 0.25s ease;
   }
@@ -118,7 +118,6 @@ const titleId = `${p.slug}-title`;
     align-items: flex-start;
     gap: clamp(28px, 3.2vw, 40px);
     width: 100%;
-    max-width: 1120px;
   }
 
   .k2o-head {
@@ -127,6 +126,7 @@ const titleId = `${p.slug}-title`;
     align-items: flex-start;
     gap: 16px;
     width: 100%;
+    max-width: 1120px;
   }
 
   .k2o-no {
@@ -168,7 +168,7 @@ const titleId = `${p.slug}-title`;
   .k2o-media {
     display: block;
     width: 100%;
-    aspect-ratio: 940 / 529;
+    aspect-ratio: 2 / 1;
     border-radius: clamp(20px, 2.6vw, 32px);
     overflow: hidden;
     background: linear-gradient(180deg, #d9d9d9 0%, #737373 100%);
@@ -201,6 +201,7 @@ const titleId = `${p.slug}-title`;
     align-items: start;
     gap: clamp(32px, 6.8vw, 95px);
     width: 100%;
+    max-width: 1120px;
   }
 
   .k2o-left {
@@ -308,7 +309,10 @@ const titleId = `${p.slug}-title`;
     color: #ffffff;
   }
 
-  @media (max-width: 860px) {
+  @media (max-width: 900px) {
+    .k2o-surface {
+      padding: clamp(44px, 7vw, 60px) 20px;
+    }
     .k2o-lower {
       grid-template-columns: 1fr;
       gap: 36px;
