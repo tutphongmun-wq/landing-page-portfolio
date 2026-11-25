@@ -27,37 +27,12 @@ const chapters = [
 ---
 
 <div class="bf-root" data-book-flipbook data-base-path={basePath} data-total-pages="60">
-  <!-- Chapter Quick-Jump Pills -->
-  <div class="bf-chapters" role="tablist" aria-label="Book chapters">
-    {
-      chapters.map((ch, idx) => (
-        <button
-          type="button"
-          class:list={['bf-ch-btn', { 'is-active': idx === 0 }]}
-          data-bf-jump={ch.spread}
-          aria-pressed={idx === 0 ? 'true' : 'false'}
-        >
-          {ch.dot && <span class="bf-ch-dot" style={`background:${ch.dot}`} aria-hidden="true" />}
-          <span>{ch.label}</span>
-        </button>
-      ))
-    }
-  </div>
+  <!-- Frosted blurred backdrop for fullscreen "pick up closer" mode -->
+  <div class="bf-fs-backdrop" data-bf-backdrop aria-hidden="true"></div>
 
-  <!-- 3D Book Stage -->
-  <div class="bf-stage-wrap" data-bf-stage-wrap>
-    <button
-      type="button"
-      class="bf-nav bf-prev"
-      data-bf-prev
-      aria-label="Previous spread"
-      disabled
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M15 18l-6-6 6-6" />
-      </svg>
-    </button>
-
+  <!-- Floating stage + unified minimal dock -->
+  <div class="bf-shell" data-bf-shell>
+    <!-- 3D Book Stage (floats directly on page background, full 864px width) -->
     <div class="bf-stage" data-bf-stage tabindex="0" role="region" aria-label="16 Personalities 60-page interactive book">
       <div class="bf-book" data-bf-book data-state="front">
         <!-- Layered paper thickness stacks (left & right fore-edges) -->
@@ -90,62 +65,96 @@ const chapters = [
 
         <!-- Dynamic 3D curved turning sheets layer -->
         <div class="bf-turns" data-bf-turns aria-hidden="true"></div>
-
-        <!-- Hover corner peek hint (visual cue on first visit) -->
-        <div class="bf-hint" data-bf-hint aria-hidden="true">
-          <span>Click or drag to flip</span>
-        </div>
       </div>
     </div>
 
-    <button
-      type="button"
-      class="bf-nav bf-next"
-      data-bf-next
-      aria-label="Next spread"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 18l6-6-6-6" />
-      </svg>
-    </button>
-  </div>
+    <!-- Unified Clean Minimal Bottom Control Dock -->
+    <div class="bf-dock" data-bf-dock>
+      <div class="bf-bar">
+        <div class="bf-bar-left">
+          <div class="bf-arrows" role="group" aria-label="Turn pages">
+            <button
+              type="button"
+              class="bf-ghost-btn"
+              data-bf-prev
+              aria-label="Previous spread"
+              title="Previous spread"
+              disabled
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="bf-ghost-btn"
+              data-bf-next
+              aria-label="Next spread"
+              title="Next spread"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
 
-  <!-- Bottom Reader Bar (Page Counter, Live Spread Title, Scrubber, Fullscreen) -->
-  <div class="bf-bar">
-    <div class="bf-meta">
-      <span class="bf-counter" data-bf-counter>1 / 60</span>
-      <span class="bf-sep" aria-hidden="true">·</span>
-      <span class="bf-title" data-bf-title>Front Cover</span>
-    </div>
+          <span class="bf-divider" aria-hidden="true"></span>
 
-    <div class="bf-scrub-wrap">
-      <input
-        type="range"
-        class="bf-scrubber"
-        data-bf-scrubber
-        min="0"
-        max="30"
-        step="1"
-        value="0"
-        aria-label="Jump to spread"
-      />
-    </div>
+          <div class="bf-meta">
+            <span class="bf-counter" data-bf-counter>1 / 60</span>
+            <span class="bf-sep" aria-hidden="true">·</span>
+            <span class="bf-title" data-bf-title>Front Cover</span>
+          </div>
+        </div>
 
-    <div class="bf-actions">
-      <button
-        type="button"
-        class="bf-icon-btn"
-        data-bf-fs
-        aria-label="Toggle fullscreen reader"
-        title="Fullscreen"
-      >
-        <svg class="bf-ico-enter" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-        </svg>
-        <svg class="bf-ico-exit" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
-        </svg>
-      </button>
+        <div class="bf-scrub-wrap">
+          <input
+            type="range"
+            class="bf-scrubber"
+            data-bf-scrubber
+            min="0"
+            max="30"
+            step="1"
+            value="0"
+            style="--scrub-pct: 0%"
+            aria-label="Jump to spread"
+          />
+        </div>
+
+        <div class="bf-actions">
+          <button
+            type="button"
+            class="bf-ghost-btn"
+            data-bf-fs
+            aria-label="Toggle fullscreen reader"
+            title="Fullscreen"
+          >
+            <svg class="bf-ico-enter" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+            </svg>
+            <svg class="bf-ico-exit" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiet Chapter Index unified right underneath -->
+      <div class="bf-chapters" role="tablist" aria-label="Book chapters">
+        {
+          chapters.map((ch, idx) => (
+            <button
+              type="button"
+              class:list={['bf-ch-btn', { 'is-active': idx === 0 }]}
+              data-bf-jump={ch.spread}
+              aria-pressed={idx === 0 ? 'true' : 'false'}
+            >
+              {ch.dot && <span class="bf-ch-dot" style={`background:${ch.dot}`} aria-hidden="true" />}
+              <span>{ch.label}</span>
+            </button>
+          ))
+        }
+      </div>
     </div>
   </div>
 </div>
@@ -205,6 +214,10 @@ const chapters = [
 
   document.querySelectorAll<HTMLElement>('[data-book-flipbook]').forEach((root) => {
     const basePath = root.dataset.basePath || '/media/book-16p/';
+    const backdrop = root.querySelector<HTMLElement>('[data-bf-backdrop]')!;
+    const shell = root.querySelector<HTMLElement>('[data-bf-shell]')!;
+    const stage = root.querySelector<HTMLElement>('[data-bf-stage]')!;
+    const dock = root.querySelector<HTMLElement>('[data-bf-dock]')!;
     const book = root.querySelector<HTMLElement>('[data-bf-book]')!;
     const stackLeft = root.querySelector<HTMLElement>('[data-bf-stack-left]')!;
     const stackRight = root.querySelector<HTMLElement>('[data-bf-stack-right]')!;
@@ -217,7 +230,6 @@ const chapters = [
     const castRight = root.querySelector<HTMLElement>('[data-bf-cast-right]')!;
     const spineEl = root.querySelector<HTMLElement>('[data-bf-spine]')!;
     const turnsHost = root.querySelector<HTMLElement>('[data-bf-turns]')!;
-    const hintEl = root.querySelector<HTMLElement>('[data-bf-hint]')!;
     const prevBtn = root.querySelector<HTMLButtonElement>('[data-bf-prev]')!;
     const nextBtn = root.querySelector<HTMLButtonElement>('[data-bf-next]')!;
     const counterEl = root.querySelector<HTMLElement>('[data-bf-counter]')!;
@@ -241,7 +253,6 @@ const chapters = [
     let rafId = 0;
     let lastTs = 0;
     let hydrated = false;
-    let hasInteracted = false;
 
     const pageUrl = (n: number) => `${basePath}p${String(n).padStart(2, '0')}.webp`;
 
@@ -266,11 +277,7 @@ const chapters = [
       }
     };
 
-    const dismissHint = () => {
-      if (hasInteracted) return;
-      hasInteracted = true;
-      hintEl.classList.add('is-hidden');
-    };
+    const dismissHint = () => {};
 
     const formatCounter = (sp: number) => {
       if (sp <= 0) return '1 / 60';
@@ -329,6 +336,7 @@ const chapters = [
       counterEl.textContent = formatCounter(sp);
       titleEl.textContent = SPREAD_TITLES[sp] ?? '';
       scrubber.value = String(sp);
+      scrubber.style.setProperty('--scrub-pct', `${((sp / MAX_SPREAD) * 100).toFixed(2)}%`);
       prevBtn.disabled = sp <= 0;
       nextBtn.disabled = sp >= MAX_SPREAD;
       updateChapterButtons(sp);
@@ -336,8 +344,8 @@ const chapters = [
       // Dynamic physical paper-stack thickness on left & right fore-edges
       const leftRatio = Math.max(0, Math.min(1, sp / MAX_SPREAD));
       const rightRatio = 1 - leftRatio;
-      const leftPx = sp === 0 ? 0 : Math.max(2, Math.round(leftRatio * 11));
-      const rightPx = sp === MAX_SPREAD ? 0 : Math.max(2, Math.round(rightRatio * 11));
+      const leftPx = sp === 0 ? 0 : Math.max(2, Math.round(leftRatio * 12));
+      const rightPx = sp === MAX_SPREAD ? 0 : Math.max(2, Math.round(rightRatio * 12));
       stackLeft.style.setProperty('--stack-w', `${leftPx}px`);
       stackRight.style.setProperty('--stack-w', `${rightPx}px`);
       stackLeft.style.opacity = sp === 0 ? '0' : '1';
@@ -1000,25 +1008,111 @@ const chapters = [
       btn.addEventListener('click', () => jumpToSpread(target));
     });
 
-    // Fullscreen toggle (CSS fixed overlay inside dialog top layer — clean Escape without closing dialog!)
+    // Smooth FLIP "pick up closer" Fullscreen toggle with blurred backdrop
     const parentDialog = root.closest<HTMLDialogElement>('dialog');
+    let fsAnimating = false;
+    let fsTimer = 0;
+
+    const clearFsInlineStyles = () => {
+      stage.style.transition = '';
+      stage.style.transform = '';
+      dock.style.transition = '';
+      dock.style.opacity = '';
+      dock.style.transform = '';
+    };
+
     const toggleFullscreen = (force?: boolean) => {
-      const want = force ?? !root.classList.contains('is-fullscreen');
-      root.classList.toggle('is-fullscreen', want);
-      fsBtn.setAttribute('aria-pressed', String(want));
-      if (!parentDialog) {
-        if (want && root.requestFullscreen && !document.fullscreenElement) {
-          root.requestFullscreen().catch(() => {});
-        } else if (!want && document.fullscreenElement === root) {
-          document.exitFullscreen().catch(() => {});
-        }
+      const currentlyFs = root.classList.contains('is-fullscreen');
+      const want = force ?? !currentlyFs;
+      if (want === currentlyFs || fsAnimating) return;
+
+      window.clearTimeout(fsTimer);
+
+      if (reduceMq.matches) {
+        root.classList.toggle('is-fullscreen', want);
+        root.classList.toggle('is-fs-visible', want);
+        fsBtn.setAttribute('aria-pressed', String(want));
+        root.style.minHeight = '';
+        clearFsInlineStyles();
+        return;
+      }
+
+      if (want) {
+        fsAnimating = true;
+        // Preserve underlying article height so background behind blur never jumps
+        root.style.minHeight = `${root.offsetHeight}px`;
+        const firstRect = stage.getBoundingClientRect();
+
+        root.classList.add('is-fullscreen');
+        fsBtn.setAttribute('aria-pressed', 'true');
+
+        const lastRect = stage.getBoundingClientRect();
+        const dx =
+          firstRect.left + firstRect.width / 2 - (lastRect.left + lastRect.width / 2);
+        const dy =
+          firstRect.top + firstRect.height / 2 - (lastRect.top + lastRect.height / 2);
+        const scale = Math.max(0.35, Math.min(1, firstRect.width / Math.max(1, lastRect.width)));
+
+        // Invert stage & dock to inline position before playing forward
+        stage.style.transition = 'none';
+        stage.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
+        dock.style.transition = 'none';
+        dock.style.opacity = '0';
+        dock.style.transform = 'translate3d(0, 14px, 0)';
+        void stage.offsetWidth;
+
+        requestAnimationFrame(() => {
+          root.classList.add('is-fs-visible');
+          stage.style.transition = 'transform 520ms cubic-bezier(0.16, 1, 0.3, 1)';
+          stage.style.transform = 'translate3d(0, 0, 0) scale(1)';
+          dock.style.transition =
+            'opacity 360ms ease 110ms, transform 440ms cubic-bezier(0.16, 1, 0.3, 1) 90ms';
+          dock.style.opacity = '1';
+          dock.style.transform = 'translate3d(0, 0, 0)';
+        });
+
+        fsTimer = window.setTimeout(() => {
+          clearFsInlineStyles();
+          fsAnimating = false;
+        }, 560);
+      } else {
+        fsAnimating = true;
+        const firstRect = stage.getBoundingClientRect();
+        const restRect = root.getBoundingClientRect();
+        const scale = Math.max(0.35, Math.min(1, restRect.width / Math.max(1, firstRect.width)));
+        const targetCx = restRect.left + restRect.width / 2;
+        const targetCy = restRect.top + (firstRect.height * scale) / 2;
+        const dx = targetCx - (firstRect.left + firstRect.width / 2);
+        const dy = targetCy - (firstRect.top + firstRect.height / 2);
+
+        root.classList.remove('is-fs-visible');
+        fsBtn.setAttribute('aria-pressed', 'false');
+
+        stage.style.transition = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
+        stage.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
+        dock.style.transition = 'opacity 220ms ease, transform 240ms ease';
+        dock.style.opacity = '0';
+        dock.style.transform = 'translate3d(0, 8px, 0)';
+
+        fsTimer = window.setTimeout(() => {
+          root.classList.remove('is-fullscreen');
+          root.style.minHeight = '';
+          clearFsInlineStyles();
+          fsBtn.blur();
+          fsAnimating = false;
+        }, 440);
       }
     };
+
     fsBtn.addEventListener('click', () => toggleFullscreen());
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement !== root && root.classList.contains('is-fullscreen') && !parentDialog) {
-        root.classList.remove('is-fullscreen');
-        fsBtn.setAttribute('aria-pressed', 'false');
+    backdrop.addEventListener('click', () => {
+      if (root.classList.contains('is-fullscreen')) toggleFullscreen(false);
+    });
+    // Clicking the empty blurred area inside shell (outside book & dock) also closes fullscreen
+    shell.addEventListener('click', (e) => {
+      if (!root.classList.contains('is-fullscreen')) return;
+      if (e.target === shell || e.target === stage) {
+        toggleFullscreen(false);
       }
     });
 
@@ -1089,120 +1183,102 @@ const chapters = [
 
 <style>
   .bf-root {
-    display: grid;
-    gap: 14px;
+    --bf-hover-tint: rgb(23 21 20 / 0.055);
+    --bf-active-tint: rgb(23 21 20 / 0.085);
+    --bf-track: rgb(23 21 20 / 0.13);
+    --bf-track-fill: rgb(23 21 20 / 0.42);
+    --bf-thumb: var(--cs-fg, #171514);
+    --bf-page-ring: rgb(23 21 20 / 0.075);
+    --bf-fs-scrim: rgb(251 245 235 / 0.74);
+    --bf-dock-fs-bg: rgb(251 245 235 / 0.84);
+    --bf-dock-fs-line: rgb(23 21 20 / 0.08);
+    position: relative;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding: 20px;
-    border-radius: 16px;
-    background: var(--cs-surface, var(--c-bg-raised));
+    padding: 0;
+    background: transparent;
     box-sizing: border-box;
-    overflow: hidden;
     user-select: none;
   }
-  .bf-root.is-fullscreen {
+
+  :global(:root[data-theme='dark']) .bf-root {
+    --bf-hover-tint: rgb(255 255 255 / 0.07);
+    --bf-active-tint: rgb(255 255 255 / 0.11);
+    --bf-track: rgb(255 255 255 / 0.16);
+    --bf-track-fill: rgb(255 255 255 / 0.46);
+    --bf-thumb: var(--cs-fg, #f5f5f7);
+    --bf-page-ring: rgb(255 255 255 / 0.08);
+    --bf-fs-scrim: rgb(20 20 22 / 0.76);
+    --bf-dock-fs-bg: rgb(28 28 30 / 0.84);
+    --bf-dock-fs-line: rgb(255 255 255 / 0.09);
+  }
+
+  /* Blurred frosted glass backdrop when lifted into fullscreen */
+  .bf-fs-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9490;
+    background: var(--bf-fs-scrim);
+    -webkit-backdrop-filter: blur(22px) saturate(1.15);
+    backdrop-filter: blur(22px) saturate(1.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .bf-root.is-fullscreen .bf-fs-backdrop {
+    pointer-events: auto;
+  }
+  .bf-root.is-fs-visible .bf-fs-backdrop {
+    opacity: 1;
+  }
+
+  /* Main layout shell (inline on page, floats centered over blurred backdrop in fullscreen) */
+  .bf-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    width: 100%;
+    min-width: 0;
+  }
+  .bf-root.is-fullscreen .bf-shell {
     position: fixed;
     inset: 0;
     z-index: 9500;
-    border-radius: 0;
-    padding: 24px 32px;
-    background: var(--cs-bg, var(--c-bg));
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    padding: clamp(20px, 3.5vh, 40px) clamp(20px, 4vw, 48px);
+    grid-template-rows: minmax(0, 1fr) auto;
     align-items: center;
+    justify-items: center;
+    gap: 18px;
+    box-sizing: border-box;
   }
 
-  /* Chapter Quick-Jump Pills */
-  .bf-chapters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-  .bf-ch-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 11px;
-    border-radius: 999px;
-    border: 0;
-    background: var(--cs-surface-2, var(--c-bg));
-    color: var(--cs-muted, var(--c-muted));
-    font: 500 12px / 1 var(--f-nav, var(--f-body));
-    cursor: pointer;
-    transition: background-color 0.16s ease, color 0.16s ease;
-  }
-  .bf-ch-btn:hover {
-    color: var(--cs-fg, var(--c-fg));
-  }
-  .bf-ch-btn.is-active {
-    background: var(--cs-fg, var(--c-fg));
-    color: var(--cs-bg, var(--c-bg));
-  }
-  .bf-ch-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    flex: none;
-  }
-
-  /* Stage Container */
-  .bf-stage-wrap {
-    position: relative;
-    display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) 40px;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-  }
-  .bf-root.is-fullscreen .bf-stage-wrap {
-    max-width: 1240px;
-    height: 100%;
-    margin-inline: auto;
-  }
-
-  .bf-nav {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: var(--cs-surface-2, var(--c-bg));
-    color: var(--cs-fg, var(--c-fg));
-    cursor: pointer;
-    transition: background-color 0.16s ease, color 0.16s ease, opacity 0.16s ease, transform 0.16s ease;
-  }
-  .bf-nav:hover:not(:disabled) {
-    background: var(--cs-fg, var(--c-fg));
-    color: var(--cs-bg, var(--c-bg));
-  }
-  .bf-nav:active:not(:disabled) {
-    transform: scale(0.94);
-  }
-  .bf-nav:disabled {
-    opacity: 0.25;
-    cursor: default;
-  }
-
+  /* 3D Stage (floats cleanly directly on page background) */
   .bf-stage {
     position: relative;
     width: 100%;
-    padding-block: 18px 34px;
-    perspective: 2200px;
+    min-width: 0;
+    padding-block: 10px 14px;
+    perspective: 2400px;
     perspective-origin: 50% 48%;
     overflow: visible;
     outline: none;
     touch-action: pan-y;
+    transform-origin: center center;
+  }
+  .bf-root.is-fullscreen .bf-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-block: 0;
   }
 
-  /* Physical 2:1 Book Frame (two 1:1 square pages joined at the center spine) */
+  /* Physical 2:1 Book Frame — full 864px editorial breakout width inline, up to 1160px fullscreen */
   .bf-book {
     position: relative;
     width: 100%;
-    max-width: 720px;
+    max-width: 864px;
     aspect-ratio: 2 / 1;
     margin-inline: auto;
     transform-style: preserve-3d;
@@ -1213,20 +1289,23 @@ const chapters = [
     cursor: grabbing;
   }
   .bf-root.is-fullscreen .bf-book {
-    max-width: min(1040px, calc((100dvh - 180px) * 2));
+    max-width: min(1160px, calc((100dvh - 172px) * 2));
   }
 
-  /* Subtle ambient contact shadow on the desk directly under the book */
+  /* Subtle ambient contact shadow on the desk directly under the physical book */
   .bf-ground {
     position: absolute;
     top: 4%;
-    bottom: -4%;
+    bottom: -4.5%;
     left: 50%;
     right: 0;
-    border-radius: 10px;
-    background: radial-gradient(ellipse at 50% 60%, rgb(0 0 0 / 0.18) 0%, rgb(0 0 0 / 0) 74%);
+    border-radius: 12px;
+    background: radial-gradient(ellipse at 50% 62%, rgb(0 0 0 / 0.16) 0%, rgb(0 0 0 / 0) 74%);
     transform: translateZ(-2px);
     pointer-events: none;
+  }
+  :global(:root[data-theme='dark']) .bf-ground {
+    background: radial-gradient(ellipse at 50% 62%, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0) 76%);
   }
 
   /* Layered paper stack fore-edges (dynamic thickness via --stack-w) */
@@ -1240,8 +1319,8 @@ const chapters = [
     background-color: #efece6;
     background-image: repeating-linear-gradient(
       to right,
-      rgb(0 0 0 / 0.11) 0 1px,
-      rgb(255 255 255 / 0.7) 1px 2.5px
+      rgb(0 0 0 / 0.12) 0 1px,
+      rgb(255 255 255 / 0.72) 1px 2.5px
     );
   }
   .bf-stack-left {
@@ -1280,6 +1359,7 @@ const chapters = [
     height: 100%;
     overflow: hidden;
     background: #ffffff;
+    box-shadow: inset 0 0 0 1px var(--bf-page-ring);
   }
   .bf-slot-left .bf-page-surface {
     border-radius: 4px 0 0 4px;
@@ -1445,92 +1525,181 @@ const chapters = [
     pointer-events: none;
   }
 
-  /* Subtle floating hint pill below the front cover (never overlaps cover typography) */
-  .bf-hint {
-    position: absolute;
-    left: 75%;
-    bottom: -28px;
-    transform: translateX(-50%);
-    padding: 4px 11px;
-    border-radius: 999px;
-    background: var(--cs-surface-2, var(--c-bg));
-    color: var(--cs-muted, var(--c-muted));
-    font: 500 11px / 1.2 var(--f-nav, var(--f-body));
-    white-space: nowrap;
-    pointer-events: none;
-    transition: opacity 0.28s ease;
-    z-index: 300;
-  }
-  .bf-hint.is-hidden {
-    opacity: 0;
+  /* ================= Unified Clean Minimal Bottom Control Dock ================= */
+  .bf-dock {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 720px;
+    margin-inline: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--cs-line, var(--c-line));
+    box-sizing: border-box;
   }
 
-  /* Bottom Reader Control Bar */
+  /* Floating subtle glass dock in fullscreen so controls stay crisp over blurred background */
+  .bf-root.is-fullscreen .bf-dock {
+    max-width: 760px;
+    padding: 12px 18px;
+    border-top: 0;
+    border: 1px solid var(--bf-dock-fs-line);
+    border-radius: 16px;
+    background: var(--bf-dock-fs-bg);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+
   .bf-bar {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 16px;
-    padding-top: 6px;
-    border-top: 1px solid var(--cs-line, var(--c-line));
+    gap: 14px;
   }
-  .bf-meta {
+
+  .bf-bar-left {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     min-width: 0;
-    font: 500 12.5px / 1.2 var(--f-nav, var(--f-body));
+  }
+
+  .bf-arrows {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .bf-ghost-btn {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cs-muted, var(--c-muted));
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease, opacity 0.16s ease, transform 0.14s ease;
+  }
+  .bf-ghost-btn:focus-visible,
+  .bf-ch-btn:focus-visible {
+    outline: 1.5px solid var(--bf-track-fill);
+    outline-offset: 2px;
+  }
+  .bf-ghost-btn:hover:not(:disabled) {
+    background: var(--bf-hover-tint);
     color: var(--cs-fg, var(--c-fg));
+  }
+  .bf-ghost-btn:active:not(:disabled) {
+    transform: scale(0.92);
+  }
+  .bf-ghost-btn:disabled {
+    opacity: 0.22;
+    cursor: default;
+  }
+
+  .bf-divider {
+    width: 1px;
+    height: 13px;
+    background: var(--cs-line, var(--c-line));
+    flex: none;
+  }
+
+  .bf-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    font: 500 12px / 1.2 var(--f-nav, var(--f-body));
   }
   .bf-counter {
     font-variant-numeric: tabular-nums;
-    color: var(--cs-accent, #ff2b2b);
+    color: var(--cs-fg, var(--c-fg));
     white-space: nowrap;
   }
   .bf-sep {
     color: var(--cs-muted, var(--c-muted));
+    opacity: 0.55;
   }
   .bf-title {
-    color: var(--cs-fg-soft, var(--c-fg-soft));
+    color: var(--cs-muted, var(--c-muted));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 220px;
+    max-width: 200px;
   }
 
+  /* Custom Ultra-Clean Hairline Scrubber */
   .bf-scrub-wrap {
     display: flex;
     align-items: center;
+    min-width: 0;
   }
   .bf-scrubber {
+    -webkit-appearance: none;
+    appearance: none;
     width: 100%;
-    height: 4px;
+    height: 18px;
     margin: 0;
-    accent-color: var(--cs-accent, #ff2b2b);
+    background: transparent;
     cursor: pointer;
+  }
+  .bf-scrubber:focus-visible {
+    outline: none;
+  }
+  .bf-scrubber::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      var(--bf-track-fill) 0%,
+      var(--bf-track-fill) var(--scrub-pct, 0%),
+      var(--bf-track) var(--scrub-pct, 0%),
+      var(--bf-track) 100%
+    );
+  }
+  .bf-scrubber::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    margin-top: -4px;
+    border-radius: 999px;
+    border: 0;
+    background: var(--bf-thumb);
+    transition: transform 0.16s ease, background-color 0.16s ease;
+  }
+  .bf-scrubber:hover::-webkit-slider-thumb,
+  .bf-scrubber:active::-webkit-slider-thumb {
+    transform: scale(1.28);
+  }
+  .bf-scrubber::-moz-range-track {
+    height: 2px;
+    border-radius: 999px;
+    background: var(--bf-track);
+  }
+  .bf-scrubber::-moz-range-progress {
+    height: 2px;
+    border-radius: 999px;
+    background: var(--bf-track-fill);
+  }
+  .bf-scrubber::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bf-thumb);
+    transition: transform 0.16s ease;
+  }
+  .bf-scrubber:hover::-moz-range-thumb {
+    transform: scale(1.28);
   }
 
   .bf-actions {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-  }
-  .bf-icon-btn {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 0;
-    border-radius: 8px;
-    background: var(--cs-surface-2, var(--c-bg));
-    color: var(--cs-fg, var(--c-fg));
-    cursor: pointer;
-    transition: background-color 0.16s ease, color 0.16s ease;
-  }
-  .bf-icon-btn:hover {
-    background: var(--cs-fg, var(--c-fg));
-    color: var(--cs-bg, var(--c-bg));
   }
   .bf-ico-exit {
     display: none;
@@ -1542,49 +1711,84 @@ const chapters = [
     display: block;
   }
 
+  /* Quiet Chapter Index unified right underneath the bar */
+  .bf-chapters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+  .bf-ch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 0;
+    background: transparent;
+    color: var(--cs-muted, var(--c-muted));
+    font: 500 12px / 1 var(--f-nav, var(--f-body));
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .bf-ch-btn:hover {
+    background: var(--bf-hover-tint);
+    color: var(--cs-fg, var(--c-fg));
+  }
+  .bf-ch-btn.is-active {
+    background: var(--bf-active-tint);
+    color: var(--cs-fg, var(--c-fg));
+  }
+  .bf-ch-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    opacity: 0.72;
+    flex: none;
+    transition: opacity 0.16s ease;
+  }
+  .bf-ch-btn:hover .bf-ch-dot,
+  .bf-ch-btn.is-active .bf-ch-dot {
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .bf-book,
-    .bf-ground,
+    .bf-fs-backdrop,
     .bf-stack {
       transition: none;
     }
   }
 
   @media (max-width: 720px) {
-    .bf-root {
-      padding: 12px;
-      gap: 10px;
-    }
-    .bf-chapters {
-      gap: 4px;
-    }
-    .bf-ch-btn {
-      padding: 5px 8px;
-      font-size: 11px;
-    }
-    .bf-stage-wrap {
-      grid-template-columns: 28px minmax(0, 1fr) 28px;
-      gap: 4px;
-      min-width: 0;
+    .bf-shell {
+      gap: 14px;
     }
     .bf-stage {
-      min-width: 0;
-      padding-block: 10px 26px;
+      padding-block: 6px 10px;
+      overflow: hidden;
     }
-    .bf-nav {
-      width: 28px;
-      height: 28px;
+    .bf-dock {
+      gap: 8px;
+      padding-top: 10px;
     }
     .bf-bar {
       grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
+      gap: 8px;
     }
     .bf-scrub-wrap {
       grid-column: 1 / -1;
       order: 3;
     }
     .bf-title {
-      max-width: 150px;
+      max-width: 130px;
+    }
+    .bf-chapters {
+      gap: 2px;
+    }
+    .bf-ch-btn {
+      padding: 5px 7px;
+      font-size: 11px;
     }
   }
 </style>
