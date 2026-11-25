@@ -14,6 +14,7 @@ import VideoSlot from './VideoSlot.astro';
 import ModelSlot from './ModelSlot.astro';
 import FestivalMap from './FestivalMap.astro';
 import BookFlipbook from './BookFlipbook.astro';
+import PosterDeck from './PosterDeck.astro';
 import LangToggle from './LangToggle.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { projects } from '../data/projects';
@@ -71,6 +72,7 @@ const sybilMintTiers = [
   projects.map((p, idx) => {
     const cs = caseStudies[p.slug];
     if (!cs) return null;
+    const prevProject = projects[(idx - 1 + projects.length) % projects.length];
     const nextProject = projects[(idx + 1) % projects.length];
     const tocItems = [
       { id: `${p.slug}-overview`, label: 'Overview' },
@@ -639,6 +641,20 @@ const sybilMintTiers = [
                           );
                         }
 
+                        if (block.kind === 'poster-deck') {
+                          return (
+                            <figure class="cs-figure">
+                              <PosterDeck items={block.items} initialIndex={block.initialIndex} />
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
+                            </figure>
+                          );
+                        }
+
                         return null;
                       })}
                     </section>
@@ -663,6 +679,33 @@ const sybilMintTiers = [
                       ))}
                     </div>
                   </div>
+
+                  <!-- Bottom Editorial Previous / Next Project Navigation -->
+                  <nav class="cs-foot-nav" aria-label="Previous and next project">
+                    <a
+                      href={`#read-${prevProject.slug}`}
+                      class="cs-foot-link is-prev"
+                      data-switch-case={prevProject.slug}
+                    >
+                      <span class="cs-foot-lbl">Previous project</span>
+                      <span class="cs-foot-title">
+                        <span class="cs-foot-arrow" aria-hidden="true">←</span>
+                        <span>{prevProject.spine.label}</span>
+                      </span>
+                    </a>
+
+                    <a
+                      href={`#read-${nextProject.slug}`}
+                      class="cs-foot-link is-next"
+                      data-switch-case={nextProject.slug}
+                    >
+                      <span class="cs-foot-lbl">Next project</span>
+                      <span class="cs-foot-title">
+                        <span>{nextProject.spine.label}</span>
+                        <span class="cs-foot-arrow" aria-hidden="true">→</span>
+                      </span>
+                    </a>
+                  </nav>
                 </section>
               </div>
             </article>
@@ -786,7 +829,9 @@ const sybilMintTiers = [
     const tocLinks = [...dlg.querySelectorAll<HTMLAnchorElement>('[data-cs-toc]')];
     const sections = [...dlg.querySelectorAll<HTMLElement>('[data-cs-section]')];
     const closeBtn = dlg.querySelector<HTMLButtonElement>('[data-close-case]');
-    const nextLink = dlg.querySelector<HTMLAnchorElement>('[data-next-case]');
+    const switchLinks = [
+      ...dlg.querySelectorAll<HTMLAnchorElement>('[data-next-case], [data-switch-case]'),
+    ];
 
     // RareUI Hook Sidebar spring controller (present when [data-hook-sidebar] is used, e.g. K2O)
     const hookRoot = dlg.querySelector<HTMLElement>('[data-hook-sidebar]');
@@ -959,12 +1004,14 @@ const sybilMintTiers = [
 
     closeBtn?.addEventListener('click', () => closeAllDialogs(true));
 
-    // Next project switches seamlessly into the next project's Full Case Study
-    nextLink?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const nextSlug = nextLink.dataset.nextCase;
-      if (nextSlug) openCaseStudy(nextSlug, true);
+    // Sidebar Next + bottom Previous/Next project links switch seamlessly between Full Case Studies
+    switchLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const targetSlug = link.dataset.switchCase || link.dataset.nextCase;
+        if (targetSlug) openCaseStudy(targetSlug, true);
+      });
     });
 
     let tocPinnedUntil = 0;
@@ -1533,6 +1580,7 @@ const sybilMintTiers = [
   .cs-prose,
   .cs-callout-grid,
   .cs-tools-bar,
+  .cs-foot-nav,
   .cs-sec-head-row,
   .cs-figure figcaption {
     width: 100%;
@@ -2163,6 +2211,58 @@ const sybilMintTiers = [
     font-weight: 500;
     color: var(--cs-accent);
     margin-right: 4px;
+  }
+
+  /* Bottom Editorial Previous / Next Project Navigation */
+  .cs-foot-nav {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid var(--cs-line);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    box-sizing: border-box;
+  }
+  .cs-foot-link {
+    display: grid;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--cs-fg);
+    min-width: 0;
+  }
+  .cs-foot-link.is-prev {
+    justify-items: start;
+    text-align: left;
+  }
+  .cs-foot-link.is-next {
+    justify-items: end;
+    text-align: right;
+  }
+  .cs-foot-lbl {
+    font: 500 12px / 1.2 var(--f-nav);
+    color: var(--cs-muted);
+  }
+  .cs-foot-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 600 18px / 1.25 var(--f-display);
+    letter-spacing: 0.01em;
+    color: var(--cs-fg);
+    transition: color 0.16s ease;
+  }
+  .cs-foot-arrow {
+    display: inline-block;
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cs-foot-link:hover .cs-foot-title {
+    color: var(--cs-accent);
+  }
+  .cs-foot-link.is-prev:hover .cs-foot-arrow {
+    transform: translateX(-3px);
+  }
+  .cs-foot-link.is-next:hover .cs-foot-arrow {
+    transform: translateX(3px);
   }
 
   /* ================= Full-Bleed Per-Section Aspect & Grid Alignment ================= */

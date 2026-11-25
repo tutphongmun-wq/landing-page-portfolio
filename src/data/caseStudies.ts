@@ -92,6 +92,13 @@ export type CaseBlock =
       kind: 'book-flipbook';
       caption?: string;
       captionTh?: string;
+    }
+  | {
+      kind: 'poster-deck';
+      items: { image: string; alt: string; label?: string }[];
+      initialIndex?: number;
+      caption?: string;
+      captionTh?: string;
     };
 
 export interface CaseSection {
@@ -205,8 +212,8 @@ export const caseStudies: Record<string, CaseStudy> = {
             captionTh: 'ระบบ 6 สีประจำแคมเปญที่จับคู่ Neon Red กับ Deep Atlantic Blue',
           },
           {
-            kind: 'grid',
-            cols: 3,
+            kind: 'poster-deck',
+            initialIndex: 2,
             items: [
               { image: '01-k2o-poster-bus', alt: 'K2O artist poster for BUS', label: 'BUS' },
               { image: '01-k2o-poster-daou', alt: 'K2O artist poster for DAOU with special guest Offroad', label: 'DAOU ft. Offroad' },
@@ -215,9 +222,8 @@ export const caseStudies: Record<string, CaseStudy> = {
               { image: '01-k2o-poster-lngshot', alt: 'K2O artist poster for LNGSHOT', label: 'LNGSHOT' },
               { image: '01-k2o-poster-riize', alt: 'K2O artist poster for RIIZE', label: 'RIIZE' },
             ],
-            aspect: '4 / 5',
-            caption: 'Artist announcement poster series sharing consistent water-refraction framing and typography.',
-            captionTh: 'เซ็ตโปสเตอร์เปิดตัวศิลปิน 6 วงที่ใช้กรอบแสงใต้น้ำและโครงสร้าง Typography ร่วมกัน',
+            caption: 'Artist announcement poster series — click any side card, drag, or use arrows to browse.',
+            captionTh: 'เซ็ตโปสเตอร์เปิดตัวศิลปิน 6 วง — คลิกการ์ดด้านข้าง ลาก หรือกดลูกศรเพื่อเลื่อนดูทีละศิลปิน',
           },
         ],
       },
