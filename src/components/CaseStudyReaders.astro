@@ -71,19 +71,12 @@ const sybilMintTiers = [
     const cs = caseStudies[p.slug];
     if (!cs) return null;
     const nextProject = projects[(idx + 1) % projects.length];
-    const isSybilPreview = p.slug === 'sybil-husky';
-    const isK2oHook = p.slug === 'k2o';
-    const tocItems = isSybilPreview
-      ? [
-          { id: `${p.slug}-overview`, label: 'Overview' },
-          ...cs.sections.map((s) => ({ id: `${p.slug}-${s.id}`, label: s.tocLabel })),
-        ]
-      : [
-          { id: `${p.slug}-overview`, label: 'Overview' },
-          { id: `${p.slug}-challenge`, label: 'The challenge' },
-          ...cs.sections.map((s) => ({ id: `${p.slug}-${s.id}`, label: s.tocLabel })),
-          { id: `${p.slug}-outcome`, label: 'Outcome' },
-        ];
+    const tocItems = [
+      { id: `${p.slug}-overview`, label: 'Overview' },
+      { id: `${p.slug}-challenge`, label: 'The challenge' },
+      ...cs.sections.map((s) => ({ id: `${p.slug}-${s.id}`, label: s.tocLabel })),
+      { id: `${p.slug}-outcome`, label: 'Outcome' },
+    ];
 
     return (
       <dialog
@@ -108,78 +101,33 @@ const sybilMintTiers = [
             <div class="cs-toc-wrap">
               <p class="cs-proj-name">{cs.sidebarName}</p>
               <nav aria-label="Table of contents">
-                {isK2oHook ? (
-                  <div class="cs-hook-list" data-hook-sidebar>
-                    <span class="cs-hook-rail is-hover" data-hook-rail="hover" aria-hidden="true">
-                      <span class="cs-hook-stem" data-hook-stem></span>
-                      <svg width="12" height="7" viewBox="0 0 12 7" fill="none" class="cs-hook-corner" data-hook-corner>
-                        <path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
-                      </svg>
-                    </span>
-                    <span class="cs-hook-rail is-accent" data-hook-rail="active" aria-hidden="true">
-                      <span class="cs-hook-stem" data-hook-stem></span>
-                      <svg width="12" height="7" viewBox="0 0 12 7" fill="none" class="cs-hook-corner" data-hook-corner>
-                        <path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
-                      </svg>
-                    </span>
-                    {tocItems.map((item, tIdx) => (
-                      <a
-                        href={`#${item.id}`}
-                        class:list={['cs-hook-item', { 'is-active': tIdx === 0 }]}
-                        data-cs-toc={item.id}
-                        data-hook-item
-                        aria-current={tIdx === 0 ? 'location' : undefined}
-                      >
-                        {item.label}
-                      </a>
-                    ))}
-                  </div>
-                ) : (
-                  <ul class="cs-toc" role="list">
-                    {tocItems.map((item, tIdx) => (
-                      <li>
-                        <a
-                          href={`#${item.id}`}
-                          class:list={['cs-toc-link', { 'is-active': tIdx === 0 }]}
-                          data-cs-toc={item.id}
-                        >
-                          <span class="cs-toc-bar" aria-hidden="true" />
-                          <span>{item.label}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <div class="cs-hook-list" data-hook-sidebar>
+                  <span class="cs-hook-rail is-hover" data-hook-rail="hover" aria-hidden="true">
+                    <span class="cs-hook-stem" data-hook-stem></span>
+                    <svg width="12" height="7" viewBox="0 0 12 7" fill="none" class="cs-hook-corner" data-hook-corner>
+                      <path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
+                    </svg>
+                  </span>
+                  <span class="cs-hook-rail is-accent" data-hook-rail="active" aria-hidden="true">
+                    <span class="cs-hook-stem" data-hook-stem></span>
+                    <svg width="12" height="7" viewBox="0 0 12 7" fill="none" class="cs-hook-corner" data-hook-corner>
+                      <path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
+                    </svg>
+                  </span>
+                  {tocItems.map((item, tIdx) => (
+                    <a
+                      href={`#${item.id}`}
+                      class:list={['cs-hook-item', { 'is-active': tIdx === 0 }]}
+                      data-cs-toc={item.id}
+                      data-hook-item
+                      aria-current={tIdx === 0 ? 'location' : undefined}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
               </nav>
             </div>
-
-            {isSybilPreview && (
-              <div class="cs-opt-a" aria-label="Option A Sidebar Spec Card">
-                <span class="cs-opt-badge">Option A · Sidebar Spec</span>
-                <dl class="cs-opt-a-list">
-                  <div>
-                    <dt>Client</dt>
-                    <dd>SybilHusky Collective</dd>
-                  </div>
-                  <div>
-                    <dt>Category</dt>
-                    <dd>Branding, Character &amp; Web UI</dd>
-                  </div>
-                  <div>
-                    <dt>Deliverables</dt>
-                    <dd>Logo, 6 Tiers, Next.js Site</dd>
-                  </div>
-                  <div>
-                    <dt>Tools</dt>
-                    <dd class="cs-opt-a-tools">
-                      {p.tools.map((id) => (
-                        <span>{tools[id].abbr}</span>
-                      ))}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            )}
 
             <div class="cs-side-foot">
               {cs.liveUrl && (
@@ -278,62 +226,14 @@ const sybilMintTiers = [
                     <span data-lang-text="th">{cs.subtitleTh}</span>
                   </p>
 
-                  {
-                    isSybilPreview ? (
-                      <div class="cs-spec-compare" aria-label="Layout comparison B and C">
-                        <!-- Option B: 4-Box Bento Spec Cards -->
-                        <div class="cs-opt-group">
-                          <span class="cs-opt-badge">Option B · Bento Spec Cards</span>
-                          <dl class="cs-bento-specs">
-                            <div class="cs-bento-card">
-                              <dt>Client</dt>
-                              <dd>SybilHusky Collective</dd>
-                            </div>
-                            <div class="cs-bento-card">
-                              <dt>Category</dt>
-                              <dd>Branding, Character &amp; Web UI</dd>
-                            </div>
-                            <div class="cs-bento-card">
-                              <dt>Deliverables</dt>
-                              <dd>Logo, 6 NFT Tiers, Day/Night Art, Next.js Site</dd>
-                            </div>
-                            <div class="cs-bento-card">
-                              <dt>Tools</dt>
-                              <dd class="cs-bento-tools">
-                                {p.tools.map((id) => (
-                                  <span title={tools[id].name}>{tools[id].abbr}</span>
-                                ))}
-                              </dd>
-                            </div>
-                          </dl>
-                        </div>
-
-                        <!-- Option C: Minimal Inline Spec Tags -->
-                        <div class="cs-opt-group">
-                          <span class="cs-opt-badge">Option C · Inline Spec Tags</span>
-                          <div class="cs-inline-specs">
-                            <span class="cs-spec-chip"><strong>Client</strong> SybilHusky Collective</span>
-                            <span class="cs-spec-chip"><strong>Category</strong> Branding, Character &amp; Web UI</span>
-                            <span class="cs-spec-chip"><strong>Deliverables</strong> Logo · 6 NFT Tiers · Next.js 16</span>
-                            {p.tools.map((id) => (
-                              <span class="cs-spec-chip is-tool">
-                                <strong>{tools[id].abbr}</strong> {tools[id].name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
+                  <dl class="cs-meta-grid">
+                    {cs.meta.map((m) => (
+                      <div>
+                        <dt>{m.label}</dt>
+                        <dd>{m.value}</dd>
                       </div>
-                    ) : (
-                      <dl class="cs-meta-grid">
-                        {cs.meta.map((m) => (
-                          <div>
-                            <dt>{m.label}</dt>
-                            <dd>{m.value}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    )
-                  }
+                    ))}
+                  </dl>
 
                   {cs.overviewParagraphs.map((para, oIdx) => (
                     <p class="cs-prose">
@@ -345,35 +245,31 @@ const sybilMintTiers = [
               </section>
 
               <div class="cs-article">
-                <!-- Section 2: The Challenge (hidden on showcase preview) -->
-                {
-                  !isSybilPreview && (
-                    <section id={`${p.slug}-challenge`} class="cs-sec" data-cs-section>
-                      <h2 class="cs-h2">The challenge</h2>
-                      {cs.challenge.paragraphs.map((para, cIdx) => (
-                        <p class="cs-prose">
-                          <span data-lang-text="en">{para}</span>
-                          <span data-lang-text="th">{cs.challenge.paragraphsTh[cIdx] ?? para}</span>
-                        </p>
-                      ))}
+                <!-- Section 2: The Challenge -->
+                <section id={`${p.slug}-challenge`} class="cs-sec" data-cs-section>
+                  <h2 class="cs-h2">The challenge</h2>
+                  {cs.challenge.paragraphs.map((para, cIdx) => (
+                    <p class="cs-prose">
+                      <span data-lang-text="en">{para}</span>
+                      <span data-lang-text="th">{cs.challenge.paragraphsTh[cIdx] ?? para}</span>
+                    </p>
+                  ))}
 
-                      <div class="cs-callout-grid">
-                        {cs.challenge.callouts.map((c) => (
-                          <div class="cs-callout">
-                            <h3>
-                              <span data-lang-text="en">{c.title}</span>
-                              <span data-lang-text="th">{c.titleTh}</span>
-                            </h3>
-                            <p>
-                              <span data-lang-text="en">{c.body}</span>
-                              <span data-lang-text="th">{c.bodyTh}</span>
-                            </p>
-                          </div>
-                        ))}
+                  <div class="cs-callout-grid">
+                    {cs.challenge.callouts.map((c) => (
+                      <div class="cs-callout">
+                        <h3>
+                          <span data-lang-text="en">{c.title}</span>
+                          <span data-lang-text="th">{c.titleTh}</span>
+                        </h3>
+                        <p>
+                          <span data-lang-text="en">{c.body}</span>
+                          <span data-lang-text="th">{c.bodyTh}</span>
+                        </p>
                       </div>
-                    </section>
-                  )
-                }
+                    ))}
+                  </div>
+                </section>
 
                 <!-- Project-Specific Editorial Sections -->
                 {cs.sections.map((sec) => {
@@ -734,29 +630,25 @@ const sybilMintTiers = [
                   );
                 })}
 
-                <!-- Final Section: Outcome & Tools (hidden on showcase preview) -->
-                {
-                  !isSybilPreview && (
-                    <section id={`${p.slug}-outcome`} class="cs-sec" data-cs-section>
-                      <h2 class="cs-h2">Outcome</h2>
-                      <p class="cs-prose">
-                        <span data-lang-text="en">{cs.outcome}</span>
-                        <span data-lang-text="th">{cs.outcomeTh}</span>
-                      </p>
+                <!-- Final Section: Outcome & Tools -->
+                <section id={`${p.slug}-outcome`} class="cs-sec" data-cs-section>
+                  <h2 class="cs-h2">Outcome</h2>
+                  <p class="cs-prose">
+                    <span data-lang-text="en">{cs.outcome}</span>
+                    <span data-lang-text="th">{cs.outcomeTh}</span>
+                  </p>
 
-                      <div class="cs-tools-bar">
-                        <span class="cs-tools-lbl">Tools &amp; Software</span>
-                        <div class="cs-tools-list">
-                          {p.tools.map((id) => (
-                            <span class="cs-tool-pill">
-                              <strong>{tools[id].abbr}</strong> {tools[id].name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </section>
-                  )
-                }
+                  <div class="cs-tools-bar">
+                    <span class="cs-tools-lbl">Tools &amp; Software</span>
+                    <div class="cs-tools-list">
+                      {p.tools.map((id) => (
+                        <span class="cs-tool-pill">
+                          <strong>{tools[id].abbr}</strong> {tools[id].name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </section>
               </div>
             </article>
           </div>
@@ -1312,22 +1204,31 @@ const sybilMintTiers = [
     }
   }
 
-  /* ================= Full-Screen Editorial Case Study Reader ================= */
+  /* ================= Full-Screen Editorial Case Study Reader (Unified Format) ================= */
   .cs-reader {
     --cs-bg: #fbf5eb;
     --cs-side-bg: #fbf5eb;
-    --cs-surface: #ffffff;
-    --cs-surface-2: #f2ebe0;
+    --cs-surface: #f2ece1;
+    --cs-surface-2: #e8e0d3;
     --cs-fg: #171514;
     --cs-fg-soft: #3b3732;
     --cs-muted: #6b655e;
-    --cs-line: rgb(23 21 20 / 0.1);
-    --cs-line-strong: rgb(23 21 20 / 0.16);
+    --cs-line: rgb(23 21 20 / 0.09);
+    --cs-line-strong: rgb(23 21 20 / 0.15);
     --cs-accent: #ff2b2b;
     --cs-accent-soft: rgb(255 43 43 / 0.1);
     --cs-accent-border: rgb(255 43 43 / 0.28);
-    --cs-shadow: rgb(23 21 20 / 0.12);
-    --cs-inset: rgb(255 255 255 / 0.72);
+    --cs-shadow: transparent;
+    --cs-inset: transparent;
+
+    /* Sync child component tokens (LangToggle, ThemeToggle, Palette) to reader palette */
+    --c-bg: var(--cs-bg);
+    --c-bg-raised: var(--cs-surface);
+    --c-line: var(--cs-line);
+    --c-fg: var(--cs-fg);
+    --c-fg-soft: var(--cs-fg-soft);
+    --c-muted: var(--cs-muted);
+    --c-accent: var(--cs-accent);
 
     width: 100vw;
     max-width: 100vw;
@@ -1343,20 +1244,20 @@ const sybilMintTiers = [
     transition: background-color 0.25s ease, color 0.25s ease;
   }
   :global(:root[data-theme='dark']) .cs-reader {
-    --cs-bg: #242424;
-    --cs-side-bg: #242424;
-    --cs-surface: #2d2d2d;
-    --cs-surface-2: #363636;
-    --cs-fg: #fbf5eb;
-    --cs-fg-soft: #d6d0c6;
-    --cs-muted: #9e988e;
-    --cs-line: rgb(251 245 235 / 0.1);
-    --cs-line-strong: rgb(251 245 235 / 0.18);
+    --cs-bg: #1c1c1e;
+    --cs-side-bg: #1c1c1e;
+    --cs-surface: #2c2c2e;
+    --cs-surface-2: #3a3a3c;
+    --cs-fg: #f5f5f7;
+    --cs-fg-soft: #d1d1d6;
+    --cs-muted: #98989d;
+    --cs-line: rgb(245 245 247 / 0.11);
+    --cs-line-strong: rgb(245 245 247 / 0.18);
     --cs-accent: #ff2b2b;
     --cs-accent-soft: rgb(255 43 43 / 0.14);
     --cs-accent-border: rgb(255 43 43 / 0.34);
-    --cs-shadow: rgb(0 0 0 / 0.42);
-    --cs-inset: rgb(255 255 255 / 0.08);
+    --cs-shadow: transparent;
+    --cs-inset: transparent;
   }
   .cs-reader[open] {
     animation: cs-slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1449,62 +1350,15 @@ const sybilMintTiers = [
 
   .cs-proj-name {
     margin: 0 0 4px 12px;
-    font-family: var(--f-display);
+    font-family: var(--f-clash);
     font-size: 18px;
-    font-weight: 400;
+    font-weight: 600;
     color: var(--cs-fg);
-    letter-spacing: -0.01em;
+    letter-spacing: 0.01em;
     line-height: 1.15;
   }
 
-  .cs-toc {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 4px;
-  }
-
-  .cs-toc-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 36px;
-    padding-inline: 12px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    color: var(--cs-muted);
-    font: 400 14px / 1.25 var(--f-nav);
-    text-decoration: none;
-    transition:
-      color 0.16s ease,
-      border-color 0.16s ease,
-      background-color 0.16s ease;
-  }
-  .cs-toc-link:hover {
-    color: var(--cs-fg);
-  }
-  .cs-toc-bar {
-    width: 12px;
-    height: 1.5px;
-    background: currentColor;
-    opacity: 0.45;
-    flex: none;
-    transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
-  }
-  .cs-toc-link.is-active {
-    color: var(--cs-fg);
-    border-color: var(--cs-line-strong);
-    background: var(--cs-surface);
-    box-shadow: inset 0 1px 0 var(--cs-inset);
-  }
-  .cs-toc-link.is-active .cs-toc-bar {
-    width: 20px;
-    opacity: 1;
-    background: var(--cs-accent);
-  }
-
-  /* RareUI Hook Sidebar (K2O trial) */
+  /* RareUI Hook Sidebar */
   .cs-hook-list {
     position: relative;
     display: flex;
@@ -1578,15 +1432,15 @@ const sybilMintTiers = [
     padding: 10px 14px;
     border-radius: 8px;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line-strong);
+    border: 1px solid transparent;
     color: var(--cs-fg);
-    font: 400 13px / 1.2 var(--f-nav);
+    font: 500 13px / 1.2 var(--f-nav);
     text-decoration: none;
-    transition: border-color 0.16s ease, background-color 0.16s ease;
+    transition: background-color 0.16s ease, color 0.16s ease;
   }
   .cs-live-pill:hover {
     background: var(--cs-surface-2);
-    border-color: var(--cs-fg);
+    color: var(--cs-accent);
   }
 
   .cs-next {
@@ -1618,8 +1472,10 @@ const sybilMintTiers = [
     padding: 0 0 120px;
     box-sizing: border-box;
   }
-  .cs-scroller:focus {
+  .cs-scroller:focus,
+  .cs-scroller:focus-visible {
     outline: none;
+    box-shadow: none;
   }
 
   .cs-scope {
@@ -1680,7 +1536,7 @@ const sybilMintTiers = [
     margin: 0;
   }
 
-  /* ================= Full-Width Flush-Top Cover Banner (486px) ================= */
+  /* ================= Full-Width Flush-Top Cover Banner (486px, Flat) ================= */
   .cs-hero-banner {
     position: relative;
     width: 100%;
@@ -1688,7 +1544,7 @@ const sybilMintTiers = [
     border-radius: 0;
     overflow: hidden;
     box-sizing: border-box;
-    box-shadow: 0 20px 48px var(--cs-shadow);
+    box-shadow: none;
   }
   .cs-hero-banner.is-logo {
     display: grid;
@@ -1718,7 +1574,12 @@ const sybilMintTiers = [
     pointer-events: none;
   }
   :global(:root[data-theme='dark']) .cs-hero-banner.is-photo::after {
-    background: linear-gradient(180deg, rgb(0 0 0 / 0.08) 0%, rgb(0 0 0 / 0) 55%, rgb(36 36 36 / 0.54) 100%);
+    background: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.08) 0%,
+      rgb(0 0 0 / 0) 55%,
+      color-mix(in srgb, var(--cs-bg) 56%, transparent) 100%
+    );
   }
 
   .cs-hero-banner.is-framed {
@@ -1741,7 +1602,7 @@ const sybilMintTiers = [
     height: auto;
     object-fit: contain;
     border-radius: 12px;
-    box-shadow: 0 20px 52px rgb(0 0 0 / 0.48);
+    box-shadow: none;
   }
 
   .cs-hero-banner.is-trio {
@@ -1763,14 +1624,14 @@ const sybilMintTiers = [
     border-radius: 12px;
     overflow: hidden;
     background: #1c1a18;
-    border: 1px solid rgb(239 233 222 / 0.12);
-    box-shadow: 0 18px 44px rgb(0 0 0 / 0.48);
+    border: 0;
+    box-shadow: none;
     transform: translateY(8px);
   }
   .cs-trio-card.is-center {
     height: 396px;
     transform: translateY(-4px);
-    box-shadow: 0 24px 56px rgb(0 0 0 / 0.62);
+    box-shadow: none;
   }
   .cs-hero-trio.is-square {
     max-width: 1020px;
@@ -1792,20 +1653,20 @@ const sybilMintTiers = [
     object-fit: cover;
   }
 
-  /* ================= Editorial Typography ================= */
+  /* ================= Editorial Typography (Clash Display 600 + Satoshi 400/500/700) ================= */
   .cs-h1 {
     margin: 12px auto 0;
-    font-family: var(--f-display);
-    font-weight: 400;
-    font-size: clamp(36px, 4.4vw, 52px);
-    line-height: 1.06;
-    letter-spacing: -0.02em;
+    font-family: var(--f-clash);
+    font-weight: 600;
+    font-size: clamp(38px, 4.6vw, 56px);
+    line-height: 1.04;
+    letter-spacing: 0.01em;
     color: var(--cs-fg);
   }
 
   .cs-subtitle {
     margin: -8px auto 0;
-    font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-body);
+    font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-nav);
     color: var(--cs-muted);
   }
 
@@ -1819,166 +1680,29 @@ const sybilMintTiers = [
     gap: 24px;
   }
   .cs-meta-grid dt {
-    font: 500 12px / 1.3 var(--f-body);
+    font: 400 12px / 1.3 var(--f-nav);
     color: var(--cs-muted);
     margin-bottom: 4px;
   }
   .cs-meta-grid dd {
     margin: 0;
-    font: 500 14px / 1.45 var(--f-body);
+    font: 500 14px / 1.45 var(--f-nav);
     color: var(--cs-fg);
-  }
-
-  /* ================= Showcase Spec Options A / B / C Comparison ================= */
-  .cs-opt-badge {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: var(--cs-accent-soft);
-    border: 1px solid var(--cs-accent-border);
-    color: var(--cs-accent);
-    font: 700 10.5px / 1.1 var(--f-body);
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-
-  /* Option A: Sidebar Spec Sheet */
-  .cs-opt-a {
-    margin-block: 12px;
-    padding: 12px;
-    border-radius: 12px;
-    background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
-    display: grid;
-    gap: 10px;
-  }
-  .cs-opt-a .cs-opt-badge {
-    justify-self: start;
-  }
-  .cs-opt-a-list {
-    margin: 0;
-    display: grid;
-    gap: 8px;
-  }
-  .cs-opt-a-list dt {
-    font: 500 10.5px / 1.2 var(--f-body);
-    color: var(--cs-muted);
-  }
-  .cs-opt-a-list dd {
-    margin: 2px 0 0;
-    font: 500 12px / 1.35 var(--f-body);
-    color: var(--cs-fg);
-  }
-  .cs-opt-a-tools {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
-  }
-  .cs-opt-a-tools span {
-    padding: 3px 6px;
-    border-radius: 5px;
-    background: var(--cs-surface-2);
-    border: 1px solid var(--cs-line);
-    font: 700 10.5px / 1 var(--f-body);
-    color: var(--cs-accent);
-  }
-
-  /* Option B + C Container in Right Column */
-  .cs-spec-compare {
-    width: 100%;
-    max-width: 720px;
-    margin: 8px auto;
-    display: grid;
-    gap: 20px;
-    text-align: left;
-  }
-  .cs-opt-group {
-    display: grid;
-    gap: 10px;
-    justify-items: start;
-  }
-
-  /* Option B: 4-Box Bento Spec Cards */
-  .cs-bento-specs {
-    width: 100%;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-  .cs-bento-card {
-    padding: 14px 16px;
-    border-radius: 14px;
-    background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
-    display: grid;
-    gap: 4px;
-    align-content: start;
-  }
-  .cs-bento-card dt {
-    font: 500 11.5px / 1.2 var(--f-body);
-    color: var(--cs-muted);
-  }
-  .cs-bento-card dd {
-    margin: 0;
-    font: 600 14px / 1.4 var(--f-body);
-    color: var(--cs-fg);
-  }
-  .cs-bento-tools {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding-top: 2px;
-  }
-  .cs-bento-tools span {
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: var(--cs-surface-2);
-    border: 1px solid var(--cs-line);
-    font: 700 12px / 1 var(--f-body);
-    color: var(--cs-accent);
-  }
-
-  /* Option C: Inline Spec Tags */
-  .cs-inline-specs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .cs-spec-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
-    font: 500 12.5px / 1.1 var(--f-body);
-    color: var(--cs-fg);
-  }
-  .cs-spec-chip strong {
-    color: var(--cs-muted);
-    font-weight: 500;
-  }
-  .cs-spec-chip.is-tool strong {
-    color: var(--cs-accent);
-    font-weight: 700;
   }
 
   .cs-h2 {
     margin: 0 auto;
-    font-family: var(--f-display);
-    font-weight: 400;
-    font-size: clamp(24px, 2.6vw, 32px);
-    line-height: 1.15;
-    letter-spacing: -0.015em;
+    font-family: var(--f-clash);
+    font-weight: 600;
+    font-size: clamp(26px, 2.7vw, 34px);
+    line-height: 1.12;
+    letter-spacing: 0.01em;
     color: var(--cs-fg);
   }
 
   .cs-prose {
     margin: 0 auto;
-    font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-body);
+    font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-nav);
     color: var(--cs-fg-soft);
   }
 
@@ -1992,18 +1716,23 @@ const sybilMintTiers = [
     padding: 20px 24px;
     border-radius: 16px;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
+    border: 1px solid transparent;
+    box-shadow: none;
     display: grid;
     gap: 8px;
   }
   .cs-callout h3 {
     margin: 0;
-    font: 700 15px / 1.3 var(--f-body);
+    font-family: var(--f-nav);
+    font-weight: 700;
+    font-size: 15.5px;
+    line-height: 1.35;
+    letter-spacing: 0;
     color: var(--cs-accent);
   }
   .cs-callout p {
     margin: 0;
-    font: 400 14px / 1.55 var(--f-body);
+    font: 400 14px / 1.55 var(--f-nav);
     color: var(--cs-fg-soft);
   }
 
@@ -2014,7 +1743,7 @@ const sybilMintTiers = [
     gap: 4px;
     border-radius: 999px;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
+    border: 1px solid transparent;
   }
   .cs-seg-btn {
     border: 0;
@@ -2022,7 +1751,7 @@ const sybilMintTiers = [
     padding: 7px 14px;
     background: transparent;
     color: var(--cs-muted);
-    font: 600 12.5px / 1 var(--f-body);
+    font: 500 12.5px / 1 var(--f-nav);
     cursor: pointer;
     transition: background-color 0.16s ease, color 0.16s ease;
   }
@@ -2034,7 +1763,7 @@ const sybilMintTiers = [
     color: var(--cs-bg);
   }
 
-  /* ================= Figures, Galleries & Interactive Media (864px) ================= */
+  /* ================= Figures, Full-Bleed Galleries & Interactive Media (864px, Flat) ================= */
   .cs-figure {
     margin: 8px 0 0;
     display: grid;
@@ -2044,8 +1773,8 @@ const sybilMintTiers = [
     border-radius: 16px;
     overflow: hidden;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
-    box-shadow: 0 20px 48px var(--cs-shadow);
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   .cs-img-box :global(picture),
   .cs-img-box :global(img) {
@@ -2054,7 +1783,7 @@ const sybilMintTiers = [
     height: auto;
   }
   .cs-figure figcaption {
-    font: 400 13px / 1.45 var(--f-body);
+    font: 400 13px / 1.45 var(--f-nav);
     color: var(--cs-muted);
   }
 
@@ -2076,7 +1805,7 @@ const sybilMintTiers = [
     outline-offset: -2px;
   }
 
-  /* Multi-column Galleries */
+  /* Multi-column Galleries (Full-bleed edge-to-edge, no inner padding or borders) */
   .cs-gallery {
     display: grid;
     gap: 16px;
@@ -2093,8 +1822,8 @@ const sybilMintTiers = [
     border-radius: 14px;
     overflow: hidden;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
-    box-shadow: 0 14px 36px var(--cs-shadow);
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   .cs-gallery-media {
     position: relative;
@@ -2113,38 +1842,60 @@ const sybilMintTiers = [
   .cs-gallery.is-contain .cs-gallery-media {
     display: grid;
     place-items: center;
-    padding: 14px;
+    padding: 0;
     box-sizing: border-box;
-    min-height: 220px;
+    min-height: 0;
   }
   .cs-gallery.is-contain .cs-gallery-media :global(picture),
   .cs-gallery.is-contain .cs-gallery-media :global(img) {
     width: 100%;
     height: 100%;
-    max-height: 360px;
-    object-fit: contain;
+    max-height: none;
+    object-fit: cover;
   }
   .cs-gallery-lbl {
     display: block;
     padding: 10px 14px;
     background: var(--cs-surface);
-    border-top: 1px solid var(--cs-line);
-    font: 500 12.5px / 1.3 var(--f-body);
+    border-top: 0;
+    font: 500 12.5px / 1.3 var(--f-nav);
     color: var(--cs-fg-soft);
   }
 
   .cs-palette-wrap {
     border-radius: 14px;
     overflow: hidden;
-    border: 1px solid var(--cs-line);
+    border: 1px solid transparent;
+  }
+  .cs-reader :global(.bencho-palette),
+  :global(:root[data-theme='dark']) .cs-reader :global(.bencho-palette) {
+    background: var(--cs-surface);
+    border-color: transparent;
+  }
+  .cs-reader :global(.bp-capsule),
+  .cs-reader :global(.bp-shuffle),
+  :global(:root[data-theme='dark']) .cs-reader :global(.bp-capsule),
+  :global(:root[data-theme='dark']) .cs-reader :global(.bp-shuffle) {
+    background: var(--cs-surface-2);
+    color: var(--cs-fg);
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .cs-reader :global(.bp-swatch),
+  :global(:root[data-theme='dark']) .cs-reader :global(.bp-swatch) {
+    border-color: transparent;
+  }
+  .cs-reader :global(.bp-swatch:hover),
+  :global(:root[data-theme='dark']) .cs-reader :global(.bp-swatch:hover) {
+    box-shadow: none;
   }
 
   .cs-media-frame {
     border-radius: 16px;
     overflow: hidden;
     background: #141414;
-    border: 1px solid var(--cs-line);
-    box-shadow: 0 20px 48px var(--cs-shadow);
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   .cs-media-frame :global(video) {
     display: block;
@@ -2158,8 +1909,8 @@ const sybilMintTiers = [
     height: 520px;
     border-radius: 16px;
     overflow: hidden;
-    border: 1px solid rgb(0 242 255 / 0.18);
-    box-shadow: 0 20px 50px var(--cs-shadow);
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   .cs-model-frame :global(.model-slot) {
     width: 100%;
@@ -2172,8 +1923,8 @@ const sybilMintTiers = [
     width: 100%;
     border-radius: 16px;
     overflow: hidden;
-    border: 1px solid var(--cs-line);
-    box-shadow: 0 20px 50px var(--cs-shadow);
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   .cs-map-frame :global(.fmap) {
     border-radius: 0;
@@ -2201,8 +1952,8 @@ const sybilMintTiers = [
     border-radius: 16px;
     overflow: hidden;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
-    box-shadow: 0 20px 48px var(--cs-shadow);
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   .cs-world-layer {
     position: absolute;
@@ -2238,7 +1989,7 @@ const sybilMintTiers = [
     padding: 12px;
     border-radius: 14px;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
+    border: 1px solid transparent;
   }
   .cs-char-thumb {
     width: 68px;
@@ -2261,15 +2012,15 @@ const sybilMintTiers = [
     text-align: left;
   }
   .cs-char-badge {
-    font: 700 11px / 1 var(--f-body);
+    font: 700 11px / 1 var(--f-nav);
     color: var(--cs-accent);
   }
   .cs-char-meta strong {
-    font: 700 14px / 1.2 var(--f-body);
+    font: 500 14px / 1.2 var(--f-nav);
     color: var(--cs-fg);
   }
   .cs-char-stats {
-    font: 400 12px / 1.3 var(--f-body);
+    font: 400 12px / 1.3 var(--f-nav);
     color: var(--cs-muted);
   }
 
@@ -2278,8 +2029,8 @@ const sybilMintTiers = [
     border-radius: 16px;
     overflow: hidden;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line-strong);
-    box-shadow: 0 24px 60px var(--cs-shadow);
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   .cs-browser-bar {
     display: flex;
@@ -2287,7 +2038,7 @@ const sybilMintTiers = [
     justify-content: space-between;
     gap: 12px;
     padding: 12px 16px;
-    background: var(--cs-surface-2);
+    background: var(--cs-surface);
     border-bottom: 1px solid var(--cs-line);
   }
   .cs-browser-dots {
@@ -2306,9 +2057,9 @@ const sybilMintTiers = [
     gap: 8px;
     padding: 5px 12px;
     border-radius: 999px;
-    background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
-    font: 500 12px / 1 var(--f-body);
+    background: var(--cs-surface-2);
+    border: 1px solid transparent;
+    font: 500 12px / 1 var(--f-nav);
     color: var(--cs-fg-soft);
   }
   .cs-live-badge {
@@ -2321,12 +2072,12 @@ const sybilMintTiers = [
     letter-spacing: 0.04em;
   }
   .cs-browser-open {
-    font: 600 12.5px / 1 var(--f-body);
+    font: 500 12.5px / 1 var(--f-nav);
     color: var(--cs-fg);
     text-decoration: none;
     padding: 6px 10px;
     border-radius: 6px;
-    background: var(--cs-line);
+    background: var(--cs-surface-2);
     transition: background-color 0.16s ease, color 0.16s ease;
   }
   .cs-browser-open:hover {
@@ -2364,7 +2115,8 @@ const sybilMintTiers = [
     padding: 20px 24px;
     border-radius: 16px;
     background: var(--cs-surface);
-    border: 1px solid var(--cs-line);
+    border: 1px solid transparent;
+    box-shadow: none;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -2373,7 +2125,7 @@ const sybilMintTiers = [
     box-sizing: border-box;
   }
   .cs-tools-lbl {
-    font: 600 13px / 1 var(--f-body);
+    font: 500 13px / 1 var(--f-nav);
     color: var(--cs-muted);
   }
   .cs-tools-list {
@@ -2385,171 +2137,64 @@ const sybilMintTiers = [
     padding: 6px 12px;
     border-radius: 8px;
     background: var(--cs-surface-2);
-    border: 1px solid var(--cs-line);
-    font: 400 13px / 1.2 var(--f-body);
+    border: 1px solid transparent;
+    font: 400 13px / 1.2 var(--f-nav);
     color: var(--cs-fg);
   }
   .cs-tool-pill strong {
+    font-family: var(--f-nav);
+    font-weight: 500;
     color: var(--cs-accent);
     margin-right: 4px;
   }
 
-  /* ================= K2O Typography: Clash Display Semibold + Satoshi Regular/Medium/Bold ================= */
-  .cs-reader[data-case-dialog='k2o'] .cs-proj-name,
-  .cs-reader[data-case-dialog='k2o'] .cs-h1,
-  .cs-reader[data-case-dialog='k2o'] .cs-h2 {
-    font-family: var(--f-clash);
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-  .cs-reader[data-case-dialog='k2o'] .cs-h1 {
-    font-size: clamp(38px, 4.6vw, 56px);
-    line-height: 1.04;
-  }
-  .cs-reader[data-case-dialog='k2o'] .cs-h2 {
-    font-size: clamp(26px, 2.7vw, 34px);
-    line-height: 1.12;
-  }
-  /* Callout H3 -> Satoshi Bold (700) */
-  .cs-reader[data-case-dialog='k2o'] .cs-callout h3 {
-    font-family: var(--f-nav);
-    font-weight: 700;
-    font-size: 15.5px;
-    line-height: 1.35;
-    letter-spacing: 0;
-  }
-  /* Main body copy, callout body & captions -> Satoshi Regular (400) */
-  .cs-reader[data-case-dialog='k2o'] .cs-subtitle,
-  .cs-reader[data-case-dialog='k2o'] .cs-prose,
-  .cs-reader[data-case-dialog='k2o'] .cs-meta-grid dt,
-  .cs-reader[data-case-dialog='k2o'] .cs-callout p,
-  .cs-reader[data-case-dialog='k2o'] .cs-figure figcaption,
-  .cs-reader[data-case-dialog='k2o'] .cs-tool-pill {
-    font-family: var(--f-nav);
-    font-weight: 400;
-  }
-  /* Meta values, gallery captions & UI labels -> Satoshi Medium (500) */
-  .cs-reader[data-case-dialog='k2o'] .cs-meta-grid dd,
-  .cs-reader[data-case-dialog='k2o'] .cs-gallery-lbl,
-  .cs-reader[data-case-dialog='k2o'] .cs-tools-lbl,
-  .cs-reader[data-case-dialog='k2o'] .cs-tool-pill strong,
-  .cs-reader[data-case-dialog='k2o'] .cs-seg-btn {
-    font-family: var(--f-nav);
-    font-weight: 500;
-  }
-
-  /* ================= K2O Palette: Light Warm Paper (#F2ECE1 cards) & Dark Soft Charcoal (Opt 4), Flat (No Shadows) ================= */
-  .cs-reader[data-case-dialog='k2o'] {
-    --cs-bg: #fbf5eb;
-    --cs-side-bg: #fbf5eb;
-    --cs-surface: #f2ece1;
-    --cs-surface-2: #e8e0d3;
-    --cs-fg: #171514;
-    --cs-fg-soft: #3b3732;
-    --cs-muted: #6b655e;
-    --cs-line: rgb(23 21 20 / 0.09);
-    --cs-line-strong: rgb(23 21 20 / 0.15);
-    --cs-accent: #ff2b2b;
-    --cs-accent-soft: rgb(255 43 43 / 0.1);
-    --cs-accent-border: rgb(255 43 43 / 0.28);
-    --cs-shadow: transparent;
-    --cs-inset: transparent;
-
-    /* Sync child component tokens (LangToggle, ThemeToggle, Palette) to K2O palette */
-    --c-bg: var(--cs-bg);
-    --c-bg-raised: var(--cs-surface);
-    --c-line: var(--cs-line);
-    --c-fg: var(--cs-fg);
-    --c-fg-soft: var(--cs-fg-soft);
-    --c-muted: var(--cs-muted);
-    --c-accent: var(--cs-accent);
-  }
-  :global(:root[data-theme='dark']) .cs-reader[data-case-dialog='k2o'] {
-    --cs-bg: #1c1c1e;
-    --cs-side-bg: #1c1c1e;
-    --cs-surface: #2c2c2e;
-    --cs-surface-2: #3a3a3c;
-    --cs-fg: #f5f5f7;
-    --cs-fg-soft: #d1d1d6;
-    --cs-muted: #98989d;
-    --cs-line: rgb(245 245 247 / 0.11);
-    --cs-line-strong: rgb(245 245 247 / 0.18);
-    --cs-accent: #ff2b2b;
-    --cs-accent-soft: rgb(255 43 43 / 0.14);
-    --cs-accent-border: rgb(255 43 43 / 0.34);
-    --cs-shadow: transparent;
-    --cs-inset: transparent;
-  }
-  :global(:root[data-theme='dark']) .cs-reader[data-case-dialog='k2o'] .cs-hero-banner.is-photo::after {
-    background: linear-gradient(
-      180deg,
-      rgb(0 0 0 / 0.08) 0%,
-      rgb(0 0 0 / 0) 55%,
-      color-mix(in srgb, var(--cs-bg) 56%, transparent) 100%
-    );
-  }
-  /* Remove all drop shadows and borders inside #read-k2o */
-  .cs-reader[data-case-dialog='k2o'] .cs-scroller:focus,
-  .cs-reader[data-case-dialog='k2o'] .cs-scroller:focus-visible,
-  .cs-reader[data-case-dialog='k2o'] .cs-hero-banner,
-  .cs-reader[data-case-dialog='k2o'] .cs-img-box,
-  .cs-reader[data-case-dialog='k2o'] .cs-gallery-card,
-  .cs-reader[data-case-dialog='k2o'] .cs-media-frame,
-  .cs-reader[data-case-dialog='k2o'] .cs-model-frame,
-  .cs-reader[data-case-dialog='k2o'] .cs-map-frame,
-  .cs-reader[data-case-dialog='k2o'] .cs-callout,
-  .cs-reader[data-case-dialog='k2o'] .cs-tools-bar,
-  .cs-reader[data-case-dialog='k2o'] .cs-hero-framed-inner :global(img),
-  .cs-reader[data-case-dialog='k2o'] .cs-trio-card {
-    box-shadow: none;
-  }
-  .cs-reader[data-case-dialog='k2o'] .cs-callout,
-  .cs-reader[data-case-dialog='k2o'] .cs-tools-bar,
-  .cs-reader[data-case-dialog='k2o'] .cs-gallery-card,
-  .cs-reader[data-case-dialog='k2o'] .cs-img-box,
-  .cs-reader[data-case-dialog='k2o'] .cs-media-frame,
-  .cs-reader[data-case-dialog='k2o'] .cs-map-frame,
-  .cs-reader[data-case-dialog='k2o'] .cs-palette-wrap {
-    border-color: transparent;
-  }
-  .cs-reader[data-case-dialog='k2o'] .cs-gallery-lbl {
-    border-top: 0;
-  }
-
-  /* Full-bleed edge-to-edge gallery cards in #read-k2o (no inner padding/borders) */
-  .cs-reader[data-case-dialog='k2o'] .cs-gallery.is-contain .cs-gallery-media {
-    padding: 0;
-    min-height: 0;
-  }
-  .cs-reader[data-case-dialog='k2o'] .cs-gallery.is-contain .cs-gallery-media :global(picture),
-  .cs-reader[data-case-dialog='k2o'] .cs-gallery.is-contain .cs-gallery-media :global(img) {
-    max-height: none;
-    object-fit: cover;
-  }
-
-  /* Identity row: uniform 4:5 full-bleed cards; Primary Mark sits on seamless #000 */
-  .cs-reader[data-case-dialog='k2o'] #k2o-identity .cs-gallery.is-contain .cs-gallery-media {
+  /* ================= Full-Bleed Per-Section Aspect & Grid Alignment ================= */
+  /* 01 K2O Identity: uniform 4:5 full-bleed cards; Primary Mark sits on seamless #000 */
+  #k2o-identity .cs-gallery.is-contain .cs-gallery-media,
+  #startup-standup-identity .cs-gallery.is-contain .cs-gallery-media {
     aspect-ratio: 4 / 5;
   }
-  .cs-reader[data-case-dialog='k2o'] #k2o-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) .cs-gallery-media {
+  #k2o-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) .cs-gallery-media,
+  #startup-standup-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) .cs-gallery-media {
     background: #000000;
   }
-  .cs-reader[data-case-dialog='k2o'] #k2o-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) :global(img) {
+  #k2o-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) :global(img),
+  #startup-standup-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) :global(img) {
     object-fit: contain;
   }
 
+  /* 04 Visual Content IG editorial posts: exact 1140x1540 natural aspect */
+  #visual-content-ig-editorial .cs-gallery.is-contain .cs-gallery-media {
+    aspect-ratio: 114 / 154;
+  }
+
+  /* 06 16 Personalities spreads: clean 1:1 full-bleed 2x2 grid */
+  [id='16-personalities-spreads'] .cs-gallery.is-contain .cs-gallery-media {
+    aspect-ratio: 1 / 1;
+  }
+
   @media (min-width: 901px) {
-    /* Merch Tees bento: tall front+back lineup tee spans 2 rows alongside the 2 single-height tees */
-    .cs-reader[data-case-dialog='k2o'] #k2o-merch-3d .cs-gallery.cols-3.is-contain {
+    /* 01 K2O Merch Tees bento: tall front+back lineup tee spans 2 rows alongside the 2 single-height tees */
+    #k2o-merch-3d .cs-gallery.cols-3.is-contain {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
     }
-    .cs-reader[data-case-dialog='k2o'] #k2o-merch-3d .cs-gallery.cols-3.is-contain .cs-gallery-card:first-child {
+    #k2o-merch-3d .cs-gallery.cols-3.is-contain .cs-gallery-card:first-child {
       grid-row: span 2;
     }
 
-    /* Wristbands: proportional columns matching natural 1.492 vs 0.482 ratios -> zero crop, zero borders */
-    .cs-reader[data-case-dialog='k2o'] #k2o-merch-3d .cs-gallery.cols-2.is-contain {
+    /* 01 K2O Wristbands: proportional columns matching natural 1.492 vs 0.482 ratios */
+    #k2o-merch-3d .cs-gallery.cols-2.is-contain {
       grid-template-columns: minmax(0, 3.09fr) minmax(0, 1fr);
+    }
+
+    /* 02 Startup Standup rollout: proportional columns matching natural 0.661 vs 1.404 ratios */
+    #startup-standup-rollout .cs-gallery.cols-2.is-contain {
+      grid-template-columns: minmax(0, 0.661fr) minmax(0, 1.404fr);
+    }
+
+    /* 06 16 Personalities cover & cast: proportional columns matching natural 1.134 vs 1.669 ratios */
+    [id='16-personalities-cover-cast'] .cs-gallery.cols-2.is-contain {
+      grid-template-columns: minmax(0, 1.134fr) minmax(0, 1.669fr);
     }
   }
 
@@ -2574,7 +2219,6 @@ const sybilMintTiers = [
       gap: 12px;
     }
     .cs-toc-wrap,
-    .cs-opt-a,
     .cs-live-pill {
       display: none;
     }
@@ -2602,8 +2246,7 @@ const sybilMintTiers = [
       height: clamp(160px, 40vw, 320px);
       transform: none;
     }
-    .cs-meta-grid,
-    .cs-bento-specs {
+    .cs-meta-grid {
       grid-template-columns: 1fr;
       gap: 12px;
     }

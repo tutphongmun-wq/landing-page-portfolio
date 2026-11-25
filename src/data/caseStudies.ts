@@ -127,9 +127,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     subtitleTh:
       'แคมเปญภาพลักษณ์เทศกาลดนตรี K2O Songkran ภายใต้เครือ S2O Festival ที่ผสานโลกนีออนใต้น้ำ ตั้งแต่ Key Visual โปสเตอร์ศิลปิน จอ Plan B BTS สินค้าที่ระลึก โลโก้ 3D จนถึงแผนที่เทศกาลแบบ Interactive',
     meta: [
-      { label: 'Client', value: 'S2O Festival' },
-      { label: 'Event & Scale', value: '14 April 2026 · S2O Land, Bangkok' },
-      { label: 'Role', value: 'Key Visual, OOH Motion, Merch & Map' },
+      { label: 'Category', value: 'Festival & Campaign Identity' },
+      { label: 'Scope', value: 'Key Visual, OOH, Merch & Map' },
+      { label: 'Year', value: '2026' },
     ],
     cover: {
       kind: 'photo',
@@ -320,9 +320,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     subtitleTh:
       'อัตลักษณ์อีเวนต์และแคมเปญโปรโมตงาน Startup Standup Comedy ที่จับเรื่องการลงทุนมาเล่าคู่กับเดี่ยวไมโครโฟน ผ่านตัวอักษรขนาดใหญ่ สีฟ้า Electric Cyan และ Motion Graphics สุดจัดจ้าน',
     meta: [
-      { label: 'Client', value: 'Enter to Start' },
-      { label: 'Deliverables', value: 'Key Visual, OOH, Print & Intro Motion' },
-      { label: 'Role', value: 'Brand Identity, Signage & Motion' },
+      { label: 'Category', value: 'Event Identity & Motion' },
+      { label: 'Scope', value: 'Key Visual, OOH, Print & Intro Motion' },
+      { label: 'Year', value: '2023' },
     ],
     cover: {
       kind: 'photo',
@@ -460,9 +460,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     subtitleTh:
       'รวมงานออกแบบ YouTube Thumbnail และโปสเตอร์รายการบันเทิงแนวตั้งร่วมกับ MollageBKK รวมถึงคอนเทนต์ออริจินัลของ Netflix Thailand และ MasterChef The Professionals Thailand',
     meta: [
-      { label: 'Client', value: 'MollageBKK / Netflix Thailand' },
-      { label: 'Formats', value: '16:9 YouTube & 9:16 Vertical Posters' },
-      { label: 'Role', value: 'Concept, Photo Compositing & Type' },
+      { label: 'Category', value: 'Entertainment & Key Art' },
+      { label: 'Scope', value: '16:9 Thumbnails & 9:16 Posters' },
+      { label: 'Year', value: '2025' },
     ],
     cover: {
       kind: 'framed',
@@ -572,9 +572,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     subtitleTh:
       'ชุดภาพ Editorial Social Media สำหรับ Enter to Start (และงานแคมเปญ Binance TH) ที่ใช้เทคนิคคอลลาจและตัวอักษรไทยทรงพลัง เปลี่ยนเรื่องการเงิน AI และคริปโตให้เป็นเรื่องน่าติดตามตั้งแต่แรกเห็น',
     meta: [
-      { label: 'Client', value: 'Enter to Start / Binance TH' },
-      { label: 'Format', value: 'Editorial Social & IG Carousels' },
-      { label: 'Role', value: 'Art Direction, Collage & Final Art' },
+      { label: 'Category', value: 'Editorial Social Design' },
+      { label: 'Scope', value: 'Collage Key Art & IG Carousels' },
+      { label: 'Year', value: '2022–2024' },
     ],
     cover: {
       kind: 'trio',
@@ -690,9 +690,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     subtitleTh:
       'ชุด Infographic ขนาด 4:5 จำนวน 7 ชิ้นสำหรับ Enter to Start ที่เปลี่ยนเส้นทางราคาบิตคอยน์ แผนพัฒนา Ethereum ยอดขายรถไฟฟ้า และบทเรียนธุรกิจให้เป็นคู่มือภาพที่อ่านง่ายในพริบตา',
     meta: [
-      { label: 'Client', value: 'Enter to Start' },
-      { label: 'Collection', value: '7 Editorial Infographics (4:5)' },
-      { label: 'Role', value: 'Information Design & Illustration' },
+      { label: 'Category', value: 'Information Design' },
+      { label: 'Scope', value: '7 Editorial Infographics (4:5)' },
+      { label: 'Year', value: '2022–2024' },
     ],
     cover: {
       kind: 'trio',
@@ -805,7 +805,7 @@ export const caseStudies: Record<string, CaseStudy> = {
     meta: [
       { label: 'Category', value: 'Editorial Book & Illustration' },
       { label: 'Scope', value: 'Cover, 16 Characters & 16 Spreads' },
-      { label: 'Role', value: 'Book Layout, Character Design & Print' },
+      { label: 'Year', value: '2022' },
     ],
     cover: {
       kind: 'framed',
@@ -924,9 +924,9 @@ export const caseStudies: Record<string, CaseStudy> = {
     subtitleTh:
       'แบรนด์ NFT และแพลตฟอร์มฟาร์ม Airdrop ในโลกแฟนตาซีขั้วโลก ครอบคลุมตั้งแต่การออกแบบโลโก้ คาแรคเตอร์ฮัสกี้ 6 ระดับ ฉาก Day/Night แบบเต็มจอ จนถึงหน้าเว็บไซต์ Next.js ที่ใช้งานได้จริง',
     meta: [
-      { label: 'Client', value: 'SybilHusky Collective' },
-      { label: 'Stack & Delivery', value: 'Figma → Next.js 16 + React' },
-      { label: 'Role', value: 'Visual Identity, Character Design & UI' },
+      { label: 'Category', value: 'Brand Identity & Web UI' },
+      { label: 'Scope', value: 'Identity, 6 NFT Tiers & Next.js Site' },
+      { label: 'Year', value: '2024' },
     ],
     liveUrl: {
       href: 'https://sybil-husky.vercel.app',
