@@ -87,6 +87,11 @@ export type CaseBlock =
   | {
       kind: 'sybil-live';
       liveUrl: string;
+    }
+  | {
+      kind: 'book-flipbook';
+      caption?: string;
+      captionTh?: string;
     };
 
 export interface CaseSection {
@@ -847,6 +852,24 @@ export const caseStudies: Record<string, CaseStudy> = {
       ],
     },
     sections: [
+      {
+        id: 'interactive-book',
+        tocLabel: 'Interactive book',
+        heading: 'Explore the 60-page interactive book',
+        paragraphs: [
+          'Flip through the complete 60-page square edition directly below—from cover, preface, and personality quiz to all 16 illustrated character spreads. Click or drag any page edge, use the chapter tabs to jump between the four MBTI color families, or expand fullscreen to read the Thai copy up close.',
+        ],
+        paragraphsTh: [
+          'ลองเปิดพลิกอ่านหนังสือฉบับเต็มทั้ง 60 หน้าขนาด 1:1 ได้จากด้านล่าง ตั้งแต่หน้าปก คำนำ สารบัญ แบบทดสอบบุคลิกภาพ ไปจนถึงหน้าคู่คาแรคเตอร์ครบทั้ง 16 แบบ สามารถคลิกหรือลากมุมหน้ากระดาษ กดข้ามหมวด 4 กลุ่มสี หรือขยายเต็มหน้าจอเพื่ออ่านรายละเอียดได้ทันที',
+        ],
+        blocks: [
+          {
+            kind: 'book-flipbook',
+            caption: 'Interactive 60-page edition — click, drag a page edge, or use arrow keys (← / →) to flip.',
+            captionTh: 'หนังสือแบบ Interactive ครบ 60 หน้า — คลิก ลากมุมหน้า หรือกดลูกศร ← / → เพื่อพลิกหน้า',
+          },
+        ],
+      },
       {
         id: 'cover-cast',
         tocLabel: 'Cover & characters',

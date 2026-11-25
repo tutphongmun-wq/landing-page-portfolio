@@ -1,0 +1,1590 @@
+---
+// Custom 3D Interactive Book Flipbook for 16 Personalities (60 pages / 31 spreads).
+// Features:
+//  - Closed square front/back cover smoothly centering & unfolding into a 2:1 open spread
+//  - Multi-strip 3D curved paper-bend turning sheets with real-time Lambertian lighting & cast shadows
+//  - Dynamic layered paper-stack thickness on left & right fore-edges
+//  - Pointer drag-to-flip, hover corner peek, click-to-turn, keyboard arrows, staggered chapter cascade
+//  - Scrubber bar, live chapter/MBTI title, color-coded chapter jump pills, and fullscreen mode
+//  - Lazy sliding-window page preloading (zero network cost until #read-16-personalities is opened)
+import { assetUrl } from '../lib/media';
+
+interface Props {
+  basePath?: string;
+}
+
+const { basePath = assetUrl('media/book-16p/') } = Astro.props;
+
+const chapters = [
+  { spread: 0, label: 'Cover', dot: '' },
+  { spread: 2, label: 'Contents', dot: '' },
+  { spread: 5, label: 'Quiz', dot: '' },
+  { spread: 9, label: 'Analysts', dot: '#C47ACC' },
+  { spread: 14, label: 'Diplomats', dot: '#8FCC52' },
+  { spread: 19, label: 'Sentinels', dot: '#52BBCC' },
+  { spread: 24, label: 'Explorers', dot: '#F7C64B' },
+];
+---
+
+<div class="bf-root" data-book-flipbook data-base-path={basePath} data-total-pages="60">
+  <!-- Chapter Quick-Jump Pills -->
+  <div class="bf-chapters" role="tablist" aria-label="Book chapters">
+    {
+      chapters.map((ch, idx) => (
+        <button
+          type="button"
+          class:list={['bf-ch-btn', { 'is-active': idx === 0 }]}
+          data-bf-jump={ch.spread}
+          aria-pressed={idx === 0 ? 'true' : 'false'}
+        >
+          {ch.dot && <span class="bf-ch-dot" style={`background:${ch.dot}`} aria-hidden="true" />}
+          <span>{ch.label}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <!-- 3D Book Stage -->
+  <div class="bf-stage-wrap" data-bf-stage-wrap>
+    <button
+      type="button"
+      class="bf-nav bf-prev"
+      data-bf-prev
+      aria-label="Previous spread"
+      disabled
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+
+    <div class="bf-stage" data-bf-stage tabindex="0" role="region" aria-label="16 Personalities 60-page interactive book">
+      <div class="bf-book" data-bf-book data-state="front">
+        <!-- Layered paper thickness stacks (left & right fore-edges) -->
+        <div class="bf-stack bf-stack-left" data-bf-stack-left aria-hidden="true"></div>
+        <div class="bf-stack bf-stack-right" data-bf-stack-right aria-hidden="true"></div>
+
+        <!-- Ground ambient contact shadow beneath the physical book -->
+        <div class="bf-ground" data-bf-ground aria-hidden="true"></div>
+
+        <!-- Stationary left page (even pages 2,4,...,60) -->
+        <div class="bf-slot bf-slot-left" data-bf-slot-left>
+          <div class="bf-page-surface">
+            <img class="bf-page-img" data-bf-img-left alt="" decoding="async" draggable="false" />
+            <div class="bf-gutter bf-gutter-left" aria-hidden="true"></div>
+            <div class="bf-cast bf-cast-left" data-bf-cast-left aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Stationary right page (odd pages 1,3,...,59) -->
+        <div class="bf-slot bf-slot-right" data-bf-slot-right>
+          <div class="bf-page-surface">
+            <img class="bf-page-img" data-bf-img-right alt="" decoding="async" draggable="false" />
+            <div class="bf-gutter bf-gutter-right" aria-hidden="true"></div>
+            <div class="bf-cast bf-cast-right" data-bf-cast-right aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Center binding spine crease -->
+        <div class="bf-spine-crease" data-bf-spine aria-hidden="true"></div>
+
+        <!-- Dynamic 3D curved turning sheets layer -->
+        <div class="bf-turns" data-bf-turns aria-hidden="true"></div>
+
+        <!-- Hover corner peek hint (visual cue on first visit) -->
+        <div class="bf-hint" data-bf-hint aria-hidden="true">
+          <span>Click or drag to flip</span>
+        </div>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="bf-nav bf-next"
+      data-bf-next
+      aria-label="Next spread"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Bottom Reader Bar (Page Counter, Live Spread Title, Scrubber, Fullscreen) -->
+  <div class="bf-bar">
+    <div class="bf-meta">
+      <span class="bf-counter" data-bf-counter>1 / 60</span>
+      <span class="bf-sep" aria-hidden="true">·</span>
+      <span class="bf-title" data-bf-title>Front Cover</span>
+    </div>
+
+    <div class="bf-scrub-wrap">
+      <input
+        type="range"
+        class="bf-scrubber"
+        data-bf-scrubber
+        min="0"
+        max="30"
+        step="1"
+        value="0"
+        aria-label="Jump to spread"
+      />
+    </div>
+
+    <div class="bf-actions">
+      <button
+        type="button"
+        class="bf-icon-btn"
+        data-bf-fs
+        aria-label="Toggle fullscreen reader"
+        title="Fullscreen"
+      >
+        <svg class="bf-ico-enter" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+        </svg>
+        <svg class="bf-ico-exit" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SPREAD_TITLES: Record<number, string> = {
+    0: 'Front Cover',
+    1: 'คำนำ · Preface',
+    2: 'สารบัญ · Contents',
+    3: 'Ch.1 · 16 Personalities',
+    4: 'Ch.1 · 4 Dimensions (E/I · S/N · T/F · J/P)',
+    5: 'Ch.2 · แบบทดสอบบุคลิกภาพ',
+    6: 'Quiz · Part 1',
+    7: 'Quiz · Part 2',
+    8: 'Quiz · Results',
+    9: 'Ch.3 · Analysts (กลุ่มนักวิเคราะห์)',
+    10: 'INTJ · นักออกแบบ',
+    11: 'INTP · นักตรรกะ',
+    12: 'ENTJ · ผู้บัญชาการ',
+    13: 'ENTP · นักโต้วาที',
+    14: 'Ch.4 · Diplomats (กลุ่มนักการทูต)',
+    15: 'INFJ · ผู้แนะนำ',
+    16: 'INFP · ผู้ไกล่เกลี่ย',
+    17: 'ENFJ · ตัวเอก',
+    18: 'ENFP · นักรณรงค์',
+    19: 'Ch.5 · Sentinels (กลุ่มผู้เฝ้ายาม)',
+    20: 'ISTJ · นักคำนวณ',
+    21: 'ISFJ · ผู้ตั้งรับ',
+    22: 'ESTJ · ผู้บริหาร',
+    23: 'ESFJ · ผู้ให้คำปรึกษา',
+    24: 'Ch.6 · Explorers (กลุ่มนักสำรวจ)',
+    25: 'ISTP · ผู้เชี่ยวชาญด้านศิลปะ',
+    26: 'ISFP · นักผจญภัย',
+    27: 'ESTP · ผู้ประกอบการ',
+    28: 'ESFP · ผู้มอบความบันเทิง',
+    29: 'อ้างอิง · References',
+    30: 'Back Cover',
+  };
+
+  const MAX_SPREAD = 30;
+  const STRIPS = 8;
+  // Progressive bend weights from stiff binding spine (k=0) to flexible fore-edge (k=7)
+  const STRIP_WEIGHTS = [0.18, 0.42, 0.72, 0.96, 1.14, 1.24, 1.3, 1.32];
+
+  interface TurningSheet {
+    el: HTMLElement;
+    strips: HTMLElement[];
+    frontShades: HTMLElement[];
+    backShades: HTMLElement[];
+    sheetIdx: number; // 0..29 (front = sheetIdx*2+1, back = sheetIdx*2+2)
+    t: number; // 0 (right) .. 1 (left)
+    target: number; // 0 or 1
+    vel: number;
+    dragging: boolean;
+    onSettled: () => void;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-book-flipbook]').forEach((root) => {
+    const basePath = root.dataset.basePath || '/media/book-16p/';
+    const book = root.querySelector<HTMLElement>('[data-bf-book]')!;
+    const stackLeft = root.querySelector<HTMLElement>('[data-bf-stack-left]')!;
+    const stackRight = root.querySelector<HTMLElement>('[data-bf-stack-right]')!;
+    const groundEl = root.querySelector<HTMLElement>('[data-bf-ground]')!;
+    const slotLeft = root.querySelector<HTMLElement>('[data-bf-slot-left]')!;
+    const slotRight = root.querySelector<HTMLElement>('[data-bf-slot-right]')!;
+    const imgLeft = root.querySelector<HTMLImageElement>('[data-bf-img-left]')!;
+    const imgRight = root.querySelector<HTMLImageElement>('[data-bf-img-right]')!;
+    const castLeft = root.querySelector<HTMLElement>('[data-bf-cast-left]')!;
+    const castRight = root.querySelector<HTMLElement>('[data-bf-cast-right]')!;
+    const spineEl = root.querySelector<HTMLElement>('[data-bf-spine]')!;
+    const turnsHost = root.querySelector<HTMLElement>('[data-bf-turns]')!;
+    const hintEl = root.querySelector<HTMLElement>('[data-bf-hint]')!;
+    const prevBtn = root.querySelector<HTMLButtonElement>('[data-bf-prev]')!;
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-bf-next]')!;
+    const counterEl = root.querySelector<HTMLElement>('[data-bf-counter]')!;
+    const titleEl = root.querySelector<HTMLElement>('[data-bf-title]')!;
+    const scrubber = root.querySelector<HTMLInputElement>('[data-bf-scrubber]')!;
+    const fsBtn = root.querySelector<HTMLButtonElement>('[data-bf-fs]')!;
+    const chBtns = [...root.querySelectorAll<HTMLButtonElement>('[data-bf-jump]')];
+
+    const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const preloaded = new Set<number>();
+
+    // Current resting spread: 0 = front cover, 1..29 = spreads (2-3..58-59), 30 = back cover
+    let spread = 0;
+    let displaySpread = 0;
+    let activeSheets: TurningSheet[] = [];
+    let dragSheet: TurningSheet | null = null;
+    let hoverPeekSheet: TurningSheet | null = null;
+    let hoverSide: 'left' | 'right' | null = null;
+    // Optional explicit base pages override during a multi-sheet chapter cascade
+    let cascadeOverride: { left: number; right: number } | null = null;
+    let rafId = 0;
+    let lastTs = 0;
+    let hydrated = false;
+    let hasInteracted = false;
+
+    const pageUrl = (n: number) => `${basePath}p${String(n).padStart(2, '0')}.webp`;
+
+    const preloadPage = (n: number) => {
+      if (n < 1 || n > 60 || preloaded.has(n)) return;
+      preloaded.add(n);
+      const im = new Image();
+      im.decoding = 'async';
+      im.src = pageUrl(n);
+    };
+
+    const preloadAround = (sp: number) => {
+      for (let d = -3; d <= 3; d++) {
+        const s = sp + d;
+        if (s < 0 || s > MAX_SPREAD) continue;
+        if (s === 0) preloadPage(1);
+        else if (s === MAX_SPREAD) preloadPage(60);
+        else {
+          preloadPage(s * 2);
+          preloadPage(s * 2 + 1);
+        }
+      }
+    };
+
+    const dismissHint = () => {
+      if (hasInteracted) return;
+      hasInteracted = true;
+      hintEl.classList.add('is-hidden');
+    };
+
+    const formatCounter = (sp: number) => {
+      if (sp <= 0) return '1 / 60';
+      if (sp >= MAX_SPREAD) return '60 / 60';
+      return `${sp * 2}–${sp * 2 + 1} / 60`;
+    };
+
+    const updateChapterButtons = (sp: number) => {
+      let bestIdx = 0;
+      chBtns.forEach((btn, idx) => {
+        const s = Number(btn.dataset.bfJump || 0);
+        if (sp >= s) bestIdx = idx;
+      });
+      chBtns.forEach((btn, idx) => {
+        const hit = idx === bestIdx;
+        btn.classList.toggle('is-active', hit);
+        btn.setAttribute('aria-pressed', String(hit));
+      });
+    };
+
+    // Drive smooth book horizontal centering in lockstep with front/back cover opening
+    const updateBookPose = () => {
+      let shiftPct = 0;
+      const frontSheet = activeSheets.find((s) => s.sheetIdx === 0);
+      const backSheet = activeSheets.find((s) => s.sheetIdx === MAX_SPREAD - 1);
+
+      if (frontSheet && (spread === 0 || displaySpread === 0 || cascadeOverride?.left === 0)) {
+        shiftPct = -25 * (1 - frontSheet.t);
+      } else if (
+        backSheet &&
+        (spread === MAX_SPREAD || displaySpread === MAX_SPREAD || cascadeOverride?.right === 0)
+      ) {
+        shiftPct = 25 * backSheet.t;
+      } else if (activeSheets.length === 0) {
+        if (spread === 0) shiftPct = -25;
+        else if (spread === MAX_SPREAD) shiftPct = 25;
+      } else {
+        shiftPct = 0;
+      }
+
+      book.style.transform = `translateX(${shiftPct.toFixed(2)}%)`;
+
+      const state =
+        shiftPct < -18 ? 'front' : shiftPct > 18 ? 'back' : 'open';
+      book.dataset.state = state;
+      spineEl.style.opacity = Math.abs(shiftPct) < 20 ? '1' : '0';
+
+      // Match ambient desk shadow footprint smoothly under cover vs open spread
+      const leftInset = Math.max(0, -shiftPct * 2); // 0..50%
+      const rightInset = Math.max(0, shiftPct * 2); // 0..50%
+      groundEl.style.left = `${leftInset.toFixed(1)}%`;
+      groundEl.style.right = `${rightInset.toFixed(1)}%`;
+    };
+
+    const updateUI = (sp: number) => {
+      counterEl.textContent = formatCounter(sp);
+      titleEl.textContent = SPREAD_TITLES[sp] ?? '';
+      scrubber.value = String(sp);
+      prevBtn.disabled = sp <= 0;
+      nextBtn.disabled = sp >= MAX_SPREAD;
+      updateChapterButtons(sp);
+
+      // Dynamic physical paper-stack thickness on left & right fore-edges
+      const leftRatio = Math.max(0, Math.min(1, sp / MAX_SPREAD));
+      const rightRatio = 1 - leftRatio;
+      const leftPx = sp === 0 ? 0 : Math.max(2, Math.round(leftRatio * 11));
+      const rightPx = sp === MAX_SPREAD ? 0 : Math.max(2, Math.round(rightRatio * 11));
+      stackLeft.style.setProperty('--stack-w', `${leftPx}px`);
+      stackRight.style.setProperty('--stack-w', `${rightPx}px`);
+      stackLeft.style.opacity = sp === 0 ? '0' : '1';
+      stackRight.style.opacity = sp === MAX_SPREAD ? '0' : '1';
+
+      updateBookPose();
+    };
+
+    const setSlotImage = (
+      slot: HTMLElement,
+      img: HTMLImageElement,
+      pageNum: number,
+    ) => {
+      if (pageNum > 0) {
+        const url = pageUrl(pageNum);
+        if (img.dataset.srcLoaded !== url) {
+          img.src = url;
+          img.dataset.srcLoaded = url;
+        }
+        img.alt = `Page ${pageNum} of 16 Personalities`;
+        slot.classList.remove('is-empty');
+      } else {
+        slot.classList.add('is-empty');
+      }
+    };
+
+    // Determine what stationary pages should show underneath any actively turning sheets
+    const syncBasePages = () => {
+      if (!hydrated) return;
+
+      if (cascadeOverride && activeSheets.length > 0) {
+        setSlotImage(slotLeft, imgLeft, cascadeOverride.left);
+        setSlotImage(slotRight, imgRight, cascadeOverride.right);
+        return;
+      }
+
+      let leftPageNum = spread > 0 ? spread * 2 : 0;
+      let rightPageNum = spread < MAX_SPREAD ? spread * 2 + 1 : 0;
+
+      if (activeSheets.length > 0) {
+        const indices = activeSheets.map((s) => s.sheetIdx);
+        const minSheet = Math.min(...indices);
+        const maxSheet = Math.max(...indices);
+        leftPageNum = minSheet > 0 ? minSheet * 2 : 0;
+        rightPageNum = maxSheet < MAX_SPREAD - 1 ? (maxSheet + 1) * 2 + 1 : 0;
+      }
+
+      setSlotImage(slotLeft, imgLeft, leftPageNum);
+      setSlotImage(slotRight, imgRight, rightPageNum);
+    };
+
+    // Build a 10-strip 3D curved paper sheet DOM node (front = sheetIdx*2+1, back = sheetIdx*2+2)
+    const createCurvedSheet = (
+      sheetIdx: number,
+      initialT: number,
+      targetT: number,
+      onSettled: () => void,
+    ): TurningSheet => {
+      const frontNum = sheetIdx * 2 + 1;
+      const backNum = sheetIdx * 2 + 2;
+      preloadPage(frontNum);
+      preloadPage(backNum);
+
+      const sheetEl = document.createElement('div');
+      sheetEl.className = 'bf-sheet';
+
+      const strips: HTMLElement[] = [];
+      const frontShades: HTMLElement[] = [];
+      const backShades: HTMLElement[] = [];
+
+      let parent: HTMLElement = sheetEl;
+      for (let k = 0; k < STRIPS; k++) {
+        const strip = document.createElement('div');
+        strip.className =
+          k === 0
+            ? 'bf-strip is-root'
+            : k === STRIPS - 1
+              ? 'bf-strip is-outer'
+              : 'bf-strip';
+        strip.style.setProperty('--n', String(STRIPS));
+
+        // Front face (right-side page)
+        const front = document.createElement('div');
+        front.className = 'bf-face bf-face-front';
+        const fImg = document.createElement('img');
+        fImg.src = pageUrl(frontNum);
+        fImg.alt = '';
+        fImg.draggable = false;
+        fImg.style.width = `${STRIPS * 100}%`;
+        fImg.style.left = `${-k * 100}%`;
+        const fShade = document.createElement('div');
+        fShade.className = 'bf-shade';
+        front.append(fImg, fShade);
+
+        // Back face (left-side page after flip — mirrored slice index STRIPS - 1 - k)
+        const back = document.createElement('div');
+        back.className = 'bf-face bf-face-back';
+        const bImg = document.createElement('img');
+        bImg.src = pageUrl(backNum);
+        bImg.alt = '';
+        bImg.draggable = false;
+        bImg.style.width = `${STRIPS * 100}%`;
+        bImg.style.left = `${-(STRIPS - 1 - k) * 100}%`;
+        const bShade = document.createElement('div');
+        bShade.className = 'bf-shade';
+        back.append(bImg, bShade);
+
+        strip.append(front, back);
+        parent.appendChild(strip);
+
+        strips.push(strip);
+        frontShades.push(fShade);
+        backShades.push(bShade);
+        parent = strip;
+      }
+
+      turnsHost.appendChild(sheetEl);
+
+      const sheet: TurningSheet = {
+        el: sheetEl,
+        strips,
+        frontShades,
+        backShades,
+        sheetIdx,
+        t: initialT,
+        target: targetT,
+        vel: 0,
+        dragging: false,
+        onSettled,
+      };
+      renderSheetGeometry(sheet);
+      return sheet;
+    };
+
+    // Continuous vertex shading helper: negative = shadow (black alpha), positive = specular sheen (white alpha)
+    const shadeRgba = (val: number) =>
+      val >= 0
+        ? `rgb(255 255 255 / ${Math.min(0.24, val).toFixed(3)})`
+        : `rgb(0 0 0 / ${Math.min(0.42, -val).toFixed(3)})`;
+
+    const renderSheetGeometry = (sheet: TurningSheet) => {
+      const t = Math.max(0, Math.min(1, sheet.t));
+      const baseDeg = -180 * t;
+
+      // Natural flexible paper curvature:
+      //  - Peeling off right stack (t ~ 0.25): negative bend lifts outer edge gently toward viewer
+      //  - Crossing spine (t ~ 0.50): smooth vertical arch
+      //  - Settling onto left stack (t ~ 0.75): positive bend lets fore-edge drape down softly
+      const sin2 = Math.sin(2 * Math.PI * t);
+      const sin1 = Math.sin(Math.PI * t);
+      const bendStep = -sin2 * 5.5;
+
+      // Compute cumulative angles per strip and smooth Gouraud lighting at every seam vertex (0..STRIPS)
+      const stripWorldDeg: number[] = new Array(STRIPS);
+      let cumDeg = baseDeg;
+      for (let k = 0; k < STRIPS; k++) {
+        let localDeg = 0;
+        if (k === 0) {
+          localDeg = baseDeg + sin1 * 3.5 * (t < 0.5 ? -1 : 1) * (1 - Math.abs(2 * t - 1));
+          cumDeg = Math.max(-180, Math.min(0, localDeg));
+          sheet.strips[k].style.transform = `rotateY(${cumDeg.toFixed(2)}deg)`;
+        } else {
+          const desired = cumDeg + bendStep * STRIP_WEIGHTS[k];
+          const clamped = Math.max(-180, Math.min(0, desired));
+          localDeg = clamped - cumDeg;
+          cumDeg = clamped;
+          sheet.strips[k].style.transform = `rotateY(${localDeg.toFixed(2)}deg)`;
+        }
+        stripWorldDeg[k] = cumDeg;
+      }
+
+      // Compute continuous vertex lighting (seam v = 0..STRIPS) so adjacent strips share identical edge color (ZERO banding!)
+      const frontVerts: number[] = new Array(STRIPS + 1);
+      const backVerts: number[] = new Array(STRIPS + 1);
+      for (let v = 0; v <= STRIPS; v++) {
+        const deg =
+          v === 0
+            ? stripWorldDeg[0]
+            : v === STRIPS
+              ? stripWorldDeg[STRIPS - 1]
+              : (stripWorldDeg[v - 1] + stripWorldDeg[v]) * 0.5;
+        const rad = (Math.abs(deg) * Math.PI) / 180; // 0 (flat right) .. PI (flat left)
+        const u = v / STRIPS; // 0 at spine .. 1 at outer fore-edge
+        // Binding gutter shadow near spine (u < 0.2)
+        const spineShadow = Math.pow(Math.max(0, 1 - u / 0.22), 1.8) * 0.16;
+
+        // Front face (visible when rad in 0..PI/2): subtle sheen at ~35deg, darker approaching 90deg
+        const fSheen = Math.max(0, Math.sin(rad * 2.1)) * 0.11 * sin1;
+        const fShade = Math.sin(rad) * 0.24 + spineShadow * (1 - t * 0.5);
+        frontVerts[v] = fSheen - fShade;
+
+        // Back face (visible when rad in PI/2..PI): mirror lighting across PI/2
+        const bRad = Math.PI - rad;
+        const bSheen = Math.max(0, Math.sin(bRad * 2.1)) * 0.11 * sin1;
+        const bShade = Math.sin(bRad) * 0.24 + spineShadow * (0.5 + t * 0.5);
+        backVerts[v] = bSheen - bShade;
+      }
+
+      for (let k = 0; k < STRIPS; k++) {
+        // Front face left->right is v=k -> v=k+1
+        sheet.frontShades[k].style.background = `linear-gradient(90deg, ${shadeRgba(frontVerts[k])}, ${shadeRgba(frontVerts[k + 1])})`;
+        // Back face is rotated 180deg around Y, so its visual left->right corresponds to v=k+1 -> v=k
+        sheet.backShades[k].style.background = `linear-gradient(90deg, ${shadeRgba(backVerts[k + 1])}, ${shadeRgba(backVerts[k])})`;
+      }
+
+      // Correct z-index stacking order as sheet crosses 90deg mid-point
+      const z = t < 0.5 ? 200 - sheet.sheetIdx : 200 + sheet.sheetIdx;
+      sheet.el.style.zIndex = String(z);
+    };
+
+    const updateCastShadows = () => {
+      if (activeSheets.length === 0) {
+        castLeft.style.opacity = '0';
+        castRight.style.opacity = '0';
+        return;
+      }
+      let leftAlpha = 0;
+      let leftWidth = 0;
+      let rightAlpha = 0;
+      let rightWidth = 0;
+      for (const s of activeSheets) {
+        const t = Math.max(0, Math.min(1, s.t));
+        const lift = Math.sin(Math.PI * t);
+        if (t < 0.68) {
+          const rA = lift * (1 - t / 0.68) * 0.36;
+          rightAlpha = Math.max(rightAlpha, rA);
+          rightWidth = Math.max(rightWidth, 16 + (1 - t) * 44);
+        }
+        if (t > 0.32) {
+          const lA = lift * ((t - 0.32) / 0.68) * 0.36;
+          leftAlpha = Math.max(leftAlpha, lA);
+          leftWidth = Math.max(leftWidth, 16 + t * 44);
+        }
+      }
+      castRight.style.opacity = rightAlpha.toFixed(3);
+      castRight.style.width = `${rightWidth.toFixed(1)}%`;
+      castLeft.style.opacity = leftAlpha.toFixed(3);
+      castLeft.style.width = `${leftWidth.toFixed(1)}%`;
+    };
+
+    const removeSheet = (sheet: TurningSheet) => {
+      sheet.el.remove();
+      activeSheets = activeSheets.filter((s) => s !== sheet);
+      if (hoverPeekSheet === sheet) hoverPeekSheet = null;
+      if (dragSheet === sheet) dragSheet = null;
+      if (activeSheets.length === 0) {
+        cascadeOverride = null;
+      }
+      syncBasePages();
+      updateCastShadows();
+      updateBookPose();
+    };
+
+    const tick = (ts: number) => {
+      const dt = lastTs ? Math.min(0.08, (ts - lastTs) * 0.001) : 1 / 60;
+      lastTs = ts;
+
+      let keepRunning = false;
+      const toSettle: TurningSheet[] = [];
+
+      for (const sheet of activeSheets) {
+        if (sheet.dragging) {
+          renderSheetGeometry(sheet);
+          keepRunning = true;
+          continue;
+        }
+        if (reduceMq.matches) {
+          sheet.t = sheet.target;
+          sheet.vel = 0;
+          renderSheetGeometry(sheet);
+          toSettle.push(sheet);
+          continue;
+        }
+
+        // Critically-damped heavy paper spring (~500ms crisp physical turn)
+        const stiffness = 84;
+        const damping = 17.6;
+        const steps = Math.max(1, Math.ceil(dt / 0.005));
+        const h = dt / steps;
+        for (let i = 0; i < steps; i++) {
+          const force = -stiffness * (sheet.t - sheet.target) - damping * sheet.vel;
+          sheet.vel += force * h;
+          sheet.t += sheet.vel * h;
+        }
+        sheet.t = Math.max(0, Math.min(1, sheet.t));
+        renderSheetGeometry(sheet);
+
+        if (Math.abs(sheet.target - sheet.t) < 0.004 && Math.abs(sheet.vel) < 0.04) {
+          sheet.t = sheet.target;
+          sheet.vel = 0;
+          renderSheetGeometry(sheet);
+          toSettle.push(sheet);
+        } else {
+          keepRunning = true;
+        }
+      }
+
+      updateCastShadows();
+      updateBookPose();
+
+      for (const s of toSettle) {
+        s.onSettled();
+      }
+
+      if (keepRunning || activeSheets.length > 0) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = 0;
+        lastTs = 0;
+      }
+    };
+
+    const ensureLoop = () => {
+      if (!rafId) {
+        lastTs = 0;
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    const clearHoverPeek = () => {
+      if (!hoverPeekSheet) return;
+      const s = hoverPeekSheet;
+      hoverPeekSheet = null;
+      hoverSide = null;
+      s.dragging = false;
+      s.target = s.sheetIdx === spread ? 0 : 1;
+      s.onSettled = () => removeSheet(s);
+      ensureLoop();
+    };
+
+    // Turn a single physical sheet forward (+1) or backward (-1)
+    const flipStep = (dir: 1 | -1) => {
+      const next = displaySpread + dir;
+      if (next < 0 || next > MAX_SPREAD) return;
+      dismissHint();
+      cascadeOverride = null;
+
+      const targetSheetIdx = dir === 1 ? displaySpread : displaySpread - 1;
+      if (hoverPeekSheet && hoverPeekSheet.sheetIdx === targetSheetIdx) {
+        const s = hoverPeekSheet;
+        hoverPeekSheet = null;
+        hoverSide = null;
+        displaySpread = next;
+        updateUI(displaySpread);
+        preloadAround(displaySpread);
+        s.dragging = false;
+        s.target = dir === 1 ? 1 : 0;
+        s.vel = dir * 1.8;
+        s.onSettled = () => {
+          spread = Math.max(0, Math.min(MAX_SPREAD, dir === 1 ? Math.max(spread, targetSheetIdx + 1) : Math.min(spread, targetSheetIdx)));
+          removeSheet(s);
+        };
+        syncBasePages();
+        ensureLoop();
+        return;
+      }
+
+      clearHoverPeek();
+
+      displaySpread = next;
+      updateUI(displaySpread);
+      preloadAround(displaySpread);
+
+      if (reduceMq.matches) {
+        spread = displaySpread;
+        activeSheets.slice().forEach(removeSheet);
+        syncBasePages();
+        return;
+      }
+
+      const sheet = createCurvedSheet(targetSheetIdx, dir === 1 ? 0 : 1, dir === 1 ? 1 : 0, () => {
+        spread =
+          dir === 1
+            ? Math.max(spread, targetSheetIdx + 1)
+            : Math.min(spread, targetSheetIdx);
+        removeSheet(sheet);
+      });
+      sheet.vel = dir * 2.1;
+      activeSheets.push(sheet);
+      syncBasePages();
+      updateBookPose();
+      ensureLoop();
+    };
+
+    // Jump to any spread with a realistic multi-sheet cascade (up to 3 staggered turning sheets)
+    let cascadeTimers: number[] = [];
+    const clearCascade = () => {
+      cascadeTimers.forEach((id) => window.clearTimeout(id));
+      cascadeTimers = [];
+    };
+
+    const jumpToSpread = (targetSp: number) => {
+      const clamped = Math.max(0, Math.min(MAX_SPREAD, targetSp));
+      if (clamped === displaySpread && activeSheets.length === 0) return;
+      dismissHint();
+      clearHoverPeek();
+      clearCascade();
+
+      const diff = clamped - displaySpread;
+      if (diff === 0) return;
+
+      if (Math.abs(diff) === 1) {
+        flipStep(diff > 0 ? 1 : -1);
+        return;
+      }
+
+      // Immediately clear any in-flight sheets from prior jumps so base pages stay exact
+      activeSheets.slice().forEach((s) => s.el.remove());
+      activeSheets = [];
+      dragSheet = null;
+      hoverPeekSheet = null;
+
+      if (reduceMq.matches) {
+        spread = clamped;
+        displaySpread = clamped;
+        cascadeOverride = null;
+        updateUI(clamped);
+        preloadAround(clamped);
+        syncBasePages();
+        return;
+      }
+
+      const dir: 1 | -1 = diff > 0 ? 1 : -1;
+      const startSp = displaySpread;
+      displaySpread = clamped;
+      spread = clamped;
+      preloadAround(clamped);
+
+      // Build 2 staggered sheets ending with the exact destination boundary sheet
+      const cascadeCount = Math.min(2, Math.abs(diff));
+      const sheetIndices: number[] = [];
+      for (let i = 0; i < cascadeCount; i++) {
+        let idx: number;
+        if (i === 0 && startSp === 0 && dir === 1) {
+          idx = 0;
+        } else if (i === 0 && startSp === MAX_SPREAD && dir === -1) {
+          idx = MAX_SPREAD - 1;
+        } else if (i === cascadeCount - 1) {
+          idx = dir === 1 ? clamped - 1 : clamped;
+        } else {
+          const spStep = Math.round(startSp + diff * 0.45);
+          idx = dir === 1 ? Math.max(0, spStep - 1) : Math.min(MAX_SPREAD - 1, spStep);
+        }
+        idx = Math.max(0, Math.min(MAX_SPREAD - 1, idx));
+        if (!sheetIndices.includes(idx)) sheetIndices.push(idx);
+      }
+
+      // Exact underlying pages while the cascade sweeps across:
+      // Forward: old left page stays visible until covered; destination right page is already revealed underneath!
+      // Backward: destination left page is already revealed underneath; old right page stays visible until covered!
+      cascadeOverride =
+        dir === 1
+          ? {
+              left: startSp > 0 ? startSp * 2 : 0,
+              right: clamped < MAX_SPREAD ? clamped * 2 + 1 : 0,
+            }
+          : {
+              left: clamped > 0 ? clamped * 2 : 0,
+              right: startSp < MAX_SPREAD ? startSp * 2 + 1 : 0,
+            };
+
+      updateUI(clamped);
+      syncBasePages();
+
+      sheetIndices.forEach((sIdx, i) => {
+        const launch = () => {
+          const sheet = createCurvedSheet(sIdx, dir === 1 ? 0 : 1, dir === 1 ? 1 : 0, () => {
+            removeSheet(sheet);
+          });
+          sheet.vel = dir * 2.8;
+          activeSheets.push(sheet);
+          syncBasePages();
+          updateBookPose();
+          ensureLoop();
+        };
+        if (i === 0) {
+          launch();
+        } else {
+          const tid = window.setTimeout(launch, i * 90);
+          cascadeTimers.push(tid);
+        }
+      });
+    };
+
+    // ================= Pointer Drag-to-Flip & Click-to-Turn =================
+    let ptrDown = false;
+    let ptrId = -1;
+    let startX = 0;
+    let lastX = 0;
+    let lastMoveTime = 0;
+    let ptrVelX = 0;
+    let dragDir: 1 | -1 = 1;
+    let didDrag = false;
+
+    const getBookWidth = () => Math.max(200, book.getBoundingClientRect().width);
+
+    book.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      const rect = book.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width;
+
+      let side: 'left' | 'right';
+      if (displaySpread === 0) side = 'right';
+      else if (displaySpread === MAX_SPREAD) side = 'left';
+      else side = relX >= 0.5 ? 'right' : 'left';
+
+      if (side === 'right' && displaySpread >= MAX_SPREAD) return;
+      if (side === 'left' && displaySpread <= 0) return;
+
+      ptrDown = true;
+      ptrId = e.pointerId;
+      startX = e.clientX;
+      lastX = e.clientX;
+      lastMoveTime = performance.now();
+      ptrVelX = 0;
+      didDrag = false;
+      dragDir = side === 'right' ? 1 : -1;
+
+      book.setPointerCapture(ptrId);
+    });
+
+    book.addEventListener('pointermove', (e) => {
+      if (!ptrDown) {
+        if (e.pointerType !== 'mouse' || reduceMq.matches || activeSheets.length > (hoverPeekSheet ? 1 : 0)) {
+          return;
+        }
+        const rect = book.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width;
+        let nextHover: 'left' | 'right' | null = null;
+        if (displaySpread < MAX_SPREAD && relX > 0.84 && relX <= 1) nextHover = 'right';
+        else if (displaySpread > 0 && relX >= 0 && relX < 0.16) nextHover = 'left';
+
+        if (nextHover === hoverSide) return;
+        clearHoverPeek();
+        if (!nextHover) return;
+
+        hoverSide = nextHover;
+        const sIdx = nextHover === 'right' ? displaySpread : displaySpread - 1;
+        const initT = nextHover === 'right' ? 0 : 1;
+        const peekT = nextHover === 'right' ? 0.055 : 0.945;
+        const s = createCurvedSheet(sIdx, initT, peekT, () => {});
+        hoverPeekSheet = s;
+        activeSheets.push(s);
+        syncBasePages();
+        ensureLoop();
+        return;
+      }
+
+      if (e.pointerId !== ptrId) return;
+      const now = performance.now();
+      const dtMs = Math.max(1, now - lastMoveTime);
+      ptrVelX = (e.clientX - lastX) / dtMs;
+      lastX = e.clientX;
+      lastMoveTime = now;
+
+      const dx = e.clientX - startX;
+      if (!didDrag && Math.abs(dx) > 10) {
+        didDrag = true;
+        dismissHint();
+        cascadeOverride = null;
+        const targetSheetIdx = dragDir === 1 ? displaySpread : displaySpread - 1;
+
+        if (hoverPeekSheet && hoverPeekSheet.sheetIdx === targetSheetIdx) {
+          dragSheet = hoverPeekSheet;
+          hoverPeekSheet = null;
+          hoverSide = null;
+          dragSheet.dragging = true;
+        } else {
+          clearHoverPeek();
+          dragSheet = createCurvedSheet(
+            targetSheetIdx,
+            dragDir === 1 ? 0 : 1,
+            dragDir === 1 ? 1 : 0,
+            () => {},
+          );
+          dragSheet.dragging = true;
+          activeSheets.push(dragSheet);
+        }
+        syncBasePages();
+        ensureLoop();
+      }
+
+      if (didDrag && dragSheet) {
+        const w = getBookWidth() * 0.56;
+        if (dragDir === 1) {
+          dragSheet.t = Math.max(0, Math.min(1, -dx / w));
+        } else {
+          dragSheet.t = Math.max(0, Math.min(1, 1 - dx / w));
+        }
+        renderSheetGeometry(dragSheet);
+        updateCastShadows();
+        updateBookPose();
+      }
+    });
+
+    const finishPointer = (e: PointerEvent) => {
+      if (!ptrDown || e.pointerId !== ptrId) return;
+      ptrDown = false;
+      try {
+        book.releasePointerCapture(ptrId);
+      } catch {}
+
+      if (!didDrag) {
+        flipStep(dragDir);
+        return;
+      }
+
+      if (dragSheet) {
+        const s = dragSheet;
+        dragSheet = null;
+        s.dragging = false;
+
+        const completeForward = dragDir === 1 && (s.t > 0.28 || ptrVelX < -0.35);
+        const completeBack = dragDir === -1 && (s.t < 0.72 || ptrVelX > 0.35);
+
+        if (completeForward) {
+          displaySpread = Math.min(MAX_SPREAD, s.sheetIdx + 1);
+          updateUI(displaySpread);
+          preloadAround(displaySpread);
+          s.target = 1;
+          s.vel = Math.max(1.8, -ptrVelX * 1.6);
+          s.onSettled = () => {
+            spread = Math.max(spread, s.sheetIdx + 1);
+            removeSheet(s);
+          };
+        } else if (completeBack) {
+          displaySpread = Math.max(0, s.sheetIdx);
+          updateUI(displaySpread);
+          preloadAround(displaySpread);
+          s.target = 0;
+          s.vel = Math.min(-1.8, -ptrVelX * 1.6);
+          s.onSettled = () => {
+            spread = Math.min(spread, s.sheetIdx);
+            removeSheet(s);
+          };
+        } else {
+          s.target = dragDir === 1 ? 0 : 1;
+          s.onSettled = () => removeSheet(s);
+        }
+        ensureLoop();
+      }
+    };
+
+    book.addEventListener('pointerup', finishPointer);
+    book.addEventListener('pointercancel', finishPointer);
+    book.addEventListener('pointerleave', () => {
+      if (!ptrDown) clearHoverPeek();
+    });
+
+    // Buttons & Scrubber & Chapter Pills
+    prevBtn.addEventListener('click', () => flipStep(-1));
+    nextBtn.addEventListener('click', () => flipStep(1));
+    scrubber.addEventListener('input', () => jumpToSpread(Number(scrubber.value)));
+
+    chBtns.forEach((btn) => {
+      const target = Number(btn.dataset.bfJump || 0);
+      btn.addEventListener('pointerenter', () => {
+        if (hydrated) preloadAround(target);
+      });
+      btn.addEventListener('click', () => jumpToSpread(target));
+    });
+
+    // Fullscreen toggle (CSS fixed overlay inside dialog top layer — clean Escape without closing dialog!)
+    const parentDialog = root.closest<HTMLDialogElement>('dialog');
+    const toggleFullscreen = (force?: boolean) => {
+      const want = force ?? !root.classList.contains('is-fullscreen');
+      root.classList.toggle('is-fullscreen', want);
+      fsBtn.setAttribute('aria-pressed', String(want));
+      if (!parentDialog) {
+        if (want && root.requestFullscreen && !document.fullscreenElement) {
+          root.requestFullscreen().catch(() => {});
+        } else if (!want && document.fullscreenElement === root) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    };
+    fsBtn.addEventListener('click', () => toggleFullscreen());
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement !== root && root.classList.contains('is-fullscreen') && !parentDialog) {
+        root.classList.remove('is-fullscreen');
+        fsBtn.setAttribute('aria-pressed', 'false');
+      }
+    });
+
+    // Prevent Escape from closing the parent <dialog> while exiting fullscreen
+    if (parentDialog) {
+      parentDialog.addEventListener('cancel', (e) => {
+        if (root.classList.contains('is-fullscreen')) {
+          e.preventDefault();
+          toggleFullscreen(false);
+        }
+      });
+    }
+
+    // Keyboard navigation when focused or when parent dialog is open
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (parentDialog && !parentDialog.open) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const isFs = root.classList.contains('is-fullscreen');
+      const rect = root.getBoundingClientRect();
+      const inView = rect.bottom > 120 && rect.top < window.innerHeight - 120;
+      if (!isFs && !inView) return;
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        flipStep(1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        flipStep(-1);
+      } else if (e.key === 'Escape' && isFs) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        toggleFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown, true);
+
+    // Hydrate images only when visible (or when #read-16-personalities opens)
+    const hydrate = () => {
+      if (hydrated) return;
+      hydrated = true;
+      preloadAround(0);
+      syncBasePages();
+      updateUI(0);
+    };
+
+    if (parentDialog) {
+      const mo = new MutationObserver(() => {
+        if (parentDialog.open) hydrate();
+      });
+      mo.observe(parentDialog, { attributes: true, attributeFilter: ['open'] });
+      if (parentDialog.open) hydrate();
+    } else if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            hydrate();
+            io.disconnect();
+          }
+        },
+        { rootMargin: '240px' },
+      );
+      io.observe(root);
+    } else {
+      hydrate();
+    }
+  });
+</script>
+
+<style>
+  .bf-root {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--cs-surface, var(--c-bg-raised));
+    box-sizing: border-box;
+    overflow: hidden;
+    user-select: none;
+  }
+  .bf-root.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    border-radius: 0;
+    padding: 24px 32px;
+    background: var(--cs-bg, var(--c-bg));
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  /* Chapter Quick-Jump Pills */
+  .bf-chapters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .bf-ch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 0;
+    background: var(--cs-surface-2, var(--c-bg));
+    color: var(--cs-muted, var(--c-muted));
+    font: 500 12px / 1 var(--f-nav, var(--f-body));
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .bf-ch-btn:hover {
+    color: var(--cs-fg, var(--c-fg));
+  }
+  .bf-ch-btn.is-active {
+    background: var(--cs-fg, var(--c-fg));
+    color: var(--cs-bg, var(--c-bg));
+  }
+  .bf-ch-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    flex: none;
+  }
+
+  /* Stage Container */
+  .bf-stage-wrap {
+    position: relative;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .bf-root.is-fullscreen .bf-stage-wrap {
+    max-width: 1240px;
+    height: 100%;
+    margin-inline: auto;
+  }
+
+  .bf-nav {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--cs-surface-2, var(--c-bg));
+    color: var(--cs-fg, var(--c-fg));
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease, opacity 0.16s ease, transform 0.16s ease;
+  }
+  .bf-nav:hover:not(:disabled) {
+    background: var(--cs-fg, var(--c-fg));
+    color: var(--cs-bg, var(--c-bg));
+  }
+  .bf-nav:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+  .bf-nav:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .bf-stage {
+    position: relative;
+    width: 100%;
+    padding-block: 18px 34px;
+    perspective: 2200px;
+    perspective-origin: 50% 48%;
+    overflow: visible;
+    outline: none;
+    touch-action: pan-y;
+  }
+
+  /* Physical 2:1 Book Frame (two 1:1 square pages joined at the center spine) */
+  .bf-book {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    aspect-ratio: 2 / 1;
+    margin-inline: auto;
+    transform-style: preserve-3d;
+    cursor: grab;
+    will-change: transform;
+  }
+  .bf-book:active {
+    cursor: grabbing;
+  }
+  .bf-root.is-fullscreen .bf-book {
+    max-width: min(1040px, calc((100dvh - 180px) * 2));
+  }
+
+  /* Subtle ambient contact shadow on the desk directly under the book */
+  .bf-ground {
+    position: absolute;
+    top: 4%;
+    bottom: -4%;
+    left: 50%;
+    right: 0;
+    border-radius: 10px;
+    background: radial-gradient(ellipse at 50% 60%, rgb(0 0 0 / 0.18) 0%, rgb(0 0 0 / 0) 74%);
+    transform: translateZ(-2px);
+    pointer-events: none;
+  }
+
+  /* Layered paper stack fore-edges (dynamic thickness via --stack-w) */
+  .bf-stack {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    width: var(--stack-w, 0px);
+    pointer-events: none;
+    transition: width 0.3s ease, opacity 0.3s ease;
+    background-color: #efece6;
+    background-image: repeating-linear-gradient(
+      to right,
+      rgb(0 0 0 / 0.11) 0 1px,
+      rgb(255 255 255 / 0.7) 1px 2.5px
+    );
+  }
+  .bf-stack-left {
+    left: calc(var(--stack-w, 0px) * -1);
+    border-radius: 3px 0 0 3px;
+    box-shadow: inset -2px 0 4px rgb(0 0 0 / 0.14);
+  }
+  .bf-stack-right {
+    right: calc(var(--stack-w, 0px) * -1);
+    border-radius: 0 3px 3px 0;
+    box-shadow: inset 2px 0 4px rgb(0 0 0 / 0.14);
+  }
+
+  /* Stationary Left & Right Page Slots */
+  .bf-slot {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    transition: opacity 0.16s ease;
+  }
+  .bf-slot-left {
+    left: 0;
+  }
+  .bf-slot-right {
+    right: 0;
+  }
+  .bf-slot.is-empty {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .bf-page-surface {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+  }
+  .bf-slot-left .bf-page-surface {
+    border-radius: 4px 0 0 4px;
+  }
+  .bf-slot-right .bf-page-surface {
+    border-radius: 0 4px 4px 0;
+  }
+  .bf-book[data-state='front'] .bf-slot-right .bf-page-surface {
+    border-radius: 3px 6px 6px 3px;
+  }
+  .bf-book[data-state='back'] .bf-slot-left .bf-page-surface {
+    border-radius: 6px 3px 3px 6px;
+  }
+
+  .bf-page-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  /* Cylindrical book-binding gutter shading on inner edges */
+  .bf-gutter {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 15%;
+    pointer-events: none;
+  }
+  .bf-gutter-left {
+    right: 0;
+    background: linear-gradient(
+      to right,
+      rgb(0 0 0 / 0) 0%,
+      rgb(255 255 255 / 0.08) 38%,
+      rgb(0 0 0 / 0.07) 78%,
+      rgb(0 0 0 / 0.22) 100%
+    );
+  }
+  .bf-gutter-right {
+    left: 0;
+    background: linear-gradient(
+      to left,
+      rgb(0 0 0 / 0) 0%,
+      rgb(255 255 255 / 0.08) 38%,
+      rgb(0 0 0 / 0.07) 78%,
+      rgb(0 0 0 / 0.22) 100%
+    );
+  }
+  .bf-book[data-state='front'] .bf-gutter-right,
+  .bf-book[data-state='back'] .bf-gutter-left {
+    opacity: 0.25;
+  }
+
+  /* Dynamic cast shadow swept by the turning sheet */
+  .bf-cast {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .bf-cast-left {
+    right: 0;
+    background: linear-gradient(to left, rgb(0 0 0 / 0.52) 0%, rgb(0 0 0 / 0.16) 45%, rgb(0 0 0 / 0) 100%);
+  }
+  .bf-cast-right {
+    left: 0;
+    background: linear-gradient(to right, rgb(0 0 0 / 0.52) 0%, rgb(0 0 0 / 0.16) 45%, rgb(0 0 0 / 0) 100%);
+  }
+
+  /* Subtle spine crease line in center */
+  .bf-spine-crease {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%) translateZ(1px);
+    background: linear-gradient(
+      to right,
+      rgb(0 0 0 / 0.18),
+      rgb(255 255 255 / 0.12),
+      rgb(0 0 0 / 0.18)
+    );
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  /* 3D Curved Turning Sheets Host */
+  .bf-turns {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    pointer-events: none;
+  }
+
+  :global(.bf-sheet) {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    transform-style: preserve-3d;
+    pointer-events: none;
+  }
+
+  :global(.bf-strip) {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 100%;
+    height: 100%;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+  }
+  :global(.bf-strip.is-root) {
+    left: 0;
+    width: calc(100% / var(--n, 8));
+  }
+
+  :global(.bf-face) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: -0.5px;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: #ffffff;
+  }
+  :global(.bf-face-back) {
+    left: -0.5px;
+    right: 0;
+    transform: rotateY(180deg);
+  }
+  :global(.bf-strip.is-outer > .bf-face-front) {
+    right: 0;
+    border-radius: 0 4px 4px 0;
+  }
+  :global(.bf-strip.is-outer > .bf-face-back) {
+    left: 0;
+    border-radius: 4px 0 0 4px;
+  }
+  :global(.bf-face img) {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    max-width: none;
+    display: block;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  :global(.bf-shade) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  /* Subtle floating hint pill below the front cover (never overlaps cover typography) */
+  .bf-hint {
+    position: absolute;
+    left: 75%;
+    bottom: -28px;
+    transform: translateX(-50%);
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: var(--cs-surface-2, var(--c-bg));
+    color: var(--cs-muted, var(--c-muted));
+    font: 500 11px / 1.2 var(--f-nav, var(--f-body));
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 300;
+  }
+  .bf-hint.is-hidden {
+    opacity: 0;
+  }
+
+  /* Bottom Reader Control Bar */
+  .bf-bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding-top: 6px;
+    border-top: 1px solid var(--cs-line, var(--c-line));
+  }
+  .bf-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font: 500 12.5px / 1.2 var(--f-nav, var(--f-body));
+    color: var(--cs-fg, var(--c-fg));
+  }
+  .bf-counter {
+    font-variant-numeric: tabular-nums;
+    color: var(--cs-accent, #ff2b2b);
+    white-space: nowrap;
+  }
+  .bf-sep {
+    color: var(--cs-muted, var(--c-muted));
+  }
+  .bf-title {
+    color: var(--cs-fg-soft, var(--c-fg-soft));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  .bf-scrub-wrap {
+    display: flex;
+    align-items: center;
+  }
+  .bf-scrubber {
+    width: 100%;
+    height: 4px;
+    margin: 0;
+    accent-color: var(--cs-accent, #ff2b2b);
+    cursor: pointer;
+  }
+
+  .bf-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bf-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: var(--cs-surface-2, var(--c-bg));
+    color: var(--cs-fg, var(--c-fg));
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .bf-icon-btn:hover {
+    background: var(--cs-fg, var(--c-fg));
+    color: var(--cs-bg, var(--c-bg));
+  }
+  .bf-ico-exit {
+    display: none;
+  }
+  .bf-root.is-fullscreen .bf-ico-enter {
+    display: none;
+  }
+  .bf-root.is-fullscreen .bf-ico-exit {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bf-book,
+    .bf-ground,
+    .bf-stack {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .bf-root {
+      padding: 12px;
+      gap: 10px;
+    }
+    .bf-chapters {
+      gap: 4px;
+    }
+    .bf-ch-btn {
+      padding: 5px 8px;
+      font-size: 11px;
+    }
+    .bf-stage-wrap {
+      grid-template-columns: 28px minmax(0, 1fr) 28px;
+      gap: 4px;
+      min-width: 0;
+    }
+    .bf-stage {
+      min-width: 0;
+      padding-block: 10px 26px;
+    }
+    .bf-nav {
+      width: 28px;
+      height: 28px;
+    }
+    .bf-bar {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+    .bf-scrub-wrap {
+      grid-column: 1 / -1;
+      order: 3;
+    }
+    .bf-title {
+      max-width: 150px;
+    }
+  }
+</style>

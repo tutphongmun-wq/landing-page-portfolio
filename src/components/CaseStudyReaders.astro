@@ -13,6 +13,7 @@ import Palette from './Palette.astro';
 import VideoSlot from './VideoSlot.astro';
 import ModelSlot from './ModelSlot.astro';
 import FestivalMap from './FestivalMap.astro';
+import BookFlipbook from './BookFlipbook.astro';
 import LangToggle from './LangToggle.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { projects } from '../data/projects';
@@ -621,6 +622,20 @@ const sybilMintTiers = [
                                 />
                               </div>
                             </div>
+                          );
+                        }
+
+                        if (block.kind === 'book-flipbook') {
+                          return (
+                            <figure class="cs-figure">
+                              <BookFlipbook />
+                              {block.caption && (
+                                <figcaption>
+                                  <span data-lang-text="en">{block.caption}</span>
+                                  <span data-lang-text="th">{block.captionTh ?? block.caption}</span>
+                                </figcaption>
+                              )}
+                            </figure>
                           );
                         }
 
@@ -1496,11 +1511,13 @@ const sybilMintTiers = [
   .cs-article {
     margin-top: 72px;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 72px;
   }
 
   .cs-sec {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
     scroll-margin-top: 48px;
   }
@@ -2201,11 +2218,12 @@ const sybilMintTiers = [
   /* ================= Mobile / Tablet Responsive ================= */
   @media (max-width: 900px) {
     .cs-layout {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto 1fr;
     }
     .cs-sidebar {
       height: auto;
+      min-width: 0;
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
@@ -2223,6 +2241,9 @@ const sybilMintTiers = [
       display: none;
     }
     .cs-scroller {
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: hidden;
       height: calc(100dvh - 56px);
       padding: 0 0 80px;
     }
