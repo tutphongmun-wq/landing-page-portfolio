@@ -10,7 +10,7 @@ import { tools } from '../data/site';
 import { posterUrl } from '../lib/media';
 import Picture from './Picture.astro';
 
-export type ShowcaseVariant = 'wide' | 'split' | 'gallery';
+export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial';
 
 interface Props {
   project: Project;
@@ -40,7 +40,7 @@ const heroPos =
         ? cs.cover.position
         : 'center center';
 
-// Curated 3 preview images for Option 3 ("gallery" variant)
+// Curated 3 preview images for Option 3 ("gallery" & "editorial" variants)
 const allImages = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.kind === 'image');
 const curatedGalleryMap: Record<string, { name: string; alt: string }[]> = {
   'thumbnails-posters': [
@@ -84,10 +84,23 @@ const galleryItems = (
 
 const categoryVal = cs?.meta.find((m) => m.label.toLowerCase() === 'category')?.value ?? 'Design';
 const scopeVal = cs?.meta.find((m) => m.label.toLowerCase() === 'scope')?.value ?? p.role[0] ?? '';
+const yearVal = cs?.meta.find((m) => m.label.toLowerCase() === 'year')?.value ?? '';
 const toolsVal = p.tools.map((t) => tools[t]?.name ?? t).join(', ');
+
+const clientMap: Record<string, string> = {
+  'visual-content': 'Enter to Start · Binance TH',
+  infographic: 'Enter to Start',
+  '16-personalities': 'Editorial Book Project',
+  'sybil-husky': 'Web3 NFT Brand',
+};
+const clientLabel =
+  clientMap[p.slug] ?? (p.client && !p.client.includes('[TODO]') ? p.client : '');
 
 const overviewEn = cs?.subtitle ?? (Array.isArray(p.description) ? p.description[0] : p.description);
 const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descriptionTh[0] : p.descriptionTh);
+const highlightsEn = p.role.slice(0, 3);
+const highlightsTh = p.roleTh.slice(0, 3);
+const isGalleryStage = variant === 'gallery' || variant === 'editorial';
 ---
 
 <article
@@ -101,9 +114,27 @@ const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descrip
     <div class="sp-inner">
       <!-- 1. Project Index & Title -->
       <header class="sp-head">
-        <p class="sp-no" aria-hidden="true" data-reveal>
-          {p.no}
-        </p>
+        {variant === 'editorial' ? (
+          <div class="sp-ed-meta-bar" data-reveal>
+            <span class="sp-no">{p.no} / 07</span>
+            {clientLabel && (
+              <>
+                <span class="sp-ed-dot" aria-hidden="true">·</span>
+                <span class="sp-ed-context">{clientLabel}</span>
+              </>
+            )}
+            {yearVal && (
+              <>
+                <span class="sp-ed-dot" aria-hidden="true">·</span>
+                <span class="sp-ed-context">{yearVal}</span>
+              </>
+            )}
+          </div>
+        ) : (
+          <p class="sp-no" aria-hidden="true" data-reveal>
+            {p.no}
+          </p>
+        )}
         <h3 id={titleId} class="sp-title" data-reveal style="--reveal-d: 50ms">
           <a
             class="sp-title-link"
@@ -173,8 +204,8 @@ const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descrip
         </div>
       ) : (
         <>
-          {variant === 'gallery' ? (
-            /* ================= OPTION 3: MAIN HERO + RIGHT 3-THUMBNAIL PREVIEW STRIP ================= */
+          {isGalleryStage ? (
+            /* ================= OPTION 3 / EDITORIAL: MAIN HERO + RIGHT 3-THUMBNAIL PREVIEW STRIP ================= */
             <div class="sp-gallery-stage" data-sp-gallery data-reveal style="--reveal-d: 90ms">
               {heroImage && (
                 <a
@@ -211,7 +242,7 @@ const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descrip
                     <Picture
                       name={item.name}
                       alt=""
-                      sizes="(min-width: 900px) 248px, 32vw"
+                      sizes="(min-width: 900px) 264px, 32vw"
                     />
                   </button>
                 ))}
@@ -248,6 +279,22 @@ const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descrip
                   <span data-lang-text="th">{overviewTh}</span>
                 </p>
               </div>
+
+              {variant === 'editorial' && highlightsEn.length > 0 && (
+                <div class="sp-highlights">
+                  <h4 class="sp-highlights-title">Highlights</h4>
+                  <ul class="sp-highlights-list" data-lang-text="en">
+                    {highlightsEn.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                  <ul class="sp-highlights-list" data-lang-text="th">
+                    {highlightsTh.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <a
                 class="sp-cta"
@@ -631,8 +678,181 @@ const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descrip
     font-size: clamp(1rem, 1.2vw, 1.15rem);
   }
 
+  /* ================= EDITORIAL 2-BEAT PACING (Projects 04–07) ================= */
+  .project-showcase.is-editorial {
+    padding-block: clamp(84px, 8.5vw, 132px);
+    border-top: 1px solid var(--c-line);
+  }
+
+  .project-showcase.is-editorial .sp-inner {
+    gap: clamp(28px, 3.2vw, 44px);
+  }
+
+  .project-showcase.is-editorial .sp-head {
+    gap: 14px;
+  }
+
+  .sp-ed-meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--f-nav);
+    font-size: clamp(0.95rem, 1.1vw, 1.0625rem);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .sp-ed-dot {
+    color: var(--c-muted);
+    opacity: 0.6;
+  }
+  .sp-ed-context {
+    color: var(--c-muted);
+  }
+
+  .project-showcase.is-editorial .sp-title {
+    font-size: clamp(2.25rem, 4.6vw, 4.35rem);
+    line-height: 0.98;
+  }
+
+  /* Unlock full 16:9 hero + full-height 3-thumbnail rail (Beat 1 owns the first screen) */
+  .project-showcase.is-editorial .sp-gallery-stage {
+    grid-template-columns: minmax(0, 1fr) 268px;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 18px;
+    aspect-ratio: 1280 / 564;
+  }
+  .project-showcase.is-editorial .sp-gallery-main {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+    max-height: none;
+    border-radius: clamp(20px, 2.5vw, 32px);
+  }
+  .project-showcase.is-editorial .sp-gallery-main-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .project-showcase.is-editorial .sp-thumb-rail {
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    gap: 14px;
+  }
+  .project-showcase.is-editorial .sp-thumb-btn {
+    position: relative;
+    min-height: 0;
+    height: 100%;
+    border-radius: 18px;
+  }
+  .project-showcase.is-editorial .sp-thumb-btn :global(picture) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Beat 2: Dedicated spacious Overview + Highlights + Category/Scope/Tools */
+  .project-showcase.is-editorial .sp-bottom {
+    margin-top: clamp(8px, 1.4vw, 20px);
+    grid-template-columns: minmax(0, 1.42fr) minmax(0, 1fr);
+    gap: clamp(36px, 5.5vw, 88px);
+  }
+  .project-showcase.is-editorial .sp-overview-col {
+    gap: clamp(26px, 2.8vw, 36px);
+  }
+  .project-showcase.is-editorial .sp-kicker {
+    font-size: 20px;
+  }
+  .project-showcase.is-editorial .sp-desc {
+    font-size: clamp(1.15rem, 1.45vw, 1.4375rem);
+    line-height: 1.48;
+    max-width: 48ch;
+  }
+  :global(:root[data-lang='th']) .project-showcase.is-editorial .sp-desc {
+    line-height: 1.65;
+  }
+
+  .sp-highlights {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .sp-highlights-title {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--c-accent);
+  }
+  .sp-highlights-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sp-highlights-list li {
+    position: relative;
+    padding-left: 18px;
+    font-family: var(--f-nav);
+    font-weight: 500;
+    font-size: clamp(0.95rem, 1.1vw, 1.0625rem);
+    line-height: 1.45;
+    color: var(--c-fg-soft);
+  }
+  .sp-highlights-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--c-accent);
+  }
+  :global(:root[data-lang='th']) .sp-highlights-list li {
+    font-family: var(--f-body);
+    line-height: 1.6;
+  }
+
+  .project-showcase.is-editorial .sp-cta {
+    min-width: 248px;
+    min-height: 68px;
+    padding: 16px 36px;
+    font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+  }
+
+  .project-showcase.is-editorial .sp-meta-row {
+    gap: 10px;
+    padding-block: 18px;
+  }
+  .project-showcase.is-editorial .sp-meta-row:first-child {
+    padding-top: 0;
+  }
+  .project-showcase.is-editorial .sp-meta-label {
+    font-size: 16px;
+  }
+  .project-showcase.is-editorial .sp-meta-val {
+    font-size: clamp(1.15rem, 1.45vw, 1.4375rem);
+    line-height: 1.35;
+  }
+
   /* ================= RESPONSIVE ================= */
   @media (max-width: 1024px) {
+    .project-showcase.is-editorial .sp-gallery-stage {
+      grid-template-columns: 1fr;
+      aspect-ratio: auto;
+    }
+    .project-showcase.is-editorial .sp-gallery-main {
+      aspect-ratio: 16 / 9;
+      height: auto;
+    }
     .sp-split-grid {
       grid-template-columns: 1fr;
       gap: 24px;
