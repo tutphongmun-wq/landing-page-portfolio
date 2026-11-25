@@ -15,13 +15,18 @@ import mapData from '../data/k2o-map.json';
 import ToolChips from './ToolChips.astro';
 import Palette from './Palette.astro';
 import EditorialCarouselProject from './EditorialCarouselProject.astro';
-import ShowcaseProject from './ShowcaseProject.astro';
+import ShowcaseProject, { type ShowcaseVariant } from './ShowcaseProject.astro';
 
 interface Props {
   project: Project;
 }
 const { project: p } = Astro.props;
-const isShowcase = ['k2o', 'startup-standup', 'thumbnails-posters'].includes(p.slug);
+const showcaseVariants: Record<string, ShowcaseVariant> = {
+  k2o: 'wide',
+  'startup-standup': 'split',
+  'thumbnails-posters': 'gallery',
+};
+const showcaseVariant = showcaseVariants[p.slug];
 const isEditorialCarousel = p.slug === 'infographic';
 const titleId = `${p.slug}-title`;
 
@@ -143,8 +148,8 @@ const itemKey = (it: Item) =>
 ---
 
 {
-  isShowcase ? (
-    <ShowcaseProject project={p} />
+  showcaseVariant ? (
+    <ShowcaseProject project={p} variant={showcaseVariant} />
   ) : isEditorialCarousel ? (
     <EditorialCarouselProject project={p} />
   ) : (
