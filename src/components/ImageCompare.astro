@@ -1,0 +1,336 @@
+---
+// Interactive before/after Image Comparison Slider (inspired by bencho.dev/blocks/image-compare).
+// Features:
+//  - Drag anywhere or grab the center handle to split between two aligned artworks
+//  - Flick momentum: quick horizontal flick glides smoothly to the nearest edge (0% or 100%)
+//  - Auto-hiding frosted corner labels that fade cleanly when the divider approaches
+//  - Full keyboard accessibility (ArrowLeft / ArrowRight / Home / End) & reduced-motion support
+import Picture from './Picture.astro';
+
+interface Props {
+  beforeImage: string;
+  afterImage: string;
+  beforeAlt: string;
+  afterAlt: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+  initial?: number;
+  corner?: number;
+}
+
+const {
+  beforeImage,
+  afterImage,
+  beforeAlt,
+  afterAlt,
+  beforeLabel = 'Before',
+  afterLabel = 'After',
+  initial = 50,
+  corner = 20,
+} = Astro.props;
+---
+
+<div
+  class="ic-root"
+  data-image-compare
+  data-initial={initial}
+  style={`--ic-pos: ${initial}%; --ic-radius: ${corner}px;`}
+  role="slider"
+  tabindex="0"
+  aria-label={`Compare ${beforeLabel} and ${afterLabel}`}
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-valuenow={initial}
+>
+  <!-- Right / After Layer (full frame base) -->
+  <div class="ic-layer ic-after">
+    <Picture
+      name={afterImage}
+      alt={afterAlt}
+      sizes="(min-width: 900px) 864px, 92vw"
+    />
+  </div>
+
+  <!-- Left / Before Layer (GPU clip-path reveal) -->
+  <div class="ic-layer ic-before" data-ic-before>
+    <Picture
+      name={beforeImage}
+      alt={beforeAlt}
+      sizes="(min-width: 900px) 864px, 92vw"
+    />
+  </div>
+
+  <!-- Corner Frosted Labels -->
+  <span class="ic-tag ic-tag-left" data-ic-tag-left>{beforeLabel}</span>
+  <span class="ic-tag ic-tag-right" data-ic-tag-right>{afterLabel}</span>
+
+  <!-- Divider Line & Handle -->
+  <div class="ic-divider" data-ic-divider aria-hidden="true">
+    <div class="ic-line"></div>
+    <div class="ic-knob">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18l-6-6 6-6" />
+        <path d="M15 6l6 6-6 6" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>('[data-image-compare]');
+  const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  roots.forEach((root) => {
+    const tagLeft = root.querySelector<HTMLElement>('[data-ic-tag-left]');
+    const tagRight = root.querySelector<HTMLElement>('[data-ic-tag-right]');
+
+    let pos = Math.max(0, Math.min(100, Number(root.dataset.initial ?? 50)));
+    let targetPos = pos;
+    let rafId = 0;
+    let dragging = false;
+    let ptrId = -1;
+    let lastX = 0;
+    let lastT = 0;
+    let vx = 0; // % per ms
+
+    const apply = (p: number) => {
+      pos = Math.max(0, Math.min(100, p));
+      root.style.setProperty('--ic-pos', `${pos.toFixed(3)}%`);
+      root.setAttribute('aria-valuenow', String(Math.round(pos)));
+      if (tagLeft) tagLeft.classList.toggle('is-hidden', pos < 17);
+      if (tagRight) tagRight.classList.toggle('is-hidden', pos > 83);
+    };
+
+    const tick = () => {
+      const diff = targetPos - pos;
+      if (Math.abs(diff) < 0.08 || reduceMq.matches) {
+        apply(targetPos);
+        rafId = 0;
+        return;
+      }
+      apply(pos + diff * 0.16);
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const glideTo = (dest: number) => {
+      targetPos = Math.max(0, Math.min(100, dest));
+      if (reduceMq.matches) {
+        apply(targetPos);
+        return;
+      }
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    };
+
+    const xToPct = (clientX: number) => {
+      const rect = root.getBoundingClientRect();
+      if (rect.width <= 0) return pos;
+      return Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    };
+
+    root.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+      dragging = true;
+      ptrId = e.pointerId;
+      root.classList.add('is-dragging');
+      try {
+        root.setPointerCapture(ptrId);
+      } catch {}
+
+      const nextPct = xToPct(e.clientX);
+      lastX = e.clientX;
+      lastT = performance.now();
+      vx = 0;
+      apply(nextPct);
+      targetPos = nextPct;
+    });
+
+    root.addEventListener('pointermove', (e) => {
+      if (!dragging || e.pointerId !== ptrId) return;
+      const now = performance.now();
+      const dt = Math.max(4, now - lastT);
+      const rect = root.getBoundingClientRect();
+      const dxPct = rect.width > 0 ? ((e.clientX - lastX) / rect.width) * 100 : 0;
+      vx = vx * 0.4 + (dxPct / dt) * 0.6;
+      lastX = e.clientX;
+      lastT = now;
+
+      const nextPct = xToPct(e.clientX);
+      apply(nextPct);
+      targetPos = nextPct;
+    });
+
+    const endDrag = (e: PointerEvent) => {
+      if (!dragging || e.pointerId !== ptrId) return;
+      dragging = false;
+      root.classList.remove('is-dragging');
+      try {
+        if (root.hasPointerCapture(ptrId)) root.releasePointerCapture(ptrId);
+      } catch {}
+
+      // Bencho-style flick: a crisp horizontal flick glides smoothly to the edge
+      if (Math.abs(vx) > 0.14) {
+        glideTo(vx > 0 ? 100 : 0);
+      }
+      vx = 0;
+    };
+
+    root.addEventListener('pointerup', endDrag);
+    root.addEventListener('pointercancel', endDrag);
+
+    root.addEventListener('keydown', (e) => {
+      const step = e.shiftKey ? 15 : 5;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        glideTo(targetPos - step);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        glideTo(targetPos + step);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        glideTo(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        glideTo(100);
+      }
+    });
+
+    apply(pos);
+  });
+</script>
+
+<style>
+  .ic-root {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--ic-radius, 20px);
+    overflow: hidden;
+    background: #0d1321;
+    cursor: ew-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+    outline: none;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.1);
+  }
+  .ic-root:focus-visible {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 5px #111;
+  }
+
+  .ic-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .ic-layer :global(picture),
+  .ic-layer :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-user-drag: none;
+  }
+
+  .ic-before {
+    clip-path: inset(0 calc(100% - var(--ic-pos, 50%)) 0 0);
+    will-change: clip-path;
+  }
+
+  /* Corner Labels */
+  .ic-tag {
+    position: absolute;
+    top: 14px;
+    z-index: 3;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgb(12 14 20 / 0.56);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .ic-tag-left {
+    left: 14px;
+  }
+  .ic-tag-right {
+    right: 14px;
+  }
+  .ic-tag.is-hidden {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  /* Vertical Divider + Tactile Handle */
+  .ic-divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--ic-pos, 50%);
+    z-index: 4;
+    transform: translateX(-50%);
+    pointer-events: none;
+    will-change: left;
+  }
+  .ic-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: 0 0 12px rgb(0 0 0 / 0.35);
+  }
+  .ic-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.94);
+    color: #111827;
+    display: grid;
+    place-items: center;
+    box-shadow:
+      0 4px 16px rgb(0 0 0 / 0.28),
+      0 0 0 1px rgb(0 0 0 / 0.06);
+    transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms ease;
+  }
+  .ic-root:hover .ic-knob {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  .ic-root.is-dragging .ic-knob {
+    transform: translate(-50%, -50%) scale(0.96);
+    background: #ffffff;
+  }
+
+  @media (max-width: 640px) {
+    .ic-tag {
+      top: 10px;
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+    .ic-tag-left {
+      left: 10px;
+    }
+    .ic-tag-right {
+      right: 10px;
+    }
+    .ic-knob {
+      width: 36px;
+      height: 36px;
+    }
+  }
+</style>

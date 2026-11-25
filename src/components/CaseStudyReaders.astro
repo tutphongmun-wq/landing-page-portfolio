@@ -15,6 +15,7 @@ import ModelSlot from './ModelSlot.astro';
 import FestivalMap from './FestivalMap.astro';
 import BookFlipbook from './BookFlipbook.astro';
 import PosterDeck from './PosterDeck.astro';
+import ImageCompare from './ImageCompare.astro';
 import LangToggle from './LangToggle.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { projects } from '../data/projects';
@@ -321,28 +322,11 @@ const sybilCardItems = [
 
                 <!-- Project-Specific Editorial Sections -->
                 {cs.sections.map((sec) => {
-                  const hasWorldToggle = sec.blocks.some((b) => b.kind === 'sybil-world');
                   const hasLiveToggle = sec.blocks.some((b) => b.kind === 'sybil-live');
 
                   return (
                     <section id={`${p.slug}-${sec.id}`} class="cs-sec" data-cs-section>
-                      {hasWorldToggle ? (
-                        <div class="cs-sec-head-row">
-                          <h2 class="cs-h2">{sec.heading}</h2>
-                          <div class="cs-seg" role="group" aria-label="Switch artwork lighting">
-                            <button
-                              type="button"
-                              class="cs-seg-btn is-active"
-                              data-world-mode="night"
-                            >
-                              Night · Aurora
-                            </button>
-                            <button type="button" class="cs-seg-btn" data-world-mode="day">
-                              Day · Sunrise
-                            </button>
-                          </div>
-                        </div>
-                      ) : hasLiveToggle ? (
+                      {hasLiveToggle ? (
                         <div class="cs-sec-head-row">
                           <h2 class="cs-h2">{sec.heading}</h2>
                           <div class="cs-seg" role="group" aria-label="Switch landing page preview">
@@ -537,28 +521,22 @@ const sybilCardItems = [
                         if (block.kind === 'sybil-world') {
                           return (
                             <figure class="cs-figure">
-                              <div class="cs-world-stage" data-world-stage="night">
-                                <div class="cs-world-layer is-night">
-                                  <Picture
-                                    name="07-sybil-bg-night"
-                                    alt="Sybil Husky Arctic fortress under the northern lights (Night mode)"
-                                    sizes="(min-width: 900px) 864px, 92vw"
-                                  />
-                                </div>
-                                <div class="cs-world-layer is-day">
-                                  <Picture
-                                    name="07-sybil-bg-day"
-                                    alt="Sybil Husky Arctic fortress at alpine sunrise (Day mode)"
-                                    sizes="(min-width: 900px) 864px, 92vw"
-                                  />
-                                </div>
-                              </div>
-                              <figcaption data-world-caption>
-                                <span data-lang-text="en" data-world-en>
-                                  Night mode artwork — 4K (3840×2160) northern lights key visual used in Dark theme.
+                              <ImageCompare
+                                beforeImage="07-sybil-bg-night"
+                                afterImage="07-sybil-bg-day"
+                                beforeAlt="Sybil Husky Arctic fortress under the northern lights (Night mode)"
+                                afterAlt="Sybil Husky Arctic fortress at alpine sunrise (Day mode)"
+                                beforeLabel="Night · Aurora"
+                                afterLabel="Day · Sunrise"
+                                initial={50}
+                                corner={20}
+                              />
+                              <figcaption>
+                                <span data-lang-text="en">
+                                  Drag or flick the divider to compare the 4K (3840×2160) Night Aurora and Day Sunrise worlds.
                                 </span>
-                                <span data-lang-text="th" data-world-th>
-                                  ภาพโหมดกลางคืน (Night Mode) — 4K (3840×2160) ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง
+                                <span data-lang-text="th">
+                                  ลากหรือปัดเส้นแบ่งเพื่อเปรียบเทียบฉาก 4K (3840×2160) ระหว่างโหมดกลางคืน (Night) และกลางวัน (Day)
                                 </span>
                               </figcaption>
                             </figure>
@@ -591,13 +569,13 @@ const sybilCardItems = [
                               </div>
 
                               <figure class="cs-figure">
-                                <PosterDeck items={sybilCardItems} initialIndex={2} transparent />
+                                <PosterDeck items={sybilCardItems} initialIndex={2} transparent holo />
                                 <figcaption>
                                   <span data-lang-text="en">
-                                    Complete six-tier collectible card system — click any card, drag, or use arrows to inspect each tier.
+                                    Complete six-tier collectible card system — click any side card to browse, or click the active card to inspect in 3D Holo view.
                                   </span>
                                   <span data-lang-text="th">
-                                    ระบบออกแบบการ์ด NFT ครบทั้ง 6 ระดับ — คลิกการ์ด ลาก หรือกดลูกศรเพื่อเลื่อนดูรายละเอียดทีละใบ
+                                    ระบบออกแบบการ์ด NFT ครบทั้ง 6 ระดับ — คลิกการ์ดข้างๆ เพื่อเลื่อน หรือคลิกการ์ดกลางเพื่อขยายดูเอฟเฟกต์ Holo 3D
                                   </span>
                                 </figcaption>
                               </figure>
@@ -1094,31 +1072,6 @@ const sybilCardItems = [
           history.replaceState(null, '', fallbackHash);
         }
       }
-    });
-
-    // Sybil Day/Night World Switcher
-    const worldStage = dlg.querySelector<HTMLElement>('[data-world-stage]');
-    const worldBtns = [...dlg.querySelectorAll<HTMLButtonElement>('[data-world-mode]')];
-    const worldCaptionEn = dlg.querySelector<HTMLElement>('[data-world-en]');
-    const worldCaptionTh = dlg.querySelector<HTMLElement>('[data-world-th]');
-    worldBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const mode = btn.dataset.worldMode || 'night';
-        if (worldStage) worldStage.dataset.worldStage = mode;
-        worldBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
-        if (worldCaptionEn) {
-          worldCaptionEn.textContent =
-            mode === 'day'
-              ? 'Day mode artwork — 4K (3840×2160) alpine sunrise key visual used in Light theme.'
-              : 'Night mode artwork — 4K (3840×2160) northern lights key visual used in Dark theme.';
-        }
-        if (worldCaptionTh) {
-          worldCaptionTh.textContent =
-            mode === 'day'
-              ? 'ภาพโหมดกลางวัน (Day Mode) — 4K (3840×2160) ฉากแสงอาทิตย์ยามเช้าสำหรับ Light Theme บนเว็บไซต์จริง'
-              : 'ภาพโหมดกลางคืน (Night Mode) — 4K (3840×2160) ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง';
-        }
-      });
     });
 
     // Sybil Live Site / Mockup Toggle

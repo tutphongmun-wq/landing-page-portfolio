@@ -3,11 +3,27 @@
 // Any <button data-zoom="url" data-zoom-alt="..."> opens it; prev/next step
 // through the zoomable images of the same project. Esc / backdrop / × close,
 // arrow keys navigate, focus returns to the image that opened it.
+//
+// When a trigger includes data-zoom-holo="true" (e.g. Sybil Husky NFT cards),
+// the expanded view activates interactive Holo Card physics (inspired by
+// reactbits.dev/components/holo-card): 3D perspective tilt, rainbow foil,
+// glitter bursts, glossy specular glare, idle shimmer, and tilt-following shadow
+// masked cleanly to the card's rounded transparent silhouette.
 ---
 
 <dialog class="lightbox" data-lightbox aria-label="Image viewer">
   <figure>
-    <img data-lb-img alt="" />
+    <div class="lb-stage" data-lb-stage>
+      <div class="lb-holo-card" data-lb-holo-card>
+        <img data-lb-img alt="" />
+        <div class="lb-holo-fx" data-lb-holo-fx aria-hidden="true">
+          <span class="lb-holo-foil"></span>
+          <span class="lb-holo-sparkle"></span>
+          <span class="lb-holo-glare"></span>
+          <span class="lb-holo-rim"></span>
+        </div>
+      </div>
+    </div>
     <figcaption>
       <span data-lb-caption></span>
       <span class="count" data-lb-count></span>
@@ -20,32 +36,163 @@
 
 <script>
   const dlg = document.querySelector<HTMLDialogElement>('[data-lightbox]')!;
+  const stage = dlg.querySelector<HTMLElement>('[data-lb-stage]')!;
+  const holoCard = dlg.querySelector<HTMLElement>('[data-lb-holo-card]')!;
+  const holoFx = dlg.querySelector<HTMLElement>('[data-lb-holo-fx]')!;
   const img = dlg.querySelector<HTMLImageElement>('[data-lb-img]')!;
   const caption = dlg.querySelector<HTMLElement>('[data-lb-caption]')!;
   const count = dlg.querySelector<HTMLElement>('[data-lb-count]')!;
+  const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   let set: HTMLButtonElement[] = [];
   let i = 0;
   let opener: HTMLButtonElement | null = null;
 
+  // Holo-Card 3D tilt + idle shimmer state
+  let isHolo = false;
+  let hovering = false;
+  let rafId = 0;
+  let curRx = 0;
+  let curRy = 0;
+  let curSc = 1;
+  let curPx = 50;
+  let curPy = 50;
+  let curInt = 0.8;
+  let tgtRx = 0;
+  let tgtRy = 0;
+  let tgtSc = 1;
+  let tgtPx = 50;
+  let tgtPy = 50;
+  let tgtInt = 0.8;
+
+  const stopHoloLoop = () => {
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+    hovering = false;
+    holoCard.style.removeProperty('transform');
+    holoCard.style.removeProperty('--rx');
+    holoCard.style.removeProperty('--ry');
+    holoCard.style.removeProperty('--px');
+    holoCard.style.removeProperty('--py');
+    holoCard.style.removeProperty('--sx');
+    holoCard.style.removeProperty('--sy');
+    holoCard.style.removeProperty('--hi');
+    holoCard.style.removeProperty('--shx');
+    holoCard.style.removeProperty('--shy');
+  };
+
+  const renderHoloFrame = (now: number) => {
+    if (!isHolo || !dlg.open) {
+      rafId = 0;
+      return;
+    }
+
+    if (!hovering) {
+      // Gentle autonomous idle shimmer (figure-8 tilt & light drift)
+      const t = now * 0.001;
+      tgtRx = Math.sin(t * 0.95) * 5.2;
+      tgtRy = Math.cos(t * 0.72) * 7.2;
+      tgtSc = 1;
+      tgtPx = 50 + Math.cos(t * 0.72) * 28;
+      tgtPy = 50 + Math.sin(t * 0.95) * 24;
+      tgtInt = 0.78;
+    }
+
+    const lerp = 0.13;
+    curRx += (tgtRx - curRx) * lerp;
+    curRy += (tgtRy - curRy) * lerp;
+    curSc += (tgtSc - curSc) * lerp;
+    curPx += (tgtPx - curPx) * lerp;
+    curPy += (tgtPy - curPy) * lerp;
+    curInt += (tgtInt - curInt) * lerp;
+
+    const shx = (-curRy * 1.4).toFixed(1);
+    const shy = (20 + curRx * 1.2).toFixed(1);
+
+    holoCard.style.transform = `rotateX(${curRx.toFixed(2)}deg) rotateY(${curRy.toFixed(2)}deg) scale(${curSc.toFixed(4)})`;
+    holoCard.style.setProperty('--px', `${curPx.toFixed(2)}%`);
+    holoCard.style.setProperty('--py', `${curPy.toFixed(2)}%`);
+    holoCard.style.setProperty('--sx', `${(100 - curPx).toFixed(2)}%`);
+    holoCard.style.setProperty('--sy', `${(100 - curPy).toFixed(2)}%`);
+    holoCard.style.setProperty('--hi', curInt.toFixed(3));
+    holoCard.style.setProperty('--shx', `${shx}px`);
+    holoCard.style.setProperty('--shy', `${shy}px`);
+
+    rafId = requestAnimationFrame(renderHoloFrame);
+  };
+
+  const startHoloLoop = () => {
+    if (reduceMq.matches) return;
+    curRx = 0;
+    curRy = 0;
+    curSc = 1;
+    curPx = 50;
+    curPy = 50;
+    curInt = 0.8;
+    if (!rafId) rafId = requestAnimationFrame(renderHoloFrame);
+  };
+
+  const updatePointerTilt = (clientX: number, clientY: number) => {
+    if (!isHolo || reduceMq.matches) return;
+    const rect = holoCard.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const nx = Math.max(-1, Math.min(1, ((clientX - rect.left) / rect.width) * 2 - 1));
+    const ny = Math.max(-1, Math.min(1, ((clientY - rect.top) / rect.height) * 2 - 1));
+    hovering = true;
+    tgtRx = -ny * 14;
+    tgtRy = nx * 14;
+    tgtSc = 1.04;
+    tgtPx = (nx + 1) * 50;
+    tgtPy = (ny + 1) * 50;
+    tgtInt = 1;
+  };
+
+  stage.addEventListener('pointermove', (e) => {
+    if (!isHolo) return;
+    updatePointerTilt(e.clientX, e.clientY);
+  });
+  stage.addEventListener('pointerleave', () => {
+    hovering = false;
+  });
+
   const show = (n: number) => {
     i = (n + set.length) % set.length;
     const b = set[i];
-    img.src = b.dataset.zoom!;
+    const src = b.dataset.zoom!;
+    isHolo = b.dataset.zoomHolo === 'true';
+
+    img.src = src;
     img.alt = b.dataset.zoomAlt ?? '';
     caption.textContent = b.dataset.zoomAlt ?? '';
     count.textContent = set.length > 1 ? `${i + 1} / ${set.length}` : '';
     dlg.classList.toggle('single', set.length < 2);
+    dlg.classList.toggle('is-holo', isHolo);
+
+    if (isHolo) {
+      holoFx.style.setProperty('--holo-mask', `url("${src}")`);
+      // Re-trigger smooth expand animation on card switch
+      holoCard.classList.remove('is-pop');
+      void holoCard.offsetWidth;
+      holoCard.classList.add('is-pop');
+      startHoloLoop();
+    } else {
+      holoFx.style.removeProperty('--holo-mask');
+      stopHoloLoop();
+    }
   };
 
   document.addEventListener('click', (e) => {
     const b = (e.target as Element).closest<HTMLButtonElement>('button[data-zoom]');
     if (!b) return;
-    const scope = b.closest('article') ?? document;
+    const deckScope = b.dataset.zoomHolo === 'true' ? b.closest('[data-poster-deck]') : null;
+    const scope = deckScope ?? b.closest('article') ?? document;
     set = [...scope.querySelectorAll<HTMLButtonElement>('button[data-zoom]')];
     opener = b;
-    show(set.indexOf(b));
     dlg.showModal();
     document.documentElement.classList.add('lb-open');
+    show(set.indexOf(b));
   });
 
   dlg.querySelector('[data-lb-close]')!.addEventListener('click', () => dlg.close());
@@ -59,17 +206,19 @@
     if (e.key === 'ArrowLeft') show(i - 1);
   });
   dlg.addEventListener('close', () => {
+    stopHoloLoop();
+    dlg.classList.remove('is-holo');
     document.documentElement.classList.remove('lb-open');
     img.removeAttribute('src');
     opener?.focus();
   });
 
-  // swipe on touch screens
+  // swipe on touch screens (for non-holo or horizontal swipe)
   let x0 = 0;
   dlg.addEventListener('touchstart', (e) => (x0 = e.touches[0].clientX), { passive: true });
   dlg.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - x0;
-    if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 64) show(i + (dx < 0 ? 1 : -1));
   });
 </script>
 
@@ -85,10 +234,15 @@
     background: rgb(10 10 10 / 0.94);
     color: #f2f2f2;
   }
+  .lightbox.is-holo {
+    background: rgb(8 10 16 / 0.84);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
   .lightbox[open] {
     display: grid;
     place-items: center;
-    animation: lb-in 0.2s ease;
+    animation: lb-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .lightbox::backdrop {
     background: transparent;
@@ -98,20 +252,153 @@
   }
   figure {
     display: grid;
-    gap: 12px;
+    gap: 14px;
     justify-items: center;
     max-width: 100%;
     max-height: 100%;
     margin: 0;
   }
+  .lb-stage {
+    display: grid;
+    place-items: center;
+  }
+  .lightbox.is-holo .lb-stage {
+    perspective: 1100px;
+    padding: 18px;
+  }
+  .lb-holo-card {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+  }
+  .lightbox.is-holo .lb-holo-card {
+    transform-style: preserve-3d;
+    will-change: transform;
+    filter: drop-shadow(var(--shx, 0px) var(--shy, 20px) 34px rgb(0 0 0 / 0.56));
+    cursor: grab;
+  }
+  .lightbox.is-holo .lb-holo-card.is-pop {
+    animation: lb-holo-pop 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
   img {
+    display: block;
     max-width: min(88vw, 1600px);
     max-height: calc(100dvh - 110px);
     height: min(80dvh, 880px);
     width: auto;
     object-fit: contain;
     border-radius: 10px;
+    user-select: none;
+    -webkit-user-drag: none;
   }
+  .lightbox.is-holo img {
+    height: min(74dvh, 660px);
+    max-width: min(82vw, 480px);
+    border-radius: 0;
+  }
+
+  /* Holo-Card Multi-Layer Optical Foil Stack (hidden for normal lightbox images) */
+  .lb-holo-fx {
+    display: none;
+  }
+  .lightbox.is-holo .lb-holo-fx {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    -webkit-mask-image: var(--holo-mask);
+    mask-image: var(--holo-mask);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    overflow: hidden;
+  }
+
+  /* 1. Iridescent holographic rainbow spectrum (color-dodge foil) */
+  .lb-holo-foil {
+    position: absolute;
+    inset: -12%;
+    background-image:
+      repeating-linear-gradient(
+        118deg,
+        rgb(255 62 157 / 0.52) 0%,
+        rgb(255 190 61 / 0.52) 14%,
+        rgb(72 245 168 / 0.52) 28%,
+        rgb(40 212 255 / 0.58) 42%,
+        rgb(138 92 255 / 0.55) 56%,
+        rgb(255 71 182 / 0.52) 70%,
+        rgb(255 62 157 / 0.52) 84%
+      ),
+      radial-gradient(
+        circle at var(--px, 50%) var(--py, 50%),
+        rgb(255 255 255 / 0.45) 0%,
+        rgb(120 220 255 / 0.22) 32%,
+        transparent 72%
+      );
+    background-size: 260% 260%, 100% 100%;
+    background-position: var(--px, 50%) var(--py, 50%), center;
+    mix-blend-mode: color-dodge;
+    opacity: calc(0.42 * var(--hi, 0.8));
+    filter: saturate(1.35) contrast(1.15);
+  }
+
+  /* 2. Glitter bursts & micro-etched foil grain (parallax sparkle) */
+  .lb-holo-sparkle {
+    position: absolute;
+    inset: -8%;
+    background-image:
+      radial-gradient(circle at 22% 28%, rgb(255 255 255 / 0.9) 0 1.4px, transparent 2.6px),
+      radial-gradient(circle at 74% 18%, rgb(180 240 255 / 0.85) 0 1.2px, transparent 2.4px),
+      radial-gradient(circle at 62% 64%, rgb(255 220 140 / 0.9) 0 1.5px, transparent 2.8px),
+      radial-gradient(circle at 31% 78%, rgb(230 175 255 / 0.85) 0 1.3px, transparent 2.6px),
+      radial-gradient(circle at 86% 48%, rgb(255 255 255 / 0.88) 0 1.2px, transparent 2.4px),
+      repeating-linear-gradient(
+        -45deg,
+        rgb(255 255 255 / 0.08) 0 2px,
+        transparent 2px 6px
+      );
+    background-size: 130px 130px, 160px 160px, 145px 145px, 175px 175px, 120px 120px, 12px 12px;
+    background-position:
+      var(--sx, 50%) var(--sy, 50%),
+      var(--px, 50%) var(--sy, 50%),
+      var(--sx, 50%) var(--py, 50%),
+      var(--px, 50%) var(--py, 50%),
+      var(--sx, 50%) var(--sy, 50%),
+      center;
+    mix-blend-mode: color-dodge;
+    opacity: calc(0.55 * var(--hi, 0.8));
+  }
+
+  /* 3. Glossy specular spotlight glare following light angle */
+  .lb-holo-glare {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      farthest-corner circle at var(--px, 50%) var(--py, 50%),
+      rgb(255 255 255 / 0.62) 0%,
+      rgb(255 255 255 / 0.18) 26%,
+      rgb(0 0 0 / 0.18) 92%
+    );
+    mix-blend-mode: overlay;
+    opacity: calc(0.75 * var(--hi, 0.8));
+  }
+
+  /* 4. Subtle metallic rim sheen */
+  .lb-holo-rim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.28) 0%,
+      transparent 38%,
+      transparent 64%,
+      rgb(255 255 255 / 0.22) 100%
+    );
+    mix-blend-mode: soft-light;
+    opacity: calc(0.65 * var(--hi, 0.8));
+  }
+
   figcaption {
     display: flex;
     gap: 16px;
@@ -139,6 +426,7 @@
     font-size: 1.75rem;
     line-height: 1;
     cursor: pointer;
+    z-index: 10;
   }
   .lb-btn:hover {
     background: var(--c-hero);
@@ -179,14 +467,29 @@
     img {
       max-height: calc(100dvh - 170px);
     }
+    .lightbox.is-holo img {
+      height: min(64dvh, 520px);
+      max-width: 84vw;
+    }
   }
   @keyframes lb-in {
     from {
       opacity: 0;
     }
   }
+  @keyframes lb-holo-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.84) translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .lightbox[open] {
+    .lightbox[open],
+    .lightbox.is-holo .lb-holo-card.is-pop {
       animation: none;
     }
   }
