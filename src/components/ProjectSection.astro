@@ -15,11 +15,13 @@ import mapData from '../data/k2o-map.json';
 import ToolChips from './ToolChips.astro';
 import Palette from './Palette.astro';
 import EditorialCarouselProject from './EditorialCarouselProject.astro';
+import ShowcaseProject from './ShowcaseProject.astro';
 
 interface Props {
   project: Project;
 }
 const { project: p } = Astro.props;
+const isShowcase = ['k2o', 'startup-standup', 'thumbnails-posters'].includes(p.slug);
 const isEditorialCarousel = p.slug === 'infographic';
 const titleId = `${p.slug}-title`;
 
@@ -141,7 +143,9 @@ const itemKey = (it: Item) =>
 ---
 
 {
-  isEditorialCarousel ? (
+  isShowcase ? (
+    <ShowcaseProject project={p} />
+  ) : isEditorialCarousel ? (
     <EditorialCarouselProject project={p} />
   ) : (
     <article class="project" id={p.slug} data-project-title={p.title} aria-labelledby={titleId}>
@@ -162,7 +166,7 @@ const itemKey = (it: Item) =>
                 <h3 id={titleId} class="title display" data-reveal style="--reveal-d: 60ms">
                   <a
                     class="title-link"
-                    href={`#read-${p.slug}`}
+                    href={`#project-${p.slug}`}
                     data-open-case={p.slug}
                     data-case-trigger
                     aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}

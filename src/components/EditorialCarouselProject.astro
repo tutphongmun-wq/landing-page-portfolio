@@ -29,7 +29,7 @@ const images = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.k
         <h3 id={titleId} class="ed-title display" data-reveal style="--reveal-d: 60ms">
           <a
             class="ed-title-link"
-            href={`#read-${p.slug}`}
+            href={`#project-${p.slug}`}
             data-open-case={p.slug}
             data-case-trigger
             aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}

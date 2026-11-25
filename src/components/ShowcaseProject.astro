@@ -1,0 +1,367 @@
+---
+// Clean Editorial Showcase Layout for Main Page Projects (01–03)
+// Matches the approved Figma Frame 438 architecture while using the website's
+// Light (#FBF5EB) and Dark (#242424) theme tokens:
+//   - Top: Red project index (01/02/03) + bold uppercase Clash Display title
+//   - Middle: Large 16:9 rounded (32px) hero artwork card (clickable to open #project-<slug>)
+//   - Bottom: 2-column split — Left: Overview + "Explore project" pill CTA;
+//             Right: Category / Scope / Tools stacked with subtle horizontal dividers
+import type { Project } from '../data/projects';
+import { caseStudies } from '../data/caseStudies';
+import { tools } from '../data/site';
+import Picture from './Picture.astro';
+
+interface Props {
+  project: Project;
+}
+
+const { project: p } = Astro.props;
+const titleId = `${p.slug}-title`;
+const cs = caseStudies[p.slug];
+
+// Hero cover image matching each project's primary visual
+const heroImage =
+  cs?.cover.kind === 'photo' || cs?.cover.kind === 'framed'
+    ? cs.cover.image
+    : p.media.find((m) => m.kind === 'image')?.name ?? '';
+
+const heroAlt =
+  cs?.cover.alt ??
+  (p.media.find((m) => m.kind === 'image') as { alt?: string } | undefined)?.alt ??
+  p.title;
+
+const heroPos = cs?.cover.kind === 'photo' && cs.cover.position ? cs.cover.position : 'center center';
+
+const categoryVal = cs?.meta.find((m) => m.label.toLowerCase() === 'category')?.value ?? 'Design';
+const scopeVal = cs?.meta.find((m) => m.label.toLowerCase() === 'scope')?.value ?? p.role[0] ?? '';
+const toolsVal = p.tools.map((t) => tools[t]?.name ?? t).join(', ');
+
+const overviewEn = cs?.subtitle ?? (Array.isArray(p.description) ? p.description[0] : p.description);
+const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descriptionTh[0] : p.descriptionTh);
+---
+
+<article class="project project-showcase" id={p.slug} data-project-title={p.title} aria-labelledby={titleId}>
+  <div class="sp-shell">
+    <div class="sp-inner">
+      <!-- 1. Project Index & Title -->
+      <header class="sp-head">
+        <p class="sp-no" aria-hidden="true" data-reveal>
+          {p.no}
+        </p>
+        <h3 id={titleId} class="sp-title" data-reveal style="--reveal-d: 50ms">
+          <a
+            class="sp-title-link"
+            href={`#project-${p.slug}`}
+            data-open-case={p.slug}
+            data-case-trigger
+            aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+          >
+            <span class="visually-hidden">Project {p.no}: </span>
+            {p.title}
+          </a>
+        </h3>
+      </header>
+
+      <!-- 2. Rounded Hero Visual Frame (1020 × 574 ratio) -->
+      {heroImage && (
+        <a
+          class="sp-media"
+          href={`#project-${p.slug}`}
+          data-open-case={p.slug}
+          data-case-trigger
+          aria-label={`Explore ${p.title}`}
+          data-reveal
+          style={`--reveal-d: 90ms; --sp-pos: ${heroPos};`}
+        >
+          <Picture
+            name={heroImage}
+            alt={heroAlt}
+            sizes="(min-width: 1100px) 1020px, 92vw"
+          />
+        </a>
+      )}
+
+      <!-- 3. Bottom Two-Column Info Row (Overview + CTA | Category / Scope / Tools) -->
+      <div class="sp-bottom" data-reveal style="--reveal-d: 140ms">
+        <div class="sp-overview-col">
+          <div class="sp-overview-copy">
+            <h4 class="sp-kicker">Overview</h4>
+            <p class="sp-desc">
+              <span data-lang-text="en">{overviewEn}</span>
+              <span data-lang-text="th">{overviewTh}</span>
+            </p>
+          </div>
+
+          <a
+            class="sp-cta"
+            href={`#project-${p.slug}`}
+            data-open-case={p.slug}
+          >
+            Explore project
+          </a>
+        </div>
+
+        <dl class="sp-meta-col">
+          <div class="sp-meta-row">
+            <dt class="sp-meta-label">Category</dt>
+            <dd class="sp-meta-val">{categoryVal}</dd>
+          </div>
+
+          <div class="sp-meta-row">
+            <dt class="sp-meta-label">Scope</dt>
+            <dd class="sp-meta-val">{scopeVal}</dd>
+          </div>
+
+          <div class="sp-meta-row">
+            <dt class="sp-meta-label">Tools</dt>
+            <dd class="sp-meta-val">{toolsVal}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  .project-showcase {
+    padding-block: clamp(56px, 7vw, 88px);
+    padding-inline: var(--gutter);
+    scroll-margin-top: 64px;
+  }
+
+  .sp-shell {
+    max-width: 1180px;
+    margin-inline: auto;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .sp-inner {
+    width: 100%;
+    max-width: 1020px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(24px, 3vw, 37px);
+  }
+
+  /* 1. Header */
+  .sp-head {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .sp-no {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 600;
+    font-size: clamp(1.125rem, 1.5vw, 1.5rem);
+    line-height: 1.1;
+    color: var(--c-accent);
+    letter-spacing: 0.01em;
+  }
+
+  .sp-title {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 600;
+    font-size: clamp(2rem, 4.1vw, 3.5rem);
+    line-height: 1.02;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    color: var(--c-fg);
+    max-width: 20ch;
+  }
+
+  .sp-title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+  .sp-title-link:hover {
+    opacity: 0.82;
+  }
+  .sp-title-link:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+    border-radius: 6px;
+  }
+
+  /* 2. Hero Visual Card */
+  .sp-media {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1020 / 574;
+    border-radius: clamp(20px, 2.5vw, 32px);
+    overflow: hidden;
+    background: var(--c-bg-raised);
+    border: 1px solid var(--c-line);
+    box-shadow: 0 18px 44px var(--c-shadow-soft);
+    text-decoration: none;
+  }
+  .sp-media:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+  .sp-media :global(picture),
+  .sp-media :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--sp-pos, center center);
+    transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .sp-media:hover :global(img) {
+    transform: scale(1.025);
+  }
+
+  /* 3. Bottom Two-Column Info Row */
+  .sp-bottom {
+    width: 100%;
+    max-width: 902px;
+    display: grid;
+    grid-template-columns: minmax(0, 542fr) minmax(0, 303fr);
+    gap: clamp(32px, 5vw, 57px);
+    align-items: start;
+  }
+
+  .sp-overview-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(24px, 2.6vw, 32px);
+  }
+
+  .sp-overview-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .sp-kicker {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.1;
+    color: var(--c-accent);
+  }
+
+  .sp-desc {
+    margin: 0;
+    font-family: var(--f-nav);
+    font-weight: 500;
+    font-size: clamp(1rem, 1.15vw, 1.125rem);
+    line-height: 1.48;
+    color: var(--c-fg);
+  }
+  :global(:root[data-lang='th']) .sp-desc {
+    font-family: var(--f-body);
+    line-height: 1.65;
+  }
+
+  /* Explore project pill CTA */
+  .sp-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 236px;
+    min-height: 70px;
+    padding: 16px 34px;
+    border-radius: 999px;
+    background: var(--c-fg);
+    color: var(--c-bg);
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+    line-height: 1.2;
+    text-decoration: none;
+    transition:
+      background-color 220ms ease,
+      color 220ms ease,
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .sp-cta:hover {
+    background: var(--c-accent);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+  .sp-cta:active {
+    transform: translateY(0);
+  }
+  .sp-cta:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+
+  /* Right Metadata Column */
+  .sp-meta-col {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sp-meta-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-block: 16px;
+    border-bottom: 1.5px solid var(--c-line);
+  }
+  .sp-meta-row:first-child {
+    padding-top: 0;
+  }
+  .sp-meta-row:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  :global(:root[data-theme='dark']) .sp-meta-row {
+    border-bottom-color: #5a5a5a;
+  }
+
+  .sp-meta-label {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--c-accent);
+  }
+
+  .sp-meta-val {
+    margin: 0;
+    font-family: var(--f-nav);
+    font-weight: 500;
+    font-size: clamp(1.125rem, 1.55vw, 1.45rem);
+    line-height: 1.35;
+    color: var(--c-fg);
+  }
+
+  @media (max-width: 820px) {
+    .sp-bottom {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .sp-cta {
+      min-width: 210px;
+      min-height: 60px;
+      padding: 14px 28px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-media :global(img),
+    .sp-cta {
+      transition: none;
+    }
+  }
+</style>
