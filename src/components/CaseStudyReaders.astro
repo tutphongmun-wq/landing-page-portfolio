@@ -2488,7 +2488,7 @@ const sybilMintTiers = [
       color-mix(in srgb, var(--cs-bg) 56%, transparent) 100%
     );
   }
-  /* Remove all drop shadows inside #read-k2o */
+  /* Remove all drop shadows and borders inside #read-k2o */
   .cs-reader[data-case-dialog='k2o'] .cs-scroller:focus,
   .cs-reader[data-case-dialog='k2o'] .cs-scroller:focus-visible,
   .cs-reader[data-case-dialog='k2o'] .cs-hero-banner,
@@ -2504,8 +2504,53 @@ const sybilMintTiers = [
     box-shadow: none;
   }
   .cs-reader[data-case-dialog='k2o'] .cs-callout,
-  .cs-reader[data-case-dialog='k2o'] .cs-tools-bar {
+  .cs-reader[data-case-dialog='k2o'] .cs-tools-bar,
+  .cs-reader[data-case-dialog='k2o'] .cs-gallery-card,
+  .cs-reader[data-case-dialog='k2o'] .cs-img-box,
+  .cs-reader[data-case-dialog='k2o'] .cs-media-frame,
+  .cs-reader[data-case-dialog='k2o'] .cs-map-frame,
+  .cs-reader[data-case-dialog='k2o'] .cs-palette-wrap {
     border-color: transparent;
+  }
+  .cs-reader[data-case-dialog='k2o'] .cs-gallery-lbl {
+    border-top: 0;
+  }
+
+  /* Full-bleed edge-to-edge gallery cards in #read-k2o (no inner padding/borders) */
+  .cs-reader[data-case-dialog='k2o'] .cs-gallery.is-contain .cs-gallery-media {
+    padding: 0;
+    min-height: 0;
+  }
+  .cs-reader[data-case-dialog='k2o'] .cs-gallery.is-contain .cs-gallery-media :global(picture),
+  .cs-reader[data-case-dialog='k2o'] .cs-gallery.is-contain .cs-gallery-media :global(img) {
+    max-height: none;
+    object-fit: cover;
+  }
+
+  /* Identity row: uniform 4:5 full-bleed cards; Primary Mark sits on seamless #000 */
+  .cs-reader[data-case-dialog='k2o'] #k2o-identity .cs-gallery.is-contain .cs-gallery-media {
+    aspect-ratio: 4 / 5;
+  }
+  .cs-reader[data-case-dialog='k2o'] #k2o-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) .cs-gallery-media {
+    background: #000000;
+  }
+  .cs-reader[data-case-dialog='k2o'] #k2o-identity .cs-gallery.is-contain .cs-gallery-card:nth-child(2) :global(img) {
+    object-fit: contain;
+  }
+
+  @media (min-width: 901px) {
+    /* Merch Tees bento: tall front+back lineup tee spans 2 rows alongside the 2 single-height tees */
+    .cs-reader[data-case-dialog='k2o'] #k2o-merch-3d .cs-gallery.cols-3.is-contain {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    }
+    .cs-reader[data-case-dialog='k2o'] #k2o-merch-3d .cs-gallery.cols-3.is-contain .cs-gallery-card:first-child {
+      grid-row: span 2;
+    }
+
+    /* Wristbands: proportional columns matching natural 1.492 vs 0.482 ratios -> zero crop, zero borders */
+    .cs-reader[data-case-dialog='k2o'] #k2o-merch-3d .cs-gallery.cols-2.is-contain {
+      grid-template-columns: minmax(0, 3.09fr) minmax(0, 1fr);
+    }
   }
 
   /* ================= Mobile / Tablet Responsive ================= */
