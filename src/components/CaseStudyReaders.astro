@@ -48,16 +48,61 @@ const sybilMintTiers = [
     stats: '1,820 Runes · $1,400 · +30% Bonus',
   },
   {
+    badge: 'Special · Detective',
+    title: 'Detective Husky',
+    img: assetUrl('media/07-sybil-char-special.webp'),
+    stats: 'Limited Lore Edition',
+  },
+  {
+    badge: 'Super Special · Cosmic',
+    title: 'Cosmic Archmage',
+    img: assetUrl('media/07-sybil-char-super-special.webp'),
+    stats: 'Ultra-Rare Collector Tier',
+  },
+  {
     badge: 'Edition · Baby 01',
-    title: 'Baby Husky (Frost)',
+    title: 'Baby Husky (Ember)',
     img: assetUrl('media/07-sybil-char-baby1.webp'),
-    stats: 'Special Community Edition',
+    stats: 'Cream BG Community Edition',
   },
   {
     badge: 'Edition · Baby 02',
-    title: 'Baby Husky (Ember)',
+    title: 'Baby Husky (Frost)',
     img: assetUrl('media/07-sybil-char-baby2.webp'),
-    stats: 'Special Community Edition',
+    stats: 'Cream BG Community Edition',
+  },
+];
+
+const sybilCardItems = [
+  {
+    image: '07-sybil-card-apprentice',
+    alt: 'Sybil Husky Tier 01 Apprentice collectible card',
+    label: 'Apprentice · Tier 01',
+  },
+  {
+    image: '07-sybil-card-mage',
+    alt: 'Sybil Husky Tier 02 Mage collectible card',
+    label: 'Mage · Tier 02',
+  },
+  {
+    image: '07-sybil-card-sorcerer',
+    alt: 'Sybil Husky Tier 03 Sorcerer collectible card',
+    label: 'Sorcerer · Tier 03',
+  },
+  {
+    image: '07-sybil-card-supreme',
+    alt: 'Sybil Husky Tier 04 Supreme collectible card',
+    label: 'Supreme · Tier 04',
+  },
+  {
+    image: '07-sybil-card-special',
+    alt: 'Sybil Husky Special Detective collectible card',
+    label: 'Special Edition',
+  },
+  {
+    image: '07-sybil-card-super-special',
+    alt: 'Sybil Husky Super Special Cosmic collectible card',
+    label: 'Super Special Edition',
   },
 ];
 ---
@@ -510,10 +555,10 @@ const sybilMintTiers = [
                               </div>
                               <figcaption data-world-caption>
                                 <span data-lang-text="en" data-world-en>
-                                  Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.
+                                  Night mode artwork — 4K (3840×2160) northern lights key visual used in Dark theme.
                                 </span>
                                 <span data-lang-text="th" data-world-th>
-                                  ภาพโหมดกลางคืน (Night Mode) — 1920×1080 ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง
+                                  ภาพโหมดกลางคืน (Night Mode) — 4K (3840×2160) ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง
                                 </span>
                               </figcaption>
                             </figure>
@@ -521,7 +566,6 @@ const sybilMintTiers = [
                         }
 
                         if (block.kind === 'sybil-tiers') {
-                          const tierSheetZoom = posterUrl('07-sybil-tiers');
                           return (
                             <>
                               <div class="cs-char-grid">
@@ -547,35 +591,13 @@ const sybilMintTiers = [
                               </div>
 
                               <figure class="cs-figure">
-                                <div class="cs-img-box">
-                                  {tierSheetZoom ? (
-                                    <button
-                                      type="button"
-                                      class="cs-zoom"
-                                      data-zoom={tierSheetZoom}
-                                      data-zoom-alt="Complete six-tier Sybil Husky card design system"
-                                      aria-label="View larger: Complete six-tier Sybil Husky card design system"
-                                    >
-                                      <Picture
-                                        name="07-sybil-tiers"
-                                        alt=""
-                                        sizes="(min-width: 900px) 864px, 92vw"
-                                      />
-                                    </button>
-                                  ) : (
-                                    <Picture
-                                      name="07-sybil-tiers"
-                                      alt="Six husky character cards: Apprentice, Mage, Sorcerer, Supreme, Special, Super Special"
-                                      sizes="(min-width: 900px) 864px, 92vw"
-                                    />
-                                  )}
-                                </div>
+                                <PosterDeck items={sybilCardItems} initialIndex={2} transparent />
                                 <figcaption>
                                   <span data-lang-text="en">
-                                    Complete six-tier card design system exported from Figma for the mint flow.
+                                    Complete six-tier collectible card system — click any card, drag, or use arrows to inspect each tier.
                                   </span>
                                   <span data-lang-text="th">
-                                    ระบบออกแบบการ์ด NFT ครบทั้ง 6 ระดับที่ส่งต่อจาก Figma สู่หน้า Mint บนเว็บจริง
+                                    ระบบออกแบบการ์ด NFT ครบทั้ง 6 ระดับ — คลิกการ์ด ลาก หรือกดลูกศรเพื่อเลื่อนดูรายละเอียดทีละใบ
                                   </span>
                                 </figcaption>
                               </figure>
@@ -1087,14 +1109,14 @@ const sybilMintTiers = [
         if (worldCaptionEn) {
           worldCaptionEn.textContent =
             mode === 'day'
-              ? 'Day mode artwork — 1920×1080 alpine sunrise key visual used in Light theme.'
-              : 'Night mode artwork — 1920×1080 northern lights key visual used in Dark theme.';
+              ? 'Day mode artwork — 4K (3840×2160) alpine sunrise key visual used in Light theme.'
+              : 'Night mode artwork — 4K (3840×2160) northern lights key visual used in Dark theme.';
         }
         if (worldCaptionTh) {
           worldCaptionTh.textContent =
             mode === 'day'
-              ? 'ภาพโหมดกลางวัน (Day Mode) — 1920×1080 ฉากแสงอาทิตย์ยามเช้าสำหรับ Light Theme บนเว็บไซต์จริง'
-              : 'ภาพโหมดกลางคืน (Night Mode) — 1920×1080 ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง';
+              ? 'ภาพโหมดกลางวัน (Day Mode) — 4K (3840×2160) ฉากแสงอาทิตย์ยามเช้าสำหรับ Light Theme บนเว็บไซต์จริง'
+              : 'ภาพโหมดกลางคืน (Night Mode) — 4K (3840×2160) ฉากแสงออโรราสำหรับ Dark Theme บนเว็บไซต์จริง';
         }
       });
     });
@@ -2043,7 +2065,7 @@ const sybilMintTiers = [
 
   .cs-char-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     margin-top: 8px;
   }

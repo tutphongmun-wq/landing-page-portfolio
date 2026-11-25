@@ -1005,10 +1005,10 @@ export const caseStudies: Record<string, CaseStudy> = {
         tocLabel: 'World & environment',
         heading: 'Dual Day & Night Arctic world',
         paragraphs: [
-          'Set at the foot of an Arctic fortress surrounded by frosted pines, the key environment was illustrated in two full-resolution (1920×1080) lighting states that power the Theme Toggle on the live site—transitioning between crisp golden alpine sunrise and glowing northern-lights twilight.',
+          'Set at the foot of an Arctic fortress surrounded by frosted pines, the key environment was illustrated in two full 4K (3840×2160) lighting states that power the Theme Toggle on the live site—transitioning between crisp golden alpine sunrise and glowing northern-lights twilight.',
         ],
         paragraphsTh: [
-          'ฉากหลังป้อมปราการขั้วโลกที่โอบล้อมด้วยป่าสนหิมะถูกวาดขึ้นในความละเอียดเต็ม 1920×1080 ถึง 2 เวอร์ชัน เพื่อขับเคลื่อนระบบสลับธีมบนเว็บไซต์จริง เปลี่ยนบรรยากาศได้ทันทีระหว่างแสงอาทิตย์ยามเช้าและแสงออโรรายามค่ำคืน',
+          'ฉากหลังป้อมปราการขั้วโลกที่โอบล้อมด้วยป่าสนหิมะถูกวาดขึ้นในความละเอียด 4K (3840×2160) ถึง 2 เวอร์ชัน เพื่อขับเคลื่อนระบบสลับธีมบนเว็บไซต์จริง เปลี่ยนบรรยากาศได้ทันทีระหว่างแสงอาทิตย์ยามเช้าและแสงออโรรายามค่ำคืน',
         ],
         blocks: [{ kind: 'sybil-world' }],
       },
@@ -1017,10 +1017,10 @@ export const caseStudies: Record<string, CaseStudy> = {
         tocLabel: 'Character & NFT tiers',
         heading: 'Character & NFT tiers',
         paragraphs: [
-          'Built a progression ladder of four core SybilHusky ranks—from Siberian Apprentice (100 Runes / $100) up to Siberian Supreme (1,820 Runes / $1,400 with +30% bonus)—plus two Baby Husky community editions. Each tier escalates magical headgear, crystal staff detail, and rarity aura while keeping silhouettes readable on mobile.',
+          'Built a progression ladder of four core SybilHusky ranks—from Siberian Apprentice (100 Runes / $100) up to Siberian Supreme (1,820 Runes / $1,400 with +30% bonus)—complemented by Special (Detective) and Super Special (Cosmic) editions plus two Baby Husky community portraits. Each tier translates directly into collectible vector NFT cards that escalate headgear, crystal staff detail, and rarity aura.',
         ],
         paragraphsTh: [
-          'ออกแบบขั้นบันไดระดับตัวละครหลัก 4 แรงก์ ตั้งแต่ Siberian Apprentice (100 Runes / $100) ไต่ระดับไปจนถึง Siberian Supreme (1,820 Runes / $1,400 พร้อมโบนัส +30%) เสริมด้วยรุ่นพิเศษ Baby Husky อีก 2 แบบ โดยไล่ระดับดีเทลหมวกเวทมนตร์ คทาคริสตัล และออร่าให้ชัดแม้ดูบนมือถือ',
+          'ออกแบบขั้นบันไดระดับตัวละครหลัก 4 แรงก์ ตั้งแต่ Siberian Apprentice (100 Runes / $100) ไต่ระดับไปจนถึง Siberian Supreme (1,820 Runes / $1,400 พร้อมโบนัส +30%) เสริมด้วยรุ่น Special (Detective) และ Super Special (Cosmic) รวมถึง Baby Husky อีก 2 แบบ โดยไล่ระดับดีเทลหมวกเวทมนตร์ คทาคริสตัล และออร่าลงสู่ชุดการ์ดสะสมทั้ง 6 ระดับ',
         ],
         blocks: [{ kind: 'sybil-tiers' }],
       },
@@ -1038,8 +1038,8 @@ export const caseStudies: Record<string, CaseStudy> = {
       },
     ],
     outcome:
-      'Delivered a complete end-to-end visual package and production Next.js 16 front-end—preserving crisp vector logo geometry, dual 1920×1080 environmental artwork, six character rarity tiers, and interactive calculator/mint controls ready for Web3 launch.',
+      'Delivered a complete end-to-end visual package and production Next.js 16 front-end—preserving crisp vector logo geometry, dual 4K (3840×2160) environmental artwork, eight character portraits with six collectible card tiers, and interactive calculator/mint controls ready for Web3 launch.',
     outcomeTh:
-      'ส่งมอบงานครบตั้งแต่งานอัตลักษณ์ภาพจนถึงหน้าเว็บไซต์จริงบน Next.js 16 คงความคมชัดของโลโก้เวกเตอร์ ฉากหลัง 1920×1080 ทั้งสองโหมด คาแรคเตอร์ทั้ง 6 ระดับ และหน้าคำนวณ/Mint ที่พร้อมเปิดตัวโปรเจกต์ Web3 ทันที',
+      'ส่งมอบงานครบตั้งแต่งานอัตลักษณ์ภาพจนถึงหน้าเว็บไซต์จริงบน Next.js 16 คงความคมชัดของโลโก้เวกเตอร์ ฉากหลัง 4K (3840×2160) ทั้งสองโหมด คาแรคเตอร์ทั้ง 8 แบบ การ์ดสะสม 6 ระดับ และหน้าคำนวณ/Mint ที่พร้อมเปิดตัวโปรเจกต์ Web3 ทันที',
   },
 };

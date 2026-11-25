@@ -442,19 +442,67 @@
     ]
   },
   "07-sybil-bg-day": {
-    "width": 1920,
-    "height": 1080,
+    "width": 3840,
+    "height": 2160,
     "sizes": [
       800,
       1600
     ]
   },
   "07-sybil-bg-night": {
-    "width": 1920,
-    "height": 1080,
+    "width": 3840,
+    "height": 2160,
     "sizes": [
       800,
       1600
+    ]
+  },
+  "07-sybil-card-apprentice": {
+    "width": 900,
+    "height": 1280,
+    "sizes": [
+      800,
+      900
+    ]
+  },
+  "07-sybil-card-mage": {
+    "width": 900,
+    "height": 1280,
+    "sizes": [
+      800,
+      900
+    ]
+  },
+  "07-sybil-card-sorcerer": {
+    "width": 900,
+    "height": 1280,
+    "sizes": [
+      800,
+      900
+    ]
+  },
+  "07-sybil-card-special": {
+    "width": 900,
+    "height": 1280,
+    "sizes": [
+      800,
+      900
+    ]
+  },
+  "07-sybil-card-super-special": {
+    "width": 900,
+    "height": 1280,
+    "sizes": [
+      800,
+      900
+    ]
+  },
+  "07-sybil-card-supreme": {
+    "width": 900,
+    "height": 1280,
+    "sizes": [
+      800,
+      900
     ]
   },
   "07-sybil-environment": {
@@ -480,8 +528,8 @@
     ]
   },
   "07-sybil-tiers": {
-    "width": 894,
-    "height": 239,
+    "width": 1788,
+    "height": 478,
     "sizes": [
       800,
       894
