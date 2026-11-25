@@ -63,8 +63,10 @@ const chapters = [
         <!-- Center binding spine crease -->
         <div class="bf-spine-crease" data-bf-spine aria-hidden="true"></div>
 
-        <!-- Dynamic 3D curved turning sheets layer -->
-        <div class="bf-turns" data-bf-turns aria-hidden="true"></div>
+        <!-- Dynamic 3D curved turning sheets canvas (zero subpixel seams) -->
+        <div class="bf-turns" data-bf-turns data-active-count="0" aria-hidden="true">
+          <canvas class="bf-turns-canvas" data-bf-turns-canvas></canvas>
+        </div>
       </div>
     </div>
 
@@ -195,15 +197,9 @@ const chapters = [
   };
 
   const MAX_SPREAD = 30;
-  const STRIPS = 8;
-  // Progressive bend weights from stiff binding spine (k=0) to flexible fore-edge (k=7)
-  const STRIP_WEIGHTS = [0.18, 0.42, 0.72, 0.96, 1.14, 1.24, 1.3, 1.32];
+  const CURVE_SEGS = 28;
 
   interface TurningSheet {
-    el: HTMLElement;
-    strips: HTMLElement[];
-    frontShades: HTMLElement[];
-    backShades: HTMLElement[];
     sheetIdx: number; // 0..29 (front = sheetIdx*2+1, back = sheetIdx*2+2)
     t: number; // 0 (right) .. 1 (left)
     target: number; // 0 or 1
@@ -230,6 +226,8 @@ const chapters = [
     const castRight = root.querySelector<HTMLElement>('[data-bf-cast-right]')!;
     const spineEl = root.querySelector<HTMLElement>('[data-bf-spine]')!;
     const turnsHost = root.querySelector<HTMLElement>('[data-bf-turns]')!;
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-bf-turns-canvas]')!;
+    const ctx = canvas.getContext('2d');
     const prevBtn = root.querySelector<HTMLButtonElement>('[data-bf-prev]')!;
     const nextBtn = root.querySelector<HTMLButtonElement>('[data-bf-next]')!;
     const counterEl = root.querySelector<HTMLElement>('[data-bf-counter]')!;
@@ -239,7 +237,7 @@ const chapters = [
     const chBtns = [...root.querySelectorAll<HTMLButtonElement>('[data-bf-jump]')];
 
     const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const preloaded = new Set<number>();
+    const pageImages = new Map<number, HTMLImageElement>();
 
     // Current resting spread: 0 = front cover, 1..29 = spreads (2-3..58-59), 30 = back cover
     let spread = 0;
@@ -256,12 +254,18 @@ const chapters = [
 
     const pageUrl = (n: number) => `${basePath}p${String(n).padStart(2, '0')}.webp`;
 
-    const preloadPage = (n: number) => {
-      if (n < 1 || n > 60 || preloaded.has(n)) return;
-      preloaded.add(n);
+    const preloadPage = (n: number): HTMLImageElement | null => {
+      if (n < 1 || n > 60) return null;
+      const existing = pageImages.get(n);
+      if (existing) return existing;
       const im = new Image();
       im.decoding = 'async';
+      im.onload = () => {
+        if (activeSheets.length > 0) renderTurningCanvas();
+      };
       im.src = pageUrl(n);
+      pageImages.set(n, im);
+      return im;
     };
 
     const preloadAround = (sp: number) => {
@@ -397,78 +401,15 @@ const chapters = [
       setSlotImage(slotRight, imgRight, rightPageNum);
     };
 
-    // Build a 10-strip 3D curved paper sheet DOM node (front = sheetIdx*2+1, back = sheetIdx*2+2)
     const createCurvedSheet = (
       sheetIdx: number,
       initialT: number,
       targetT: number,
       onSettled: () => void,
     ): TurningSheet => {
-      const frontNum = sheetIdx * 2 + 1;
-      const backNum = sheetIdx * 2 + 2;
-      preloadPage(frontNum);
-      preloadPage(backNum);
-
-      const sheetEl = document.createElement('div');
-      sheetEl.className = 'bf-sheet';
-
-      const strips: HTMLElement[] = [];
-      const frontShades: HTMLElement[] = [];
-      const backShades: HTMLElement[] = [];
-
-      let parent: HTMLElement = sheetEl;
-      for (let k = 0; k < STRIPS; k++) {
-        const strip = document.createElement('div');
-        strip.className =
-          k === 0
-            ? 'bf-strip is-root'
-            : k === STRIPS - 1
-              ? 'bf-strip is-outer'
-              : 'bf-strip';
-        strip.style.setProperty('--n', String(STRIPS));
-
-        // Front face (right-side page)
-        const front = document.createElement('div');
-        front.className = 'bf-face bf-face-front';
-        const fImg = document.createElement('img');
-        fImg.src = pageUrl(frontNum);
-        fImg.alt = '';
-        fImg.draggable = false;
-        fImg.style.width = `${STRIPS * 100}%`;
-        fImg.style.left = `${-k * 100}%`;
-        const fShade = document.createElement('div');
-        fShade.className = 'bf-shade';
-        front.append(fImg, fShade);
-
-        // Back face (left-side page after flip — mirrored slice index STRIPS - 1 - k)
-        const back = document.createElement('div');
-        back.className = 'bf-face bf-face-back';
-        const bImg = document.createElement('img');
-        bImg.src = pageUrl(backNum);
-        bImg.alt = '';
-        bImg.draggable = false;
-        bImg.style.width = `${STRIPS * 100}%`;
-        bImg.style.left = `${-(STRIPS - 1 - k) * 100}%`;
-        const bShade = document.createElement('div');
-        bShade.className = 'bf-shade';
-        back.append(bImg, bShade);
-
-        strip.append(front, back);
-        parent.appendChild(strip);
-
-        strips.push(strip);
-        frontShades.push(fShade);
-        backShades.push(bShade);
-        parent = strip;
-      }
-
-      turnsHost.appendChild(sheetEl);
-
-      const sheet: TurningSheet = {
-        el: sheetEl,
-        strips,
-        frontShades,
-        backShades,
+      preloadPage(sheetIdx * 2 + 1);
+      preloadPage(sheetIdx * 2 + 2);
+      return {
         sheetIdx,
         t: initialT,
         target: targetT,
@@ -476,84 +417,272 @@ const chapters = [
         dragging: false,
         onSettled,
       };
-      renderSheetGeometry(sheet);
-      return sheet;
     };
 
-    // Continuous vertex shading helper: negative = shadow (black alpha), positive = specular sheen (white alpha)
-    const shadeRgba = (val: number) =>
-      val >= 0
-        ? `rgb(255 255 255 / ${Math.min(0.24, val).toFixed(3)})`
-        : `rgb(0 0 0 / ${Math.min(0.42, -val).toFixed(3)})`;
+    // High-DPI 48-segment 3D curved paper renderer on a single seamless <canvas>
+    // (Eliminates Chromium preserve-3d BSP-split vertical hairlines completely!)
+    let cachedCw = 0;
+    let cachedCh = 0;
+    const renderTurningCanvas = () => {
+      turnsHost.dataset.activeCount = String(activeSheets.length);
+      if (!ctx) return;
 
-    const renderSheetGeometry = (sheet: TurningSheet) => {
-      const t = Math.max(0, Math.min(1, sheet.t));
-      const baseDeg = -180 * t;
-
-      // Natural flexible paper curvature:
-      //  - Peeling off right stack (t ~ 0.25): negative bend lifts outer edge gently toward viewer
-      //  - Crossing spine (t ~ 0.50): smooth vertical arch
-      //  - Settling onto left stack (t ~ 0.75): positive bend lets fore-edge drape down softly
-      const sin2 = Math.sin(2 * Math.PI * t);
-      const sin1 = Math.sin(Math.PI * t);
-      const bendStep = -sin2 * 5.5;
-
-      // Compute cumulative angles per strip and smooth Gouraud lighting at every seam vertex (0..STRIPS)
-      const stripWorldDeg: number[] = new Array(STRIPS);
-      let cumDeg = baseDeg;
-      for (let k = 0; k < STRIPS; k++) {
-        let localDeg = 0;
-        if (k === 0) {
-          localDeg = baseDeg + sin1 * 3.5 * (t < 0.5 ? -1 : 1) * (1 - Math.abs(2 * t - 1));
-          cumDeg = Math.max(-180, Math.min(0, localDeg));
-          sheet.strips[k].style.transform = `rotateY(${cumDeg.toFixed(2)}deg)`;
-        } else {
-          const desired = cumDeg + bendStep * STRIP_WEIGHTS[k];
-          const clamped = Math.max(-180, Math.min(0, desired));
-          localDeg = clamped - cumDeg;
-          cumDeg = clamped;
-          sheet.strips[k].style.transform = `rotateY(${localDeg.toFixed(2)}deg)`;
+      if (activeSheets.length === 0) {
+        if (cachedCw > 0 && cachedCh > 0) {
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, cachedCw, cachedCh);
         }
-        stripWorldDeg[k] = cumDeg;
+        canvas.style.opacity = '0';
+        return;
       }
 
-      // Compute continuous vertex lighting (seam v = 0..STRIPS) so adjacent strips share identical edge color (ZERO banding!)
-      const frontVerts: number[] = new Array(STRIPS + 1);
-      const backVerts: number[] = new Array(STRIPS + 1);
-      for (let v = 0; v <= STRIPS; v++) {
-        const deg =
-          v === 0
-            ? stripWorldDeg[0]
-            : v === STRIPS
-              ? stripWorldDeg[STRIPS - 1]
-              : (stripWorldDeg[v - 1] + stripWorldDeg[v]) * 0.5;
-        const rad = (Math.abs(deg) * Math.PI) / 180; // 0 (flat right) .. PI (flat left)
-        const u = v / STRIPS; // 0 at spine .. 1 at outer fore-edge
-        // Binding gutter shadow near spine (u < 0.2)
-        const spineShadow = Math.pow(Math.max(0, 1 - u / 0.22), 1.8) * 0.16;
+      const bookW = book.offsetWidth;
+      const bookH = book.offsetHeight;
+      if (bookW < 10 || bookH < 10) return;
 
-        // Front face (visible when rad in 0..PI/2): subtle sheen at ~35deg, darker approaching 90deg
-        const fSheen = Math.max(0, Math.sin(rad * 2.1)) * 0.11 * sin1;
-        const fShade = Math.sin(rad) * 0.24 + spineShadow * (1 - t * 0.5);
-        frontVerts[v] = fSheen - fShade;
+      const padX = bookW * 0.04;
+      const padY = bookH * 0.2;
+      const cssW = bookW + padX * 2;
+      const cssH = bookH + padY * 2;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const bufW = Math.max(1, Math.round(cssW * dpr));
+      const bufH = Math.max(1, Math.round(cssH * dpr));
 
-        // Back face (visible when rad in PI/2..PI): mirror lighting across PI/2
-        const bRad = Math.PI - rad;
-        const bSheen = Math.max(0, Math.sin(bRad * 2.1)) * 0.11 * sin1;
-        const bShade = Math.sin(bRad) * 0.24 + spineShadow * (0.5 + t * 0.5);
-        backVerts[v] = bSheen - bShade;
+      if (canvas.width !== bufW || canvas.height !== bufH) {
+        canvas.width = bufW;
+        canvas.height = bufH;
+        cachedCw = bufW;
+        cachedCh = bufH;
       }
 
-      for (let k = 0; k < STRIPS; k++) {
-        // Front face left->right is v=k -> v=k+1
-        sheet.frontShades[k].style.background = `linear-gradient(90deg, ${shadeRgba(frontVerts[k])}, ${shadeRgba(frontVerts[k + 1])})`;
-        // Back face is rotated 180deg around Y, so its visual left->right corresponds to v=k+1 -> v=k
-        sheet.backShades[k].style.background = `linear-gradient(90deg, ${shadeRgba(backVerts[k + 1])}, ${shadeRgba(backVerts[k])})`;
-      }
+      canvas.style.opacity = '1';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, bufW, bufH);
+      ctx.imageSmoothingEnabled = true;
 
-      // Correct z-index stacking order as sheet crosses 90deg mid-point
-      const z = t < 0.5 ? 200 - sheet.sheetIdx : 200 + sheet.sheetIdx;
-      sheet.el.style.zIndex = String(z);
+      // Sort back-to-front by painter's z-order matching 90-degree midpoint crossover
+      const ordered = activeSheets
+        .slice()
+        .sort((a, b) => {
+          const za = a.t < 0.5 ? 200 - a.sheetIdx : 200 + a.sheetIdx;
+          const zb = b.t < 0.5 ? 200 - b.sheetIdx : 200 + b.sheetIdx;
+          return za - zb;
+        });
+
+      const spineX = padX + bookW * 0.5;
+      const centerY = padY + bookH * 0.5;
+      const halfW = bookW * 0.5;
+      const ds = halfW / CURVE_SEGS;
+      const dCam = bookW * 2.55;
+
+      const sx = new Float32Array(CURVE_SEGS + 1);
+      const syT = new Float32Array(CURVE_SEGS + 1);
+      const syB = new Float32Array(CURVE_SEGS + 1);
+      const zArr = new Float32Array(CURVE_SEGS + 1);
+      const angArr = new Float32Array(CURVE_SEGS + 1);
+
+      for (const sheet of ordered) {
+        const t = Math.max(0, Math.min(1, sheet.t));
+        const baseRad = Math.PI * t;
+        const sin2 = Math.sin(2 * Math.PI * t);
+        const sin1 = Math.sin(Math.PI * t);
+
+        // Integrate smooth 48-segment 3D curve from stiff spine (u=0) to flexible fore-edge (u=1)
+        let x = 0;
+        let z = 0;
+        for (let i = 0; i <= CURVE_SEGS; i++) {
+          const u = i / CURVE_SEGS;
+          const curl = -sin2 * 0.54 * Math.pow(u, 1.38);
+          const ang = Math.max(0, Math.min(Math.PI, baseRad + curl));
+          angArr[i] = ang;
+
+          const persp = dCam / (dCam - z);
+          sx[i] = spineX + x * persp;
+          syT[i] = centerY - bookH * 0.5 * persp;
+          syB[i] = centerY + bookH * 0.5 * persp;
+          zArr[i] = z;
+
+          if (i < CURVE_SEGS) {
+            x += ds * Math.cos(ang);
+            z += ds * Math.sin(ang);
+          }
+        }
+
+        const frontImg = preloadPage(sheet.sheetIdx * 2 + 1);
+        const backImg = preloadPage(sheet.sheetIdx * 2 + 2);
+
+        // Group contiguous front-facing vs back-facing runs (handles fold-over silhouettes cleanly!)
+        interface Run {
+          start: number;
+          end: number;
+          isFront: boolean;
+          avgZ: number;
+        }
+        const runs: Run[] = [];
+        let curStart = 0;
+        let curFront = sx[1] >= sx[0];
+        for (let i = 1; i < CURVE_SEGS; i++) {
+          const f = sx[i + 1] >= sx[i];
+          if (f !== curFront) {
+            let sumZ = 0;
+            for (let j = curStart; j <= i; j++) sumZ += zArr[j];
+            runs.push({
+              start: curStart,
+              end: i,
+              isFront: curFront,
+              avgZ: sumZ / (i - curStart + 1),
+            });
+            curStart = i;
+            curFront = f;
+          }
+        }
+        {
+          let sumZ = 0;
+          for (let j = curStart; j <= CURVE_SEGS; j++) sumZ += zArr[j];
+          runs.push({
+            start: curStart,
+            end: CURVE_SEGS,
+            isFront: curFront,
+            avgZ: sumZ / (CURVE_SEGS - curStart + 1),
+          });
+        }
+
+        // Draw farther run first, closer run second
+        runs.sort((a, b) => a.avgZ - b.avgZ);
+
+        for (const run of runs) {
+          const img = run.isFront ? frontImg : backImg;
+          const imgReady = !!(img && img.complete && img.naturalWidth > 0);
+          const imgW = imgReady ? img!.naturalWidth : 960;
+          const imgH = imgReady ? img!.naturalHeight : 960;
+
+          let minX = Infinity;
+          let maxX = -Infinity;
+          for (let i = run.start; i <= run.end; i++) {
+            if (sx[i] < minX) minX = sx[i];
+            if (sx[i] > maxX) maxX = sx[i];
+          }
+          if (maxX - minX < 0.6) continue;
+
+          ctx.save();
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          // Exact 48-point smooth curved silhouette clip (zero jagged edges!)
+          ctx.beginPath();
+          ctx.moveTo(sx[run.start], syT[run.start]);
+          for (let i = run.start + 1; i <= run.end; i++) {
+            ctx.lineTo(sx[i], syT[i]);
+          }
+          for (let i = run.end; i >= run.start; i--) {
+            ctx.lineTo(sx[i], syB[i]);
+          }
+          ctx.closePath();
+          ctx.clip();
+
+          // Paint crisp opaque image slices with 1.25px source-matched overlap (ZERO vertical seams!)
+          if (imgReady) {
+            for (let i = run.start; i < run.end; i++) {
+              const u0 = i / CURVE_SEGS;
+              const u1 = (i + 1) / CURVE_SEGS;
+
+              if (run.isFront) {
+                const xL = sx[i];
+                const xR = sx[i + 1];
+                const w = xR - xL;
+                if (w < 0.35) continue;
+                const yTL = syT[i];
+                const yTR = syT[i + 1];
+                const h = (syB[i] - yTL + (syB[i + 1] - yTR)) * 0.5;
+                const pad = i < run.end - 1 ? Math.min(1.25, w * 0.45) : 0;
+                const wPad = w + pad;
+                const ratio = wPad / w;
+                const srcX = Math.max(0, u0 * imgW);
+                const srcW = Math.min(imgW - srcX, (u1 - u0) * imgW * ratio);
+                if (srcW <= 0.5) continue;
+                ctx.setTransform(
+                  dpr * wPad,
+                  dpr * (yTR - yTL) * ratio,
+                  0,
+                  dpr * h,
+                  dpr * xL,
+                  dpr * yTL,
+                );
+                ctx.drawImage(img!, srcX, 0, srcW, imgH, 0, 0, 1, 1);
+              } else {
+                const xL = sx[i + 1];
+                const xR = sx[i];
+                const w = xR - xL;
+                if (w < 0.35) continue;
+                const yTL = syT[i + 1];
+                const yTR = syT[i];
+                const h = (syB[i + 1] - yTL + (syB[i] - yTR)) * 0.5;
+                const pad = i > run.start ? Math.min(1.25, w * 0.45) : 0;
+                const wPad = w + pad;
+                const ratio = wPad / w;
+                const srcX = Math.max(0, (1 - u1) * imgW);
+                const srcW = Math.min(imgW - srcX, (u1 - u0) * imgW * ratio);
+                if (srcW <= 0.5) continue;
+                ctx.setTransform(
+                  dpr * wPad,
+                  dpr * (yTR - yTL) * ratio,
+                  0,
+                  dpr * h,
+                  dpr * xL,
+                  dpr * yTL,
+                );
+                ctx.drawImage(img!, srcX, 0, srcW, imgH, 0, 0, 1, 1);
+              }
+            }
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(minX - 2, 0, maxX - minX + 4, cssH);
+          }
+
+          // ONE continuous multi-stop paper lighting gradient inside the clip (ZERO banding!)
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          const grad = ctx.createLinearGradient(minX, 0, maxX, 0);
+          const samples = 10;
+          const span = Math.max(1, maxX - minX);
+          const stops: { pos: number; col: string }[] = [];
+          for (let s = 0; s <= samples; s++) {
+            const idx = Math.round(run.start + ((run.end - run.start) * s) / samples);
+            const pos = Math.max(0, Math.min(1, (sx[idx] - minX) / span));
+            const u = idx / CURVE_SEGS;
+            const rad = angArr[idx];
+            const spineShadow = Math.pow(Math.max(0, 1 - u / 0.2), 1.8) * 0.16;
+
+            let val: number;
+            if (run.isFront) {
+              const sheen = Math.max(0, Math.sin(rad * 2.1)) * 0.11 * sin1;
+              const shade = Math.sin(rad) * 0.24 + spineShadow * (1 - t * 0.5);
+              val = sheen - shade;
+            } else {
+              const bRad = Math.PI - rad;
+              const sheen = Math.max(0, Math.sin(bRad * 2.1)) * 0.11 * sin1;
+              const shade = Math.sin(bRad) * 0.24 + spineShadow * (0.5 + t * 0.5);
+              val = sheen - shade;
+            }
+            const col =
+              val >= 0
+                ? `rgba(255,255,255,${Math.min(0.22, val).toFixed(3)})`
+                : `rgba(0,0,0,${Math.min(0.4, -val).toFixed(3)})`;
+            stops.push({ pos, col });
+          }
+          stops.sort((a, b) => a.pos - b.pos);
+          for (const st of stops) {
+            grad.addColorStop(st.pos, st.col);
+          }
+          ctx.fillStyle = grad;
+          ctx.fillRect(minX - 2, 0, maxX - minX + 4, cssH);
+
+          // Ultra-fine subtle outer paper edge definition
+          ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.restore();
+        }
+      }
     };
 
     const updateCastShadows = () => {
@@ -587,7 +716,6 @@ const chapters = [
     };
 
     const removeSheet = (sheet: TurningSheet) => {
-      sheet.el.remove();
       activeSheets = activeSheets.filter((s) => s !== sheet);
       if (hoverPeekSheet === sheet) hoverPeekSheet = null;
       if (dragSheet === sheet) dragSheet = null;
@@ -597,6 +725,7 @@ const chapters = [
       syncBasePages();
       updateCastShadows();
       updateBookPose();
+      renderTurningCanvas();
     };
 
     const tick = (ts: number) => {
@@ -608,14 +737,12 @@ const chapters = [
 
       for (const sheet of activeSheets) {
         if (sheet.dragging) {
-          renderSheetGeometry(sheet);
           keepRunning = true;
           continue;
         }
         if (reduceMq.matches) {
           sheet.t = sheet.target;
           sheet.vel = 0;
-          renderSheetGeometry(sheet);
           toSettle.push(sheet);
           continue;
         }
@@ -631,12 +758,10 @@ const chapters = [
           sheet.t += sheet.vel * h;
         }
         sheet.t = Math.max(0, Math.min(1, sheet.t));
-        renderSheetGeometry(sheet);
 
         if (Math.abs(sheet.target - sheet.t) < 0.004 && Math.abs(sheet.vel) < 0.04) {
           sheet.t = sheet.target;
           sheet.vel = 0;
-          renderSheetGeometry(sheet);
           toSettle.push(sheet);
         } else {
           keepRunning = true;
@@ -645,6 +770,7 @@ const chapters = [
 
       updateCastShadows();
       updateBookPose();
+      renderTurningCanvas();
 
       for (const s of toSettle) {
         s.onSettled();
@@ -753,10 +879,10 @@ const chapters = [
       }
 
       // Immediately clear any in-flight sheets from prior jumps so base pages stay exact
-      activeSheets.slice().forEach((s) => s.el.remove());
       activeSheets = [];
       dragSheet = null;
       hoverPeekSheet = null;
+      renderTurningCanvas();
 
       if (reduceMq.matches) {
         spread = clamped;
@@ -935,7 +1061,7 @@ const chapters = [
         } else {
           dragSheet.t = Math.max(0, Math.min(1, 1 - dx / w));
         }
-        renderSheetGeometry(dragSheet);
+        renderTurningCanvas();
         updateCastShadows();
         updateBookPose();
       }
@@ -1037,25 +1163,42 @@ const chapters = [
         return;
       }
 
+      const computeStageFlip = (
+        fromBookRect: DOMRect,
+        toBookRect: DOMRect,
+        stageRect: DOMRect,
+      ) => {
+        const scale = Math.max(
+          0.25,
+          Math.min(1.5, toBookRect.width / Math.max(1, fromBookRect.width)),
+        );
+        const stageCx = stageRect.left + stageRect.width / 2;
+        const stageCy = stageRect.top + stageRect.height / 2;
+        const fromCx = fromBookRect.left + fromBookRect.width / 2;
+        const fromCy = fromBookRect.top + fromBookRect.height / 2;
+        const toCx = toBookRect.left + toBookRect.width / 2;
+        const toCy = toBookRect.top + toBookRect.height / 2;
+        const dx = toCx - (stageCx + (fromCx - stageCx) * scale);
+        const dy = toCy - (stageCy + (fromCy - stageCy) * scale);
+        return { dx, dy, scale };
+      };
+
       if (want) {
         fsAnimating = true;
         // Preserve underlying article height so background behind blur never jumps
         root.style.minHeight = `${root.offsetHeight}px`;
-        const firstRect = stage.getBoundingClientRect();
+        const inlineBookRect = book.getBoundingClientRect();
 
         root.classList.add('is-fullscreen');
         fsBtn.setAttribute('aria-pressed', 'true');
 
-        const lastRect = stage.getBoundingClientRect();
-        const dx =
-          firstRect.left + firstRect.width / 2 - (lastRect.left + lastRect.width / 2);
-        const dy =
-          firstRect.top + firstRect.height / 2 - (lastRect.top + lastRect.height / 2);
-        const scale = Math.max(0.35, Math.min(1, firstRect.width / Math.max(1, lastRect.width)));
+        const fsBookRect = book.getBoundingClientRect();
+        const fsStageRect = stage.getBoundingClientRect();
+        const { dx, dy, scale } = computeStageFlip(fsBookRect, inlineBookRect, fsStageRect);
 
-        // Invert stage & dock to inline position before playing forward
+        // Invert stage & dock to exact inline book size/position before playing forward
         stage.style.transition = 'none';
-        stage.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
+        stage.style.transform = `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0) scale(${scale.toFixed(5)})`;
         dock.style.transition = 'none';
         dock.style.opacity = '0';
         dock.style.transform = 'translate3d(0, 14px, 0)';
@@ -1063,10 +1206,10 @@ const chapters = [
 
         requestAnimationFrame(() => {
           root.classList.add('is-fs-visible');
-          stage.style.transition = 'transform 520ms cubic-bezier(0.16, 1, 0.3, 1)';
+          stage.style.transition = 'transform 500ms cubic-bezier(0.16, 1, 0.3, 1)';
           stage.style.transform = 'translate3d(0, 0, 0) scale(1)';
           dock.style.transition =
-            'opacity 360ms ease 110ms, transform 440ms cubic-bezier(0.16, 1, 0.3, 1) 90ms';
+            'opacity 340ms ease 110ms, transform 420ms cubic-bezier(0.16, 1, 0.3, 1) 90ms';
           dock.style.opacity = '1';
           dock.style.transform = 'translate3d(0, 0, 0)';
         });
@@ -1074,23 +1217,30 @@ const chapters = [
         fsTimer = window.setTimeout(() => {
           clearFsInlineStyles();
           fsAnimating = false;
-        }, 560);
+        }, 540);
       } else {
         fsAnimating = true;
-        const firstRect = stage.getBoundingClientRect();
-        const restRect = root.getBoundingClientRect();
-        const scale = Math.max(0.35, Math.min(1, restRect.width / Math.max(1, firstRect.width)));
-        const targetCx = restRect.left + restRect.width / 2;
-        const targetCy = restRect.top + (firstRect.height * scale) / 2;
-        const dx = targetCx - (firstRect.left + firstRect.width / 2);
-        const dy = targetCy - (firstRect.top + firstRect.height / 2);
+        // Measure fullscreen book rect & exact real-DOM inline destination synchronously (zero paint flash)
+        const fsBookRect = book.getBoundingClientRect();
+        const fsStageRect = stage.getBoundingClientRect();
+
+        root.classList.remove('is-fullscreen');
+        const targetBookRect = book.getBoundingClientRect();
+        root.classList.add('is-fullscreen');
+
+        const { dx, dy, scale } = computeStageFlip(fsBookRect, targetBookRect, fsStageRect);
+
+        // Lock starting frame at 1:1 before playing smooth return transition
+        stage.style.transition = 'none';
+        stage.style.transform = 'translate3d(0, 0, 0) scale(1)';
+        void stage.offsetWidth;
 
         root.classList.remove('is-fs-visible');
         fsBtn.setAttribute('aria-pressed', 'false');
 
-        stage.style.transition = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
-        stage.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
-        dock.style.transition = 'opacity 220ms ease, transform 240ms ease';
+        stage.style.transition = 'transform 440ms cubic-bezier(0.22, 1, 0.36, 1)';
+        stage.style.transform = `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0) scale(${scale.toFixed(5)})`;
+        dock.style.transition = 'opacity 220ms ease, transform 260ms ease';
         dock.style.opacity = '0';
         dock.style.transform = 'translate3d(0, 8px, 0)';
 
@@ -1100,7 +1250,7 @@ const chapters = [
           clearFsInlineStyles();
           fsBtn.blur();
           fsAnimating = false;
-        }, 440);
+        }, 460);
       }
     };
 
@@ -1292,20 +1442,40 @@ const chapters = [
     max-width: min(1160px, calc((100dvh - 172px) * 2));
   }
 
-  /* Subtle ambient contact shadow on the desk directly under the physical book */
+  /* Soft Gaussian-curve ambient shadow beneath the book (oversized box = zero cutoff edge, zero filter blur cost) */
   .bf-ground {
     position: absolute;
-    top: 4%;
-    bottom: -4.5%;
+    top: 66%;
+    bottom: -24%;
     left: 50%;
     right: 0;
-    border-radius: 12px;
-    background: radial-gradient(ellipse at 50% 62%, rgb(0 0 0 / 0.16) 0%, rgb(0 0 0 / 0) 74%);
+    margin-inline: -5%;
+    background: radial-gradient(
+      ellipse 46% 38% at 50% 42%,
+      rgb(23 21 20 / 0.13) 0%,
+      rgb(23 21 20 / 0.095) 22%,
+      rgb(23 21 20 / 0.055) 42%,
+      rgb(23 21 20 / 0.024) 58%,
+      rgb(23 21 20 / 0.008) 72%,
+      rgb(23 21 20 / 0) 86%
+    );
     transform: translateZ(-2px);
     pointer-events: none;
   }
   :global(:root[data-theme='dark']) .bf-ground {
-    background: radial-gradient(ellipse at 50% 62%, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0) 76%);
+    background: radial-gradient(
+      ellipse 46% 38% at 50% 42%,
+      rgb(0 0 0 / 0.42) 0%,
+      rgb(0 0 0 / 0.30) 22%,
+      rgb(0 0 0 / 0.17) 42%,
+      rgb(0 0 0 / 0.075) 58%,
+      rgb(0 0 0 / 0.022) 72%,
+      rgb(0 0 0 / 0) 86%
+    );
+  }
+  .bf-root.is-fullscreen .bf-ground {
+    top: 64%;
+    bottom: -26%;
   }
 
   /* Layered paper stack fore-edges (dynamic thickness via --stack-w) */
@@ -1451,77 +1621,21 @@ const chapters = [
     transition: opacity 0.25s ease;
   }
 
-  /* 3D Curved Turning Sheets Host */
+  /* 3D Curved Turning Sheets Canvas (bleeds outside book bounds for smooth perspective arch) */
   .bf-turns {
     position: absolute;
     inset: 0;
-    transform-style: preserve-3d;
     pointer-events: none;
+    z-index: 20;
   }
-
-  :global(.bf-sheet) {
+  .bf-turns-canvas {
     position: absolute;
-    top: 0;
-    left: 50%;
-    width: 50%;
-    height: 100%;
-    transform-style: preserve-3d;
-    pointer-events: none;
-  }
-
-  :global(.bf-strip) {
-    position: absolute;
-    top: 0;
-    left: 100%;
-    width: 100%;
-    height: 100%;
-    transform-origin: left center;
-    transform-style: preserve-3d;
-  }
-  :global(.bf-strip.is-root) {
-    left: 0;
-    width: calc(100% / var(--n, 8));
-  }
-
-  :global(.bf-face) {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: -0.5px;
-    overflow: hidden;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    background: #ffffff;
-  }
-  :global(.bf-face-back) {
-    left: -0.5px;
-    right: 0;
-    transform: rotateY(180deg);
-  }
-  :global(.bf-strip.is-outer > .bf-face-front) {
-    right: 0;
-    border-radius: 0 4px 4px 0;
-  }
-  :global(.bf-strip.is-outer > .bf-face-back) {
-    left: 0;
-    border-radius: 4px 0 0 4px;
-  }
-  :global(.bf-face img) {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    max-width: none;
+    top: -20%;
+    left: -4%;
+    width: 108%;
+    height: 140%;
     display: block;
-    object-fit: cover;
-    pointer-events: none;
-  }
-  :global(.bf-shade) {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    opacity: 0;
     pointer-events: none;
   }
 
