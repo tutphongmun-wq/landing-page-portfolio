@@ -31,21 +31,56 @@ const heroAlt =
   (p.media.find((m) => m.kind === 'image') as { alt?: string } | undefined)?.alt ??
   p.title;
 
-const heroPos = cs?.cover.kind === 'photo' && cs.cover.position ? cs.cover.position : 'center center';
+const heroPos =
+  p.slug === 'infographic'
+    ? 'center 10%'
+    : p.slug === 'visual-content'
+      ? 'center 25%'
+      : cs?.cover.kind === 'photo' && cs.cover.position
+        ? cs.cover.position
+        : 'center center';
 
-// 3 curated preview images for Option 3 ("gallery" variant)
+// Curated 3 preview images for Option 3 ("gallery" variant)
 const allImages = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.kind === 'image');
-const preferredThumbs =
-  p.slug === 'thumbnails-posters'
-    ? ['03-thumbs-netflix-snow', '03-thumbs-masterchef', '03-thumbs-netflix-codex']
-    : [heroImage, ...allImages.map((m) => m.name).filter((n) => n !== heroImage)].slice(0, 3);
+const curatedGalleryMap: Record<string, { name: string; alt: string }[]> = {
+  'thumbnails-posters': [
+    { name: '03-thumbs-netflix-snow', alt: 'Netflix Thailand snow challenge Sapporo trip thumbnail' },
+    { name: '03-thumbs-masterchef', alt: 'MasterChef The Professionals Thailand thumbnail' },
+    { name: '03-thumbs-netflix-codex', alt: 'Netflix Thailand six technologies thumbnail' },
+  ],
+  'visual-content': [
+    { name: '04-content-post-tree-of-alpha', alt: 'Newspaper collage visual for Tree of Alpha' },
+    { name: '04-content-buyback', alt: 'Crypto buyback and token burn flaming Bitcoin visual' },
+    { name: '04-content-call-center', alt: 'Call-center scam psychology red editorial visual' },
+  ],
+  infographic: [
+    { name: '05-info-ev-sales', alt: 'Electric car prices and sales in Thailand infographic' },
+    { name: '05-info-pixar', alt: 'Nine business lessons from Pixar infographic' },
+    { name: '05-info-ethereum', alt: 'Five stages of the Ethereum roadmap infographic' },
+  ],
+  '16-personalities': [
+    { name: '06-16p-cover', alt: 'Stack of 16 Personalities books with colorful rounded cover' },
+    { name: '06-16p-spread-purple', alt: 'Purple book spread for the INTP type with DNA graphics' },
+    { name: '06-16p-spread-yellow', alt: 'Yellow book spread featuring desert adventurer character' },
+  ],
+  'sybil-husky': [
+    { name: '07-sybil-bg-night', alt: 'Sybil Husky 4K Arctic fortress under the northern lights (Night mode)' },
+    { name: '07-sybil-bg-day', alt: 'Sybil Husky 4K Arctic fortress at alpine sunrise (Day mode)' },
+    { name: '07-sybil-landing', alt: 'Sybil Husky Next.js landing page UI overview' },
+  ],
+};
 
-const galleryItems = preferredThumbs
-  .map((name) => {
-    const found = allImages.find((m) => m.name === name);
-    return found ? { name: found.name, alt: found.alt, src: posterUrl(found.name) } : null;
-  })
-  .filter((x): x is { name: string; alt: string; src: string } => x !== null);
+const galleryItems = (
+  curatedGalleryMap[p.slug] ??
+  [heroImage, ...allImages.map((m) => m.name).filter((n) => n !== heroImage)]
+    .slice(0, 3)
+    .map((name) => ({
+      name,
+      alt: allImages.find((m) => m.name === name)?.alt ?? p.title,
+    }))
+)
+  .map((item) => ({ ...item, src: posterUrl(item.name) }))
+  .filter((item) => Boolean(item.src));
 
 const categoryVal = cs?.meta.find((m) => m.label.toLowerCase() === 'category')?.value ?? 'Design';
 const scopeVal = cs?.meta.find((m) => m.label.toLowerCase() === 'scope')?.value ?? p.role[0] ?? '';
