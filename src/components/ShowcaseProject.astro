@@ -10,7 +10,7 @@ import { tools } from '../data/site';
 import { posterUrl } from '../lib/media';
 import Picture from './Picture.astro';
 
-export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial';
+export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial' | 'bento';
 
 interface Props {
   project: Project;
@@ -111,6 +111,188 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
   aria-labelledby={titleId}
 >
   <div class="sp-shell">
+    {variant === 'bento' ? (
+      /* ================= STICKY SPLIT BENTO GRID (Project 02) ================= */
+      <div class="sp-bento-layout">
+        <!-- Left: 5-Tile Editorial Bento Collage -->
+        <div class="sp-bento-grid" data-reveal style="--reveal-d: 60ms">
+          <!-- Row 1 Left (8 cols): Billboard Hero -->
+          <a
+            class="sp-bento-tile is-span-8 is-r1"
+            href={`#project-${p.slug}`}
+            data-open-case={p.slug}
+            data-case-trigger
+            aria-label={`Explore ${p.title} — Billboard campaign`}
+          >
+            <Picture
+              name="02-standup-billboard"
+              alt="Startup Standup Comedy roadside billboard campaign mockup"
+              sizes="(min-width: 1100px) 600px, 92vw"
+            />
+          </a>
+
+          <!-- Row 1 Right (4 cols): Official Logo Lockup on Deep Ocean -->
+          <a
+            class="sp-bento-tile is-span-4 is-r1 is-logo-tile"
+            href={`#project-${p.slug}`}
+            data-open-case={p.slug}
+            data-case-trigger
+            aria-label={`Explore ${p.title} — Logo lockup`}
+          >
+            <Picture
+              name="02-standup-logo"
+              alt="Startup Standup Comedy official logo lockup"
+              sizes="(min-width: 1100px) 280px, 45vw"
+            />
+          </a>
+
+          <!-- Row 2 Left (5 cols): Venue Roll-Up Banners (portrait) -->
+          <a
+            class="sp-bento-tile is-span-5 is-r2"
+            href={`#project-${p.slug}`}
+            data-open-case={p.slug}
+            data-case-trigger
+            aria-label={`Explore ${p.title} — Roll-up banners`}
+          >
+            <Picture
+              name="02-standup-banners"
+              alt="Two roll-up banners using the Startup Standup Comedy key visual"
+              sizes="(min-width: 1100px) 380px, 92vw"
+            />
+          </a>
+
+          <!-- Row 2 Right (7 cols): Key Visual + Official Brand Palette Tile -->
+          <div class="sp-bento-stack is-span-7 is-r2">
+            <a
+              class="sp-bento-tile is-kv-tile"
+              href={`#project-${p.slug}`}
+              data-open-case={p.slug}
+              data-case-trigger
+              aria-label={`Explore ${p.title} — Primary key visual`}
+            >
+              <Picture
+                name="02-standup-kv"
+                alt="Startup Standup Comedy primary key visual"
+                sizes="(min-width: 1100px) 520px, 92vw"
+              />
+            </a>
+
+            {p.palette && p.palette.length > 0 && (
+              <div class="sp-bento-palette" aria-label={`${p.title} brand color palette`}>
+                <span class="sp-bento-pal-label">Brand Palette</span>
+                <div class="sp-bento-swatches">
+                  {p.palette.map((sw) => (
+                    <div class="sp-bento-swatch">
+                      <span
+                        class="sp-bento-dot"
+                        style={`background:${sw.hex}`}
+                        aria-hidden="true"
+                      />
+                      <span class="sp-bento-hex">{sw.hex}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <!-- Row 3 Full (12 cols): Brick-Wall Speaker Posters -->
+          <a
+            class="sp-bento-tile is-span-12 is-r3"
+            href={`#project-${p.slug}`}
+            data-open-case={p.slug}
+            data-case-trigger
+            aria-label={`Explore ${p.title} — Speaker poster series`}
+          >
+            <Picture
+              name="02-standup-wall-posters"
+              alt="Three Startup Standup Comedy speaker posters mounted on a brick wall"
+              sizes="(min-width: 1100px) 900px, 92vw"
+            />
+          </a>
+        </div>
+
+        <!-- Right: Sticky Editorial Info Column -->
+        <aside class="sp-bento-aside">
+          <header class="sp-head">
+            <div class="sp-ed-meta-bar" data-reveal>
+              <span class="sp-no">{p.no} / 07</span>
+              {clientLabel && (
+                <>
+                  <span class="sp-ed-dot" aria-hidden="true">·</span>
+                  <span class="sp-ed-context">{clientLabel}</span>
+                </>
+              )}
+              {yearVal && (
+                <>
+                  <span class="sp-ed-dot" aria-hidden="true">·</span>
+                  <span class="sp-ed-context">{yearVal}</span>
+                </>
+              )}
+            </div>
+            <h3 id={titleId} class="sp-title" data-reveal style="--reveal-d: 50ms">
+              <a
+                class="sp-title-link"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+                data-case-trigger
+                aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+              >
+                <span class="visually-hidden">Project {p.no}: </span>
+                {p.title}
+              </a>
+            </h3>
+          </header>
+
+          <div class="sp-overview-copy">
+            <h4 class="sp-kicker">Overview</h4>
+            <p class="sp-desc">
+              <span data-lang-text="en">{overviewEn}</span>
+              <span data-lang-text="th">{overviewTh}</span>
+            </p>
+          </div>
+
+          {highlightsEn.length > 0 && (
+            <div class="sp-highlights">
+              <h4 class="sp-highlights-title">Highlights</h4>
+              <ul class="sp-highlights-list" data-lang-text="en">
+                {highlightsEn.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+              <ul class="sp-highlights-list" data-lang-text="th">
+                {highlightsTh.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <dl class="sp-meta-col is-compact">
+            <div class="sp-meta-row">
+              <dt class="sp-meta-label">Category</dt>
+              <dd class="sp-meta-val">{categoryVal}</dd>
+            </div>
+            <div class="sp-meta-row">
+              <dt class="sp-meta-label">Scope</dt>
+              <dd class="sp-meta-val">{scopeVal}</dd>
+            </div>
+            <div class="sp-meta-row">
+              <dt class="sp-meta-label">Tools</dt>
+              <dd class="sp-meta-val">{toolsVal}</dd>
+            </div>
+          </dl>
+
+          <a
+            class="sp-cta"
+            href={`#project-${p.slug}`}
+            data-open-case={p.slug}
+          >
+            Explore project
+          </a>
+        </aside>
+      </div>
+    ) : (
     <div class="sp-inner">
       <!-- 1. Project Index & Title -->
       <header class="sp-head">
@@ -325,6 +507,7 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
         </>
       )}
     </div>
+    )}
   </div>
 </article>
 
@@ -856,8 +1039,181 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
     gap: 16px;
   }
 
+  /* ================= STICKY SPLIT BENTO GRID (Project 02) ================= */
+  .project-showcase.is-bento {
+    padding-block: clamp(72px, 7.5vw, 112px);
+    border-top: 1px solid var(--c-line);
+  }
+  .project-showcase.is-bento .sp-shell {
+    max-width: 1480px;
+  }
+
+  .sp-bento-layout {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
+    gap: clamp(32px, 4vw, 60px);
+    align-items: start;
+  }
+
+  .sp-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .sp-bento-tile {
+    position: relative;
+    display: block;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--c-bg-raised);
+    border: 1px solid var(--c-line);
+    box-shadow: 0 12px 32px var(--c-shadow-soft);
+    text-decoration: none;
+  }
+  .sp-bento-tile:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+  .sp-bento-tile :global(picture),
+  .sp-bento-tile :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .sp-bento-tile:hover :global(img) {
+    transform: scale(1.03);
+  }
+
+  .sp-bento-tile.is-span-8 {
+    grid-column: span 8;
+  }
+  .sp-bento-tile.is-span-4 {
+    grid-column: span 4;
+  }
+  .sp-bento-tile.is-span-5 {
+    grid-column: span 5;
+  }
+  .sp-bento-stack.is-span-7 {
+    grid-column: span 7;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .sp-bento-tile.is-span-12 {
+    grid-column: span 12;
+  }
+
+  .sp-bento-tile.is-r1 {
+    height: 330px;
+  }
+  .sp-bento-tile.is-r2,
+  .sp-bento-stack.is-r2 {
+    height: 410px;
+  }
+  .sp-bento-tile.is-r3 {
+    height: 310px;
+  }
+
+  .sp-bento-tile.is-logo-tile {
+    background: #000000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+  .sp-bento-tile.is-logo-tile :global(picture),
+  .sp-bento-tile.is-logo-tile :global(img) {
+    object-fit: contain;
+    max-height: 100%;
+  }
+
+  .sp-bento-tile.is-kv-tile {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .sp-bento-palette {
+    flex: none;
+    padding: 16px 20px;
+    border-radius: 20px;
+    background: var(--c-bg-raised);
+    border: 1px solid var(--c-line);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sp-bento-pal-label {
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .sp-bento-swatches {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .sp-bento-swatch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sp-bento-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex: none;
+    border: 1px solid rgb(0 0 0 / 0.14);
+  }
+  .sp-bento-hex {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-size: 12px;
+    color: var(--c-fg-soft);
+  }
+
+  /* Right Sticky Editorial Column */
+  .sp-bento-aside {
+    position: sticky;
+    top: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .project-showcase.is-bento .sp-title {
+    font-size: clamp(1.9rem, 3.1vw, 3rem);
+    line-height: 1.0;
+  }
+  .project-showcase.is-bento .sp-desc {
+    font-size: clamp(1rem, 1.15vw, 1.125rem);
+    line-height: 1.5;
+  }
+
   /* ================= RESPONSIVE ================= */
   @media (max-width: 1024px) {
+    .sp-bento-layout {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .sp-bento-aside {
+      position: static;
+      order: -1;
+    }
+    .sp-bento-tile.is-r1 {
+      height: 240px;
+    }
+    .sp-bento-tile.is-r2,
+    .sp-bento-stack.is-r2 {
+      height: 300px;
+    }
+    .sp-bento-tile.is-r3 {
+      height: 240px;
+    }
     .project-showcase.is-wide-canvas .sp-gallery-stage,
     .project-showcase.is-editorial .sp-gallery-stage {
       grid-template-columns: 1fr;
