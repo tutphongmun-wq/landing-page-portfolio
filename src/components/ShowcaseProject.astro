@@ -10,7 +10,7 @@ import { tools } from '../data/site';
 import { posterUrl } from '../lib/media';
 import Picture from './Picture.astro';
 
-export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial' | 'bento' | 'bento-h';
+export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial' | 'bento' | 'bento-h' | 'worachet';
 
 interface Props {
   project: Project;
@@ -102,6 +102,19 @@ const highlightsEn = p.role.slice(0, 3);
 const highlightsTh = p.roleTh.slice(0, 3);
 const isGalleryStage = variant === 'gallery' || variant === 'editorial';
 const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
+
+// Worachet-style editorial fields (used on K2O main-page showcase)
+const storyEn = cs?.overviewParagraphs[0] ?? overviewEn;
+const storyTh = cs?.overviewParagraphsTh[0] ?? overviewTh;
+const challengeEn = cs?.challenge.paragraphs[0] ?? '';
+const challengeTh = cs?.challenge.paragraphsTh[0] ?? challengeEn;
+const approachEn = cs?.challenge.callouts[0]?.body ?? '';
+const approachTh = cs?.challenge.callouts[0]?.bodyTh ?? approachEn;
+const worachetMetrics = [
+  { value: '6', labelEn: 'Headliner artist posters', labelTh: 'โปสเตอร์เปิดตัวศิลปินหลัก' },
+  { value: '5-Panel', labelEn: 'BTS Asok Plan B OOH motion', labelTh: 'จอ Motion 5 แผง BTS อโศก' },
+  { value: yearVal || '2026', labelEn: 'S2O Festival · Bangkok', labelTh: 'S2O Festival · กรุงเทพฯ' },
+];
 ---
 
 <article
@@ -117,7 +130,113 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
   aria-labelledby={titleId}
 >
   <div class="sp-shell">
-    {variant === 'bento' ? (
+    {variant === 'worachet' ? (
+      /* ================= WORACHET-EXACT EDITORIAL LAYOUT (Project 01 K2O) ================= */
+      <div class="wr-wrap">
+        <!-- 1. Top Header Block (1024px editorial column) -->
+        <header class="wr-head">
+          <p class="wr-kicker" data-reveal>
+            <span>{p.no} / 07</span>
+            <span>{categoryVal}</span>
+            {yearVal && <span>{yearVal}</span>}
+          </p>
+
+          <h3 id={titleId} class="wr-title" data-reveal style="--reveal-d: 50ms">
+            <a
+              class="wr-title-link"
+              href={`#project-${p.slug}`}
+              data-open-case={p.slug}
+              data-case-trigger
+              aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+            >
+              <span class="visually-hidden">Project {p.no}: </span>
+              {p.title}
+            </a>
+          </h3>
+
+          <p class="wr-subtitle" data-reveal style="--reveal-d: 90ms">
+            <span data-lang-text="en">{overviewEn}</span>
+            <span data-lang-text="th">{overviewTh}</span>
+          </p>
+        </header>
+
+        <!-- 2. Full-Bleed Oversized 16:9 Hero Image (breaks out to 1408px × 792px) -->
+        {heroImage && (
+          <div class="wr-media-bleed" data-reveal style="--reveal-d: 120ms">
+            <a
+              class="wr-media"
+              href={`#project-${p.slug}`}
+              data-open-case={p.slug}
+              data-case-trigger
+              aria-label={`Explore ${p.title}`}
+              style={`--sp-pos: ${heroPos};`}
+            >
+              <Picture
+                name={heroImage}
+                alt={heroAlt}
+                sizes="(min-width: 1200px) 1408px, 100vw"
+              />
+            </a>
+          </div>
+        )}
+
+        <!-- 3. Bottom 12-Column Editorial Story + Metrics Grid (1024px column) -->
+        <div class="wr-body" data-reveal style="--reveal-d: 140ms">
+          <!-- Left 7 columns: Story Lead + 2-Col Challenge/Approach + CTA -->
+          <div class="wr-story-col">
+            <p class="wr-story-lead">
+              <span data-lang-text="en">{storyEn}</span>
+              <span data-lang-text="th">{storyTh}</span>
+            </p>
+
+            <div class="wr-subgrid">
+              <div class="wr-subblock">
+                <h4 class="wr-subhead">The challenge</h4>
+                <p class="wr-subcopy">
+                  <span data-lang-text="en">{challengeEn}</span>
+                  <span data-lang-text="th">{challengeTh}</span>
+                </p>
+              </div>
+
+              <div class="wr-subblock">
+                <h4 class="wr-subhead">Approach</h4>
+                <p class="wr-subcopy">
+                  <span data-lang-text="en">{approachEn}</span>
+                  <span data-lang-text="th">{approachTh}</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="wr-actions">
+              <a
+                class="wr-cta"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+              >
+                <span>Read the full case study</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right 4 columns (col-start-9): 3 Stacked Metrics + Role Credit -->
+          <div class="wr-metrics-col">
+            <dl class="wr-metrics-list">
+              {worachetMetrics.map((m) => (
+                <div class="wr-metric">
+                  <dt class="wr-metric-val">{m.value}</dt>
+                  <dd class="wr-metric-lbl">
+                    <span data-lang-text="en">{m.labelEn}</span>
+                    <span data-lang-text="th">{m.labelTh}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <p class="wr-role-line">Graphic &amp; Visual Designer · S2O Festival, Bangkok</p>
+          </div>
+        </div>
+      </div>
+    ) : variant === 'bento' ? (
       /* ================= STICKY SPLIT BENTO GRID (Project 02) ================= */
       <div class="sp-bento-layout">
         <!-- Left: 5-Tile Editorial Bento Collage -->
@@ -1255,8 +1374,257 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
     object-position: center 8%;
   }
 
+  /* ================= WORACHET-EXACT EDITORIAL LAYOUT (Project 01 K2O) ================= */
+  .project-showcase.is-worachet {
+    padding-block: clamp(88px, 10vw, 144px);
+    padding-inline: clamp(20px, 5vw, 64px);
+  }
+  .project-showcase.is-worachet .sp-shell {
+    max-width: 1024px;
+    margin-inline: auto;
+  }
+  .wr-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 1. Top Header */
+  .wr-kicker {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 16px;
+    font-family: var(--f-nav);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .wr-title {
+    margin: 20px 0 0;
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: clamp(3rem, 6.6vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    color: var(--c-fg);
+  }
+  .wr-title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+  .wr-title-link:hover {
+    opacity: 0.8;
+  }
+  .wr-title-link:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+    border-radius: 6px;
+  }
+  .wr-subtitle {
+    margin: 28px 0 0;
+    max-width: 672px;
+    font-family: var(--f-nav);
+    font-weight: 400;
+    font-size: clamp(1.1875rem, 1.5vw, 1.5rem);
+    line-height: 1.375;
+    color: var(--c-muted);
+  }
+  :global(:root[data-lang='th']) .wr-subtitle {
+    font-family: var(--f-body);
+    line-height: 1.55;
+  }
+
+  /* 2. Full-Bleed Oversized 16:9 Hero Image (1408 × 792 on 1920px desktop) */
+  .wr-media-bleed {
+    margin-top: clamp(44px, 5vw, 64px);
+    margin-left: clamp(-64px, -4vw, -20px);
+    margin-right: calc(-1 * clamp(20px, 4vw, 64px) - max(0px, min(20rem, calc((100vw - 88rem) / 2))));
+  }
+  .wr-media {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--c-bg-raised);
+    border-radius: 0;
+    text-decoration: none;
+  }
+  .wr-media:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+  .wr-media :global(picture),
+  .wr-media :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--sp-pos, center center);
+    transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wr-media:hover :global(img) {
+    transform: scale(1.02);
+  }
+
+  /* 3. Bottom 12-Column Editorial Story + Metrics Grid */
+  .wr-body {
+    margin-top: clamp(44px, 5vw, 64px);
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 36px 32px;
+    align-items: start;
+  }
+
+  .wr-story-col {
+    grid-column: 1 / span 7;
+    display: flex;
+    flex-direction: column;
+  }
+  .wr-story-lead {
+    margin: 0;
+    font-family: var(--f-nav);
+    font-weight: 400;
+    font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+    line-height: 1.375;
+    color: var(--c-fg);
+  }
+  :global(:root[data-lang='th']) .wr-story-lead {
+    font-family: var(--f-body);
+    line-height: 1.58;
+  }
+
+  .wr-subgrid {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 32px;
+  }
+  .wr-subhead {
+    margin: 0;
+    font-family: var(--f-nav);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .wr-subcopy {
+    margin: 8px 0 0;
+    font-family: var(--f-nav);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    color: var(--c-muted);
+  }
+  :global(:root[data-lang='th']) .wr-subcopy {
+    font-family: var(--f-body);
+    line-height: 1.7;
+  }
+
+  .wr-actions {
+    margin-top: 36px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+  }
+  .wr-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: var(--c-fg);
+    color: var(--c-bg);
+    font-family: var(--f-nav);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
+  }
+  .wr-cta:hover {
+    background: var(--c-accent);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+  .wr-cta:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+
+  /* Right 4 Columns: 3 Stacked Editorial Metrics + Role Credit */
+  .wr-metrics-col {
+    grid-column: 9 / span 4;
+    display: flex;
+    flex-direction: column;
+  }
+  .wr-metrics-list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .wr-metric {
+    border-top: 1px solid var(--c-line);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .wr-metric-val {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: clamp(2rem, 2.8vw, 2.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--c-fg);
+  }
+  .wr-metric-lbl {
+    margin: 0;
+    font-family: var(--f-nav);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+    color: var(--c-muted);
+  }
+  .wr-role-line {
+    margin: 28px 0 0;
+    border-top: 1px solid var(--c-line);
+    padding-top: 16px;
+    font-family: var(--f-nav);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: var(--c-muted);
+  }
+
   /* ================= RESPONSIVE ================= */
   @media (max-width: 1024px) {
+    .wr-media-bleed {
+      margin-inline: calc(-1 * var(--gutter));
+    }
+    .wr-body {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .wr-story-col,
+    .wr-metrics-col {
+      grid-column: auto;
+    }
+    .wr-subgrid {
+      grid-template-columns: 1fr;
+    }
     .sp-hbento-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       height: auto;
