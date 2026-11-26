@@ -104,7 +104,7 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
 ---
 
 <article
-  class:list={['project', 'project-showcase', `is-${variant}`]}
+  class:list={['project', 'project-showcase', `is-${variant}`, { 'is-wide-canvas': p.slug === 'visual-content' }]}
   id={p.slug}
   data-project-title={p.title}
   data-showcase-variant={variant}
@@ -843,8 +843,22 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
     line-height: 1.35;
   }
 
+  /* Expanded 1520px wide-canvas test (Project 04) */
+  .project-showcase.is-wide-canvas .sp-shell {
+    max-width: 1520px;
+  }
+  .project-showcase.is-wide-canvas .sp-gallery-stage {
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 20px;
+    aspect-ratio: 1520 / 670;
+  }
+  .project-showcase.is-wide-canvas .sp-thumb-rail {
+    gap: 16px;
+  }
+
   /* ================= RESPONSIVE ================= */
   @media (max-width: 1024px) {
+    .project-showcase.is-wide-canvas .sp-gallery-stage,
     .project-showcase.is-editorial .sp-gallery-stage {
       grid-template-columns: 1fr;
       aspect-ratio: auto;
