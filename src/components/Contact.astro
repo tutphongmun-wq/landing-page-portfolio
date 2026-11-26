@@ -1,97 +1,161 @@
 ---
 import { contact } from '../data/site';
 const year = new Date().getFullYear();
-import ContactTopo, { contactTopoBackground } from './ContactTopo';
 ---
 
-<section class="contact" id="contact" aria-labelledby="contact-title" style={`--contact-bg:${contactTopoBackground}`}>
-  <ContactTopo client:visible>
-  <div class="container inner">
-    <h2 id="contact-title" class="display big" data-reveal>Let’s<br />talk</h2>
-    <p class="lead" data-reveal style="--reveal-d: 80ms">Open to Visual, Graphic, Digital and UI / Web design roles.</p>
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <div class="contact-inner">
+    <p class="contact-kicker" data-reveal>Contact</p>
+    <h2 id="contact-title" class="contact-heading" data-reveal style="--reveal-d: 50ms">
+      Let’s talk.
+    </h2>
+    <p class="contact-lead" data-reveal style="--reveal-d: 90ms">
+      <span data-lang-text="en">Open to Visual, Graphic, Digital, and UI / Web design roles.</span>
+      <span data-lang-text="th">เปิดรับโอกาสงานสาย Visual, Graphic, Digital และ UI / Web Design</span>
+    </p>
 
-    <a class="email" href={`mailto:${contact.email}`} data-reveal style="--reveal-d: 140ms">{contact.email}</a>
+    <a class="contact-email" href={`mailto:${contact.email}`} data-reveal style="--reveal-d: 130ms">
+      {contact.email}
+    </a>
 
-    <ul class="links" role="list" data-reveal style="--reveal-d: 200ms">
-      <li><a href={contact.linkedin.href} rel="noopener" target="_blank">LinkedIn <span class="visually-hidden">(opens in a new tab)</span></a></li>
-      <li><a href={contact.behance.href} rel="noopener" target="_blank">Behance <span class="visually-hidden">(opens in a new tab)</span></a></li>
-      <li><a href={contact.github.href} rel="noopener" target="_blank">GitHub <span class="visually-hidden">(opens in a new tab)</span></a></li>
-      <li><a href="#top">Back to top ↑</a></li>
+    <ul class="contact-links" role="list" data-reveal style="--reveal-d: 170ms">
+      <li>
+        <a href={contact.linkedin.href} rel="noopener" target="_blank">
+          LinkedIn <span class="visually-hidden">(opens in a new tab)</span>
+        </a>
+      </li>
+      <li>
+        <a href={contact.behance.href} rel="noopener" target="_blank">
+          Behance <span class="visually-hidden">(opens in a new tab)</span>
+        </a>
+      </li>
+      <li>
+        <a href={contact.github.href} rel="noopener" target="_blank">
+          GitHub <span class="visually-hidden">(opens in a new tab)</span>
+        </a>
+      </li>
+      <li>
+        <a href="#top">Back to top ↑</a>
+      </li>
     </ul>
 
-    <p class="foot">
-      © {year} Tutphong Mungkalakul · Folder UI, Rail TOC &amp; Hook Sidebar by <a href="https://www.rareui.com" rel="noopener" target="_blank">Rare UI</a>
+    <p class="contact-foot">
+      © {year} Tutphong Mungkalakul · Bounce Sidebar &amp; Hook Sidebar inspired by
+      <a href="https://www.rareui.com" rel="noopener" target="_blank">Rare UI</a>
     </p>
   </div>
-  </ContactTopo>
 </section>
 
 <style>
   .contact {
     position: relative;
-    /* the Topographic Flow background colour (ContactTopo.tsx), shown until it hydrates */
-    background: var(--contact-bg, var(--c-hero));
-    color: var(--c-ink);
+    background: var(--c-bg);
+    color: var(--c-fg);
+    border-top: 1px solid var(--c-line);
+    padding-inline: var(--gutter);
+    padding-block: clamp(88px, 11vw, 152px) clamp(40px, 5vw, 64px);
   }
-  .inner {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    gap: 24px;
-    padding-block: var(--section-y) 32px;
+
+  .contact-inner {
+    width: 100%;
+    max-width: var(--max-w);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
   }
-  .big {
-    font-size: clamp(4rem, 2rem + 12vw, 14rem);
-    color: var(--c-ink-display);
-    line-height: 0.82;
+
+  .contact-kicker {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 1.1;
+    color: var(--c-accent);
   }
-  .lead {
-    font-size: 1.25rem;
-    font-weight: 700;
-    max-width: 32ch;
+
+  .contact-heading {
+    margin: 0;
+    font-family: var(--f-clash);
+    font-weight: 600;
+    font-size: clamp(2.75rem, 6vw, 5.5rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    color: var(--c-fg);
   }
-  .email {
-    justify-self: start;
-    max-width: 100%;
-    padding: 0.45em 0.7em;
-    border-radius: 14px;
-    background: var(--c-ink-display);
-    color: #f2f2f2;
-    font-family: var(--f-display);
-    font-size: clamp(1rem, 0.55rem + 3vw, 3rem);
+
+  .contact-lead {
+    margin: 0;
+    font-family: var(--f-nav);
+    font-weight: 500;
+    font-size: clamp(1.0625rem, 1.35vw, 1.3125rem);
+    line-height: 1.5;
+    color: var(--c-muted);
+    max-width: 44ch;
+  }
+  :global(:root[data-lang='th']) .contact-lead {
+    font-family: var(--f-body);
+  }
+
+  .contact-email {
+    margin-top: 8px;
+    font-family: var(--f-clash);
+    font-weight: 500;
+    font-size: clamp(1.375rem, 2.8vw, 2.75rem);
+    line-height: 1.15;
+    color: var(--c-fg);
     text-decoration: none;
+    border-bottom: 2px solid var(--c-line);
+    padding-bottom: 6px;
     overflow-wrap: anywhere;
+    transition: color 200ms ease, border-color 200ms ease;
   }
-  .email:hover {
-    background: #000;
-    color: #fff;
+  .contact-email:hover {
+    color: var(--c-accent);
+    border-bottom-color: var(--c-accent);
   }
-  .links {
+  .contact-email:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+    border-radius: 6px;
+  }
+
+  .contact-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin: 8px 0 0;
-  }
-  .links a {
-    display: inline-flex;
     align-items: center;
-    min-height: 48px;
-    padding: 0 22px;
-    border-radius: 999px;
-    background: var(--c-ink-display);
-    color: #f2f2f2;
-    font-weight: 700;
+    gap: 10px 26px;
+    margin: 12px 0 0;
+    padding: 0;
+  }
+  .contact-links a {
+    font-family: var(--f-nav);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--c-fg-soft);
     text-decoration: none;
+    transition: color 180ms ease;
   }
-  .links a:hover {
-    background: #000;
+  .contact-links a:hover {
+    color: var(--c-accent);
   }
-  .foot {
-    margin-top: clamp(40px, 8vw, 96px);
+  .contact-links a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+    border-radius: 4px;
+  }
+
+  .contact-foot {
+    margin-top: clamp(48px, 7vw, 88px);
     font-size: var(--fs-0);
-    font-weight: 700;
+    color: var(--c-muted);
   }
-  .contact :focus-visible {
-    box-shadow: 0 0 0 3px var(--contact-bg, var(--c-hero)), 0 0 0 6px #000;
+  .contact-foot a {
+    color: var(--c-fg-soft);
+    text-underline-offset: 3px;
+  }
+  .contact-foot a:hover {
+    color: var(--c-accent);
   }
 </style>

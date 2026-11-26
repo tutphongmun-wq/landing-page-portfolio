@@ -1,7 +1,7 @@
 ---
-// Desktop left sidebar navigation (>= 1200px). Slides in once the visitor
-// scrolls past Hero and hides over the red Contact section. Clean, monochrome,
-// and borderless with typography-only scrollspy + quick action icons.
+// Desktop left sidebar navigation (>= 1200px) with RareUI Bounce Sidebar
+// (https://www.rareui.com/components/bouncesidebar) spring-animated active dot indicator.
+// Slides in once the visitor scrolls past Hero and stays visible down through minimal Contact.
 import { projects } from '../data/projects';
 import { contact, profile } from '../data/site';
 import ThemeToggle from './ThemeToggle.astro';
@@ -17,60 +17,37 @@ import LangToggle from './LangToggle.astro';
     <p class="role">{profile.role}</p>
   </div>
 
-  <nav class="side-scroll" data-rail-toc aria-label="Sections & Projects">
-    <ul class="rail-list" role="list">
-      <svg class="rail-svg" aria-hidden="true">
-        <defs>
-          <linearGradient id="pun-rail-fade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="24">
-            <stop offset="0" stop-color="black" />
-            <stop offset="1" stop-color="white" />
-          </linearGradient>
-          <mask id="pun-rail-mask" maskUnits="userSpaceOnUse" x="-12" y="-12" width="240" height="800">
-            <rect class="rail-mask-bg" x="-12" y="-12" width="240" height="800" fill="url(#pun-rail-fade)" />
-            <g class="rail-mask-holes"></g>
-            <circle class="rail-plane-hole" cx="-40" cy="-40" r="4.5" fill="black" />
-          </mask>
-          <mask id="pun-nodes-mask" maskUnits="userSpaceOnUse" x="-12" y="-12" width="240" height="800">
-            <rect class="nodes-mask-bg" x="-12" y="-12" width="240" height="800" fill="white" />
-            <circle class="rail-plane-hole-nodes" cx="-40" cy="-40" r="5" fill="black" />
-          </mask>
-        </defs>
-        <g mask="url(#pun-rail-mask)">
-          <path class="rail-path-dashed" d="" />
-          <path class="rail-path-solid" d="" />
-        </g>
-        <g class="rail-nodes" mask="url(#pun-nodes-mask)"></g>
-      </svg>
+  <nav class="side-scroll" data-bounce-sidebar aria-label="Sections & Projects">
+    <ul class="bs-list" role="list">
+      <!-- Bouncy spring-animated active marker (RareUI BounceSidebar) -->
+      <span class="bs-marker" data-bs-marker aria-hidden="true"></span>
 
-      <div class="rail-plane" data-rail-plane aria-hidden="true">
-        <svg viewBox="0 0 24 24" class="rail-plane-svg">
-          <path d="M12 2 20.5 21 12 17.5 3.5 21z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-        </svg>
-      </div>
+      <li class="bs-item" data-bs-id="top">
+        <a class="bs-link" href="#top"><span class="bs-label">Intro</span></a>
+      </li>
 
-      <li class="rail-item" data-rail-id="top" data-rail-depth="0">
-        <a class="rail-link" href="#top"><span class="rail-label">Intro</span></a>
-      </li>
-      <li class="rail-item" data-rail-id="work" data-rail-depth="0">
-        <a class="rail-link" href="#work"><span class="rail-label">Projects</span></a>
-      </li>
+      <li class="bs-heading" aria-hidden="true">Projects</li>
+
       {
         projects.map((p) => (
-          <li class="rail-item" data-rail-id={p.slug} data-rail-depth="1">
-            <a class="rail-link" href={`#${p.slug}`}>
-              <span class="rail-label">{p.spine.label}</span>
+          <li class="bs-item" data-bs-id={p.slug}>
+            <a class="bs-link" href={`#${p.slug}`}>
+              <span class="bs-label">{p.spine.label}</span>
             </a>
           </li>
         ))
       }
-      <li class="rail-item" data-rail-id="about" data-rail-depth="0">
-        <a class="rail-link" href="#about"><span class="rail-label">About</span></a>
+
+      <li class="bs-heading" aria-hidden="true">Profile</li>
+
+      <li class="bs-item" data-bs-id="about">
+        <a class="bs-link" href="#about"><span class="bs-label">About</span></a>
       </li>
-      <li class="rail-item" data-rail-id="experience" data-rail-depth="0">
-        <a class="rail-link" href="#experience"><span class="rail-label">Experience</span></a>
+      <li class="bs-item" data-bs-id="experience">
+        <a class="bs-link" href="#experience"><span class="bs-label">Experience</span></a>
       </li>
-      <li class="rail-item" data-rail-id="contact" data-rail-depth="0">
-        <a class="rail-link" href="#contact"><span class="rail-label">Contact</span></a>
+      <li class="bs-item" data-bs-id="contact">
+        <a class="bs-link" href="#contact"><span class="bs-label">Contact</span></a>
       </li>
     </ul>
   </nav>
@@ -128,361 +105,176 @@ import LangToggle from './LangToggle.astro';
   const side = document.querySelector<HTMLElement>('[data-side-nav]');
   if (side) {
     const hero = document.querySelector('.hero');
-    const contactEl = document.querySelector('#contact');
     const desktopMq = window.matchMedia('(min-width: 1200px)');
+    const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    // Contextual show/hide: hidden over Hero and Contact, active in between on desktop
+    // Contextual show/hide: hidden over Hero, visible across Projects, About, Experience & Contact
     let pastHero = !hero;
-    let atContact = false;
     const syncVisibility = () => {
-      const show = desktopMq.matches && pastHero && !atContact;
+      const show = desktopMq.matches && pastHero;
       side.classList.toggle('is-visible', show);
       side.inert = !show;
     };
 
     if (hero) {
-      new IntersectionObserver(([e]) => {
-        pastHero = !e.isIntersecting;
-        syncVisibility();
-      }, { threshold: 0.12 }).observe(hero);
-    }
-    if (contactEl) {
-      new IntersectionObserver(([e]) => {
-        atContact = e.isIntersecting;
-        syncVisibility();
-      }, { rootMargin: '0px 0px -35% 0px' }).observe(contactEl);
+      new IntersectionObserver(
+        ([e]) => {
+          pastHero = !e.isIntersecting;
+          syncVisibility();
+        },
+        { threshold: 0.12 },
+      ).observe(hero);
     }
     desktopMq.addEventListener('change', syncVisibility);
     syncVisibility();
 
-    // RareUI-inspired Rail TOC with damped harmonic plane & continuous scroll progress
-    const tocNav = side.querySelector<HTMLElement>('[data-rail-toc]');
-    const list = tocNav?.querySelector<HTMLUListElement>('.rail-list');
-    const svg = list?.querySelector<SVGSVGElement>('.rail-svg');
-    const dashedPath = svg?.querySelector<SVGPathElement>('.rail-path-dashed');
-    const solidPath = svg?.querySelector<SVGPathElement>('.rail-path-solid');
-    const nodesGroup = svg?.querySelector<SVGGElement>('.rail-nodes');
-    const holesGroup = svg?.querySelector<SVGGElement>('.rail-mask-holes');
-    const fadeGrad = svg?.querySelector<SVGLinearGradientElement>('#pun-rail-fade');
-    const planeEl = list?.querySelector<HTMLElement>('[data-rail-plane]');
-    const holePlane1 = svg?.querySelector<SVGCircleElement>('.rail-plane-hole');
-    const holePlane2 = svg?.querySelector<SVGCircleElement>('.rail-plane-hole-nodes');
+    // RareUI Bounce Sidebar spring physics controller
+    const nav = side.querySelector<HTMLElement>('[data-bounce-sidebar]');
+    const list = nav?.querySelector<HTMLUListElement>('.bs-list');
+    const marker = nav?.querySelector<HTMLElement>('[data-bs-marker]');
 
-    if (
-      tocNav &&
-      list &&
-      svg &&
-      dashedPath &&
-      solidPath &&
-      nodesGroup &&
-      holesGroup &&
-      fadeGrad &&
-      planeEl &&
-      holePlane1 &&
-      holePlane2
-    ) {
-      const SVG_NS = 'http://www.w3.org/2000/svg';
-      const RAIL_X = 8;
-      const INDENT = 12;
-      const OFFSET = 96;
-      const TURN_SLACK = 2;
+    if (nav && list && marker) {
+      const items = [...list.querySelectorAll<HTMLLIElement>('.bs-item')]
+        .map((li) => {
+          const id = li.dataset.bsId ?? '';
+          const link = li.querySelector<HTMLAnchorElement>('.bs-link');
+          const target = id ? document.getElementById(id) : null;
+          return link ? { li, id, link, target } : null;
+        })
+        .filter((x): x is { li: HTMLLIElement; id: string; link: HTMLAnchorElement; target: HTMLElement | null } => x !== null);
 
-      const rows = [...list.querySelectorAll<HTMLLIElement>('.rail-item')];
-      const items = rows.map((row) => ({
-        id: row.dataset.railId || '',
-        depth: Number(row.dataset.railDepth || 0),
-        row,
-        link: row.querySelector<HTMLAnchorElement>('.rail-link')!,
-      }));
-
-      const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
-      let nodePts: { x: number; y: number }[] = [];
-      let nodeLengths: number[] = [];
-      let nodeCircles: SVGCircleElement[] = [];
-      let totalLen = 0;
-
-      let placed = false;
-      let pinned: number | null = null;
-      let userScrolled = false;
-      let facing: 1 | -1 = 1;
-      let turnFrom = 0;
       let activeIdx = 0;
-      let lastReached = -1;
+      let pinnedIdx: number | null = null;
+      let userScrolled = false;
+      let placed = false;
 
-      const travel = { val: 0, vel: 0, target: 0, stiffness: 140, damping: 26, mass: 0.6 };
-      const turn = { val: 180, vel: 0, target: 180, stiffness: 260, damping: 30, mass: 1.0 };
+      // Underdamped harmonic spring state for the bouncing red dot
+      let y = 0;
+      let vy = 0;
+      let targetY = 0;
       let rafId = 0;
-      let lastTs = 0;
+      let lastT = 0;
 
-      function buildPath(pts: { x: number; y: number }[]): string {
-        if (!pts.length) return '';
-        const out: { x: number; y: number }[] = [{ x: pts[0].x, y: 0 }, pts[0]];
-        for (let i = 1; i < pts.length; i++) {
-          const from = pts[i - 1];
-          const to = pts[i];
-          if (from.x !== to.x) {
-            const bend = (to.y - from.y) * 0.3;
-            out.push({ x: from.x, y: from.y + bend }, { x: to.x, y: to.y - bend });
-          }
-          out.push(to);
-        }
-        return out.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-      }
+      const STIFFNESS = 460;
+      const DAMPING = 23;
 
-      function lengthAtY(path: SVGPathElement, maxL: number, y: number): number {
-        let lo = 0;
-        let hi = maxL;
-        for (let i = 0; i < 24; i++) {
-          const mid = (lo + hi) * 0.5;
-          if (path.getPointAtLength(mid).y < y) lo = mid;
-          else hi = mid;
-        }
-        return hi;
-      }
+      const renderMarker = (posY: number, velocity: number) => {
+        const stretch = Math.min(0.85, Math.abs(velocity) * 0.0012);
+        const sy = 1 + stretch;
+        const sx = 1 / Math.sqrt(sy);
+        marker.style.transform = `translate3d(0, ${posY.toFixed(2)}px, 0) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+      };
 
-      function stepSpring(s: typeof travel, dtSec: number): boolean {
-        const steps = Math.max(1, Math.ceil(dtSec / 0.004));
-        const h = dtSec / steps;
-        for (let i = 0; i < steps; i++) {
-          const force = -s.stiffness * (s.val - s.target) - s.damping * s.vel;
-          s.vel += (force / s.mass) * h;
-          s.val += s.vel * h;
-        }
-        if (Math.abs(s.target - s.val) < 0.08 && Math.abs(s.vel) < 0.08) {
-          s.val = s.target;
-          s.vel = 0;
-          return false;
-        }
-        return true;
-      }
+      const step = (now: number) => {
+        const dt = Math.min(0.032, Math.max(0.004, (now - lastT) / 1000));
+        lastT = now;
 
-      function applyPose(l: number, deg: number) {
-        if (!totalLen) return;
-        const clamped = Math.max(0, Math.min(totalLen, l));
-        const at = dashedPath!.getPointAtLength(clamped);
+        const force = -STIFFNESS * (y - targetY) - DAMPING * vy;
+        vy += force * dt;
+        y += vy * dt;
 
-        solidPath!.style.strokeDasharray = `${totalLen} ${totalLen}`;
-        solidPath!.style.strokeDashoffset = `${Math.max(0, totalLen - clamped)}`;
-
-        holePlane1!.setAttribute('cx', at.x.toFixed(2));
-        holePlane1!.setAttribute('cy', at.y.toFixed(2));
-        holePlane2!.setAttribute('cx', at.x.toFixed(2));
-        holePlane2!.setAttribute('cy', at.y.toFixed(2));
-
-        planeEl!.style.transform = `translate3d(${at.x.toFixed(2)}px, ${at.y.toFixed(2)}px, 0) rotate(${deg.toFixed(2)}deg)`;
-
-        const reached = nodeLengths.filter((nl) => nl <= clamped + 0.5).length;
-        if (reached !== lastReached) {
-          lastReached = reached;
-          activeIdx = Math.max(0, reached - 1);
-          for (let i = 0; i < nodeCircles.length; i++) {
-            const covered = i < reached;
-            const c = nodeCircles[i];
-            c.setAttribute('r', covered ? '3' : '3.25');
-            c.classList.toggle('is-covered', covered);
-          }
-          for (let i = 0; i < items.length; i++) {
-            const isAct = i === activeIdx;
-            const isPassed = i < reached;
-            items[i].link.classList.toggle('is-active', isAct);
-            items[i].link.classList.toggle('is-passed', isPassed && !isAct);
-            if (isAct) items[i].link.setAttribute('aria-current', 'location');
-            else items[i].link.removeAttribute('aria-current');
-          }
-        }
-      }
-
-      function computeHeadingAt(l: number): number {
-        const c = Math.max(0, Math.min(totalLen, l));
-        const behind = dashedPath!.getPointAtLength(Math.max(0, c - 1));
-        const ahead = dashedPath!.getPointAtLength(Math.min(totalLen, c + 1));
-        const angle = (Math.atan2(ahead.y - behind.y, ahead.x - behind.x) * 180) / Math.PI + 90 + (facing < 0 ? 180 : 0);
-        return angle + 360 * Math.round((turn.target - angle) / 360);
-      }
-
-      function startAnimLoop() {
-        if (!rafId) {
-          lastTs = 0;
-          rafId = requestAnimationFrame(animTick);
-        }
-      }
-
-      function animTick(ts: number) {
-        const dt = lastTs ? Math.min(0.04, (ts - lastTs) * 0.001) : 1 / 60;
-        lastTs = ts;
-
-        if (reduceMq.matches) {
-          travel.val = travel.target;
-          travel.vel = 0;
-          turn.target = computeHeadingAt(travel.val);
-          turn.val = turn.target;
-          turn.vel = 0;
-          applyPose(travel.val, turn.val);
+        if (Math.abs(y - targetY) < 0.15 && Math.abs(vy) < 1.2) {
+          y = targetY;
+          vy = 0;
+          renderMarker(y, 0);
           rafId = 0;
-          lastTs = 0;
           return;
         }
 
-        const moving = stepSpring(travel, dt);
-        turn.target = computeHeadingAt(travel.val);
-        const turning = stepSpring(turn, dt);
-        applyPose(travel.val, turn.val);
+        renderMarker(y, vy);
+        rafId = requestAnimationFrame(step);
+      };
 
-        if (moving || turning) {
-          rafId = requestAnimationFrame(animTick);
-        } else {
-          rafId = 0;
-          lastTs = 0;
-        }
-      }
+      const moveMarkerTo = (idx: number, instant = false) => {
+        const item = items[idx];
+        if (!item) return;
+        const listRect = list.getBoundingClientRect();
+        const itemRect = item.li.getBoundingClientRect();
+        if (itemRect.height <= 0) return;
 
-      function aim(next: number) {
-        const from = turnFrom;
-        if ((next - from) * facing > 0) {
-          turnFrom = next;
-        } else if (Math.abs(next - from) > TURN_SLACK) {
-          facing = facing > 0 ? -1 : 1;
-          turnFrom = next;
-        }
-        travel.target = next;
-        startAnimLoop();
-      }
+        const nextY = itemRect.top - listRect.top + itemRect.height / 2;
+        targetY = nextY;
 
-      function sync() {
-        if (!nodeLengths.length) return;
-        if (pinned !== null) {
-          aim(nodeLengths[pinned] ?? nodeLengths[0]);
-          return;
-        }
-
-        const scrollTop = window.scrollY;
-        const viewH = window.innerHeight;
-        const scrollH = document.documentElement.scrollHeight;
-        const remaining = Math.max(0, scrollH - viewH - scrollTop);
-        const line = Math.min(OFFSET, scrollTop);
-        const anchor = line + Math.max(0, viewH - line - remaining);
-
-        const tops = items.map((item) => {
-          const el = document.getElementById(item.id);
-          return el ? el.getBoundingClientRect().top : Infinity;
-        });
-
-        let index = -1;
-        for (let i = tops.length - 1; i >= 0; i--) {
-          if (tops[i] <= anchor) {
-            index = i;
-            break;
-          }
-        }
-
-        let next = nodeLengths[0];
-        if (index === -1) next = nodeLengths[0];
-        else if (index === nodeLengths.length - 1) next = nodeLengths[index];
-        else {
-          const span = tops[index + 1] - tops[index];
-          const progress = span > 0 ? (anchor - tops[index]) / span : 0;
-          next = nodeLengths[index] + Math.min(1, Math.max(0, progress)) * (nodeLengths[index + 1] - nodeLengths[index]);
-        }
-
-        aim(next);
-        if (!placed) {
+        if (!placed || instant || reduceMq.matches) {
           placed = true;
-          travel.val = next;
-          travel.vel = 0;
-          turn.target = computeHeadingAt(next);
-          turn.val = turn.target;
-          turn.vel = 0;
-          applyPose(next, turn.val);
+          y = nextY;
+          vy = 0;
+          marker.classList.add('is-ready');
+          renderMarker(y, 0);
+          return;
         }
-      }
 
-      function measure() {
-        const h = list!.offsetHeight;
-        if (!h) return;
+        marker.classList.add('is-ready');
+        if (!rafId) {
+          lastT = performance.now();
+          rafId = requestAnimationFrame(step);
+        }
+      };
 
-        nodePts = items.map((item) => ({
-          x: RAIL_X + item.depth * INDENT,
-          y: item.row.offsetTop + item.row.offsetHeight * 0.5,
-        }));
+      const setActive = (idx: number, instant = false) => {
+        const clamped = Math.max(0, Math.min(items.length - 1, idx));
+        const changed = clamped !== activeIdx || !placed;
+        activeIdx = clamped;
 
-        const w = Math.max(...nodePts.map((n) => n.x)) + RAIL_X + 6;
-        svg!.setAttribute('width', `${w}`);
-        svg!.setAttribute('height', `${h}`);
-        svg!.setAttribute('viewBox', `0 0 ${w} ${h}`);
-
-        const m1 = svg!.querySelector('#pun-rail-mask');
-        const m2 = svg!.querySelector('#pun-nodes-mask');
-        [m1, m2].forEach((m) => {
-          m?.setAttribute('width', `${w + 24}`);
-          m?.setAttribute('height', `${h + 24}`);
-        });
-        svg!.querySelector('.rail-mask-bg')?.setAttribute('width', `${w + 24}`);
-        svg!.querySelector('.rail-mask-bg')?.setAttribute('height', `${h + 24}`);
-        svg!.querySelector('.nodes-mask-bg')?.setAttribute('width', `${w + 24}`);
-        svg!.querySelector('.nodes-mask-bg')?.setAttribute('height', `${h + 24}`);
-        fadeGrad!.setAttribute('y2', `${Math.max(4, nodePts[0].y - 4)}`);
-
-        const d = buildPath(nodePts);
-        dashedPath!.setAttribute('d', d);
-        solidPath!.setAttribute('d', d);
-
-        holesGroup!.innerHTML = '';
-        nodesGroup!.innerHTML = '';
-        nodeCircles = nodePts.map((pt) => {
-          const hole = document.createElementNS(SVG_NS, 'circle');
-          hole.setAttribute('cx', pt.x.toFixed(1));
-          hole.setAttribute('cy', pt.y.toFixed(1));
-          hole.setAttribute('r', '4');
-          hole.setAttribute('fill', 'black');
-          holesGroup!.appendChild(hole);
-
-          const c = document.createElementNS(SVG_NS, 'circle');
-          c.setAttribute('cx', pt.x.toFixed(1));
-          c.setAttribute('cy', pt.y.toFixed(1));
-          c.setAttribute('r', '3.25');
-          c.setAttribute('stroke-width', '1.25');
-          c.classList.add('rail-node');
-          nodesGroup!.appendChild(c);
-          return c;
+        items.forEach((it, i) => {
+          const isAct = i === activeIdx;
+          it.link.classList.toggle('is-active', isAct);
+          if (isAct) it.link.setAttribute('aria-current', 'location');
+          else it.link.removeAttribute('aria-current');
         });
 
-        totalLen = dashedPath!.getTotalLength();
-        nodeLengths = nodePts.map((n) => lengthAtY(dashedPath!, totalLen, n.y));
-        lastReached = -1;
-        sync();
-        applyPose(travel.val, turn.val);
-      }
+        if (changed) moveMarkerTo(activeIdx, instant);
+      };
 
-      items.forEach((item, idx) => {
-        item.link.addEventListener('click', () => {
-          pinned = idx;
+      const detectActiveFromScroll = () => {
+        if (pinnedIdx !== null && !userScrolled) {
+          setActive(pinnedIdx);
+          return;
+        }
+        pinnedIdx = null;
+
+        // Near bottom of document -> activate Contact
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40) {
+          setActive(items.length - 1);
+          return;
+        }
+
+        const anchorY = window.innerHeight * 0.34;
+        let best = 0;
+        items.forEach((it, i) => {
+          if (!it.target) return;
+          const top = it.target.getBoundingClientRect().top;
+          if (top <= anchorY) best = i;
+        });
+        setActive(best);
+      };
+
+      items.forEach((it, idx) => {
+        it.link.addEventListener('click', () => {
+          pinnedIdx = idx;
           userScrolled = false;
-          sync();
+          setActive(idx);
         });
       });
 
       const onIntent = (e: Event) => {
-        if (e.type === 'pointerdown' && e.target instanceof Element && e.target.closest('[data-rail-toc]')) {
+        if (e.type === 'pointerdown' && e.target instanceof Element && e.target.closest('[data-bounce-sidebar]')) {
           return;
         }
         userScrolled = true;
       };
-      const onScroll = () => {
-        if (pinned !== null && userScrolled) pinned = null;
-        sync();
-      };
 
-      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('scroll', detectActiveFromScroll, { passive: true });
       window.addEventListener('wheel', onIntent, { passive: true });
       window.addEventListener('touchstart', onIntent, { passive: true });
       window.addEventListener('pointerdown', onIntent);
       window.addEventListener('keydown', onIntent);
-      window.addEventListener('resize', measure);
+      window.addEventListener('resize', () => moveMarkerTo(activeIdx, true));
 
-      const ro = new ResizeObserver(measure);
+      const ro = new ResizeObserver(() => moveMarkerTo(activeIdx, true));
       ro.observe(list);
-      document.fonts?.ready.then(measure).catch(() => {});
-      measure();
+      document.fonts?.ready.then(() => moveMarkerTo(activeIdx, true)).catch(() => {});
+      detectActiveFromScroll();
     }
   }
 </script>
@@ -502,7 +294,7 @@ import LangToggle from './LangToggle.astro';
       flex-direction: column;
       justify-content: space-between;
       gap: 16px;
-      padding: 36px 24px 24px 32px;
+      padding: 36px 24px 24px 28px;
       background: color-mix(in srgb, var(--c-bg) 96%, transparent);
       border-right: 1px solid var(--c-line);
       backdrop-filter: blur(12px);
@@ -554,141 +346,86 @@ import LangToggle from './LangToggle.astro';
       padding-block: 6px;
     }
 
-    .rail-list {
+    /* ================= RAREUI BOUNCE SIDEBAR ================= */
+    .bs-list {
       position: relative;
-      display: grid;
-      gap: 3px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
       margin: auto 0;
       padding: 0;
       list-style: none;
     }
 
-    .rail-svg {
+    .bs-marker {
       position: absolute;
-      left: 0;
+      left: 4px;
       top: 0;
+      width: 7px;
+      height: 7px;
+      margin-top: -3.5px;
+      border-radius: 999px;
+      background: var(--c-accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 16%, transparent);
+      opacity: 0;
       pointer-events: none;
-      overflow: visible;
-    }
-
-    .rail-path-dashed,
-    .rail-path-solid {
-      fill: none;
-      stroke-width: 1.25;
-      stroke-linejoin: round;
-    }
-    .rail-path-dashed {
-      stroke-dasharray: 2 5;
-      stroke-linecap: round;
-      stroke: rgb(20 19 18 / 0.22);
-    }
-    :global(:root[data-theme='dark']) .rail-path-dashed {
-      stroke: rgb(239 233 222 / 0.24);
-    }
-    .rail-path-solid {
-      stroke: rgb(20 19 18 / 0.56);
-    }
-    :global(:root[data-theme='dark']) .rail-path-solid {
-      stroke: rgb(239 233 222 / 0.54);
-    }
-
-    .rail-nodes :global(.rail-node) {
-      fill: transparent;
-      stroke: rgb(20 19 18 / 0.28);
-      transition: fill 0.2s ease, stroke 0.2s ease;
-    }
-    :global(:root[data-theme='dark']) .rail-nodes :global(.rail-node) {
-      stroke: rgb(239 233 222 / 0.3);
-    }
-    .rail-nodes :global(.rail-node.is-covered) {
-      fill: rgb(20 19 18 / 0.68);
-      stroke: rgb(20 19 18 / 0.68);
-    }
-    :global(:root[data-theme='dark']) .rail-nodes :global(.rail-node.is-covered) {
-      fill: rgb(239 233 222 / 0.7);
-      stroke: rgb(239 233 222 / 0.7);
-    }
-
-    .rail-plane {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 15px;
-      height: 15px;
-      margin-left: -7.5px;
-      margin-top: -7.5px;
-      color: var(--c-accent);
-      pointer-events: none;
-      transform-origin: center;
-      filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.22));
       will-change: transform;
+      transition: opacity 0.2s ease;
     }
-    .rail-plane-svg {
-      display: block;
-      width: 15px;
-      height: 15px;
-      overflow: visible;
+    .bs-marker.is-ready {
+      opacity: 1;
     }
 
-    .rail-item {
-      margin: 0;
+    .bs-heading {
+      margin-top: 14px;
+      margin-bottom: 4px;
+      padding-left: 20px;
+      font-family: var(--f-clash);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--c-muted);
+      opacity: 0.72;
+      user-select: none;
     }
-    .rail-link {
+
+    .bs-item {
+      position: relative;
+    }
+
+    .bs-link {
       display: flex;
       align-items: center;
-      height: 32px;
-      padding-right: 2px;
-      border-radius: 6px;
-      font: 400 14px / 1.25 var(--f-nav);
-      letter-spacing: -0.005em;
-      color: var(--c-muted);
+      padding: 5px 8px 5px 20px;
+      border-radius: 8px;
       text-decoration: none;
-      transition: color 0.18s ease;
-    }
-    .rail-item[data-rail-depth='0'] .rail-link {
-      padding-left: 20px;
-    }
-    .rail-item[data-rail-depth='1'] .rail-link {
-      padding-left: 32px;
-    }
-
-    .rail-label {
-      display: inline-flex;
-      align-items: center;
-      min-width: 0;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      padding: 4px 6px;
-      margin-left: -5px;
-      border-radius: 7px;
-      border: 1px solid transparent;
-      transition:
-        color 0.18s ease,
-        background-color 0.18s ease,
-        border-color 0.18s ease,
-        box-shadow 0.18s ease;
+      color: var(--c-muted);
+      font-family: var(--f-nav);
+      font-size: 13.5px;
+      font-weight: 500;
+      line-height: 1.3;
+      transition: color 0.18s ease, background-color 0.18s ease;
     }
 
-    .rail-link:hover {
+    .bs-label {
+      display: inline-block;
+      transition: transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .bs-link:hover {
       color: var(--c-fg);
     }
-    .rail-link.is-passed {
-      color: color-mix(in srgb, var(--c-fg) 68%, var(--c-muted));
+    .bs-link:hover .bs-label {
+      transform: translateX(3px);
     }
-    .rail-link.is-active {
+
+    .bs-link.is-active {
       color: var(--c-fg);
+      font-weight: 600;
     }
-    .rail-link.is-active .rail-label {
-      border-color: rgb(20 19 18 / 0.14);
-      background: var(--c-bg-raised);
-      box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.72);
-    }
-    :global(:root[data-theme='dark']) .rail-link.is-active .rail-label {
-      border-color: rgb(251 245 235 / 0.16);
-      background: var(--c-bg-raised);
-      box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+    .bs-link.is-active .bs-label {
+      transform: translateX(6px);
     }
 
     .side-bottom {
@@ -787,7 +524,8 @@ import LangToggle from './LangToggle.astro';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .side-nav {
+    .side-nav,
+    .bs-label {
       transition: none;
     }
   }
