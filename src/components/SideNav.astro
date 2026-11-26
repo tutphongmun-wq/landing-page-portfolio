@@ -1,7 +1,8 @@
 ---
-// Desktop left sidebar navigation (>= 1200px) with RareUI Bounce Sidebar
-// (https://www.rareui.com/components/bouncesidebar) spring-animated active dot indicator.
-// Slides in once the visitor scrolls past Hero and stays visible down through minimal Contact.
+// Desktop left sidebar navigation (>= 1200px) with RareUI Hook Sidebar
+// (https://www.rareui.com/components/hooksidebar) matching the #project-<slug> reader.
+// Indents the 7 project names inward beneath the PROJECTS heading so top-level
+// sections and nested project items have clear visual hierarchy.
 import { projects } from '../data/projects';
 import { contact, profile } from '../data/site';
 import ThemeToggle from './ThemeToggle.astro';
@@ -17,39 +18,56 @@ import LangToggle from './LangToggle.astro';
     <p class="role">{profile.role}</p>
   </div>
 
-  <nav class="side-scroll" data-bounce-sidebar aria-label="Sections & Projects">
-    <ul class="bs-list" role="list">
-      <!-- Bouncy spring-animated active marker (RareUI BounceSidebar) -->
-      <span class="bs-marker" data-bs-marker aria-hidden="true"></span>
+  <nav class="side-scroll" aria-label="Sections & Projects">
+    <div class="sn-hook-list" data-main-hook-sidebar>
+      <!-- Hover preview dashed L-hook -->
+      <span class="sn-hook-rail is-hover" data-hook-rail="hover" aria-hidden="true">
+        <span class="sn-hook-stem" data-hook-stem></span>
+        <svg width="28" height="7" viewBox="0 0 28 7" fill="none" class="sn-hook-corner" data-hook-corner>
+          <path data-hook-path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
+        </svg>
+      </span>
 
-      <li class="bs-item" data-bs-id="top">
-        <a class="bs-link" href="#top"><span class="bs-label">Intro</span></a>
-      </li>
+      <!-- Active accent red dashed L-hook -->
+      <span class="sn-hook-rail is-accent" data-hook-rail="active" aria-hidden="true">
+        <span class="sn-hook-stem" data-hook-stem></span>
+        <svg width="28" height="7" viewBox="0 0 28 7" fill="none" class="sn-hook-corner" data-hook-corner>
+          <path data-hook-path d="M0.5 0a6 6 0 0 0 6 6H12" stroke="currentColor" stroke-dasharray="2 2" />
+        </svg>
+      </span>
 
-      <li class="bs-heading" aria-hidden="true">Projects</li>
+      <a class="sn-hook-item is-top" href="#top" data-hook-item data-hook-id="top" data-depth="0">
+        Intro
+      </a>
+
+      <span class="sn-hook-heading" aria-hidden="true">Projects</span>
 
       {
         projects.map((p) => (
-          <li class="bs-item" data-bs-id={p.slug}>
-            <a class="bs-link" href={`#${p.slug}`}>
-              <span class="bs-label">{p.spine.label}</span>
-            </a>
-          </li>
+          <a
+            class="sn-hook-item is-child"
+            href={`#${p.slug}`}
+            data-hook-item
+            data-hook-id={p.slug}
+            data-depth="1"
+          >
+            {p.spine.label}
+          </a>
         ))
       }
 
-      <li class="bs-heading" aria-hidden="true">Profile</li>
+      <span class="sn-hook-heading" aria-hidden="true">Profile</span>
 
-      <li class="bs-item" data-bs-id="about">
-        <a class="bs-link" href="#about"><span class="bs-label">About</span></a>
-      </li>
-      <li class="bs-item" data-bs-id="experience">
-        <a class="bs-link" href="#experience"><span class="bs-label">Experience</span></a>
-      </li>
-      <li class="bs-item" data-bs-id="contact">
-        <a class="bs-link" href="#contact"><span class="bs-label">Contact</span></a>
-      </li>
-    </ul>
+      <a class="sn-hook-item is-top" href="#about" data-hook-item data-hook-id="about" data-depth="0">
+        About
+      </a>
+      <a class="sn-hook-item is-top" href="#experience" data-hook-item data-hook-id="experience" data-depth="0">
+        Experience
+      </a>
+      <a class="sn-hook-item is-top" href="#contact" data-hook-item data-hook-id="contact" data-depth="0">
+        Contact
+      </a>
+    </div>
   </nav>
 
   <div class="side-bottom">
@@ -128,153 +146,236 @@ import LangToggle from './LangToggle.astro';
     desktopMq.addEventListener('change', syncVisibility);
     syncVisibility();
 
-    // RareUI Bounce Sidebar spring physics controller
-    const nav = side.querySelector<HTMLElement>('[data-bounce-sidebar]');
-    const list = nav?.querySelector<HTMLUListElement>('.bs-list');
-    const marker = nav?.querySelector<HTMLElement>('[data-bs-marker]');
+    // RareUI Hook Sidebar spring controller (matching #project-<slug> reader)
+    const hookRoot = side.querySelector<HTMLElement>('[data-main-hook-sidebar]');
+    if (hookRoot) {
+      const hookItems = [...hookRoot.querySelectorAll<HTMLAnchorElement>('[data-hook-item]')];
+      const hoverRail = hookRoot.querySelector<HTMLElement>('[data-hook-rail="hover"]');
+      const activeRail = hookRoot.querySelector<HTMLElement>('[data-hook-rail="active"]');
+      const hStem = hoverRail?.querySelector<HTMLElement>('[data-hook-stem]');
+      const hCorner = hoverRail?.querySelector<SVGElement>('[data-hook-corner]');
+      const hPath = hoverRail?.querySelector<SVGPathElement>('[data-hook-path]');
+      const aStem = activeRail?.querySelector<HTMLElement>('[data-hook-stem]');
+      const aCorner = activeRail?.querySelector<SVGElement>('[data-hook-corner]');
+      const aPath = activeRail?.querySelector<SVGPathElement>('[data-hook-path]');
 
-    if (nav && list && marker) {
-      const items = [...list.querySelectorAll<HTMLLIElement>('.bs-item')]
-        .map((li) => {
-          const id = li.dataset.bsId ?? '';
-          const link = li.querySelector<HTMLAnchorElement>('.bs-link');
-          const target = id ? document.getElementById(id) : null;
-          return link ? { li, id, link, target } : null;
-        })
-        .filter((x): x is { li: HTMLLIElement; id: string; link: HTMLAnchorElement; target: HTMLElement | null } => x !== null);
-
-      let activeIdx = 0;
-      let pinnedIdx: number | null = null;
-      let userScrolled = false;
-      let placed = false;
-
-      // Underdamped harmonic spring state for the bouncing red dot
-      let y = 0;
-      let vy = 0;
-      let targetY = 0;
-      let rafId = 0;
-      let lastT = 0;
-
-      const STIFFNESS = 460;
-      const DAMPING = 23;
-
-      const renderMarker = (posY: number, velocity: number) => {
-        const stretch = Math.min(0.85, Math.abs(velocity) * 0.0012);
-        const sy = 1 + stretch;
-        const sx = 1 / Math.sqrt(sy);
-        marker.style.transform = `translate3d(0, ${posY.toFixed(2)}px, 0) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
-      };
-
-      const step = (now: number) => {
-        const dt = Math.min(0.032, Math.max(0.004, (now - lastT) / 1000));
-        lastT = now;
-
-        const force = -STIFFNESS * (y - targetY) - DAMPING * vy;
-        vy += force * dt;
-        y += vy * dt;
-
-        if (Math.abs(y - targetY) < 0.15 && Math.abs(vy) < 1.2) {
-          y = targetY;
-          vy = 0;
-          renderMarker(y, 0);
-          rafId = 0;
-          return;
-        }
-
-        renderMarker(y, vy);
-        rafId = requestAnimationFrame(step);
-      };
-
-      const moveMarkerTo = (idx: number, instant = false) => {
-        const item = items[idx];
-        if (!item) return;
-        const listRect = list.getBoundingClientRect();
-        const itemRect = item.li.getBoundingClientRect();
-        if (itemRect.height <= 0) return;
-
-        const nextY = itemRect.top - listRect.top + itemRect.height / 2;
-        targetY = nextY;
-
-        if (!placed || instant || reduceMq.matches) {
-          placed = true;
-          y = nextY;
-          vy = 0;
-          marker.classList.add('is-ready');
-          renderMarker(y, 0);
-          return;
-        }
-
-        marker.classList.add('is-ready');
-        if (!rafId) {
-          lastT = performance.now();
-          rafId = requestAnimationFrame(step);
-        }
-      };
-
-      const setActive = (idx: number, instant = false) => {
-        const clamped = Math.max(0, Math.min(items.length - 1, idx));
-        const changed = clamped !== activeIdx || !placed;
-        activeIdx = clamped;
-
-        items.forEach((it, i) => {
-          const isAct = i === activeIdx;
-          it.link.classList.toggle('is-active', isAct);
-          if (isAct) it.link.setAttribute('aria-current', 'location');
-          else it.link.removeAttribute('aria-current');
+      if (hookItems.length && hoverRail && activeRail && hStem && hCorner && hPath && aStem && aCorner && aPath) {
+        const CORNER = 6;
+        const targets = hookItems.map((el) => {
+          const id = el.dataset.hookId ?? '';
+          return id ? document.getElementById(id) : null;
         });
 
-        if (changed) moveMarkerTo(activeIdx, instant);
-      };
+        let activeIdx = 0;
+        let pinnedIdx: number | null = null;
+        let userScrolled = false;
+        let hoverIdx: number | null = null;
+        let pointerInside = false;
+        let focusInside = false;
+        let placed = false;
 
-      const detectActiveFromScroll = () => {
-        if (pinnedIdx !== null && !userScrolled) {
-          setActive(pinnedIdx);
-          return;
-        }
-        pinnedIdx = null;
+        const aTop = { val: 0, vel: 0, target: 0 };
+        const aY = { val: 0, vel: 0, target: 0 };
+        const aReach = { val: 12, vel: 0, target: 12 };
+        const hTop = { val: 0, vel: 0, target: 0 };
+        const hY = { val: 0, vel: 0, target: 0 };
+        const hReach = { val: 12, vel: 0, target: 12 };
+        let rafId = 0;
+        let lastTs = 0;
 
-        // Near bottom of document -> activate Contact
-        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40) {
-          setActive(items.length - 1);
-          return;
-        }
+        const stepSpring = (s: { val: number; vel: number; target: number }, dt: number, stiffness: number, damping: number) => {
+          const force = -stiffness * (s.val - s.target) - damping * s.vel;
+          s.vel += force * dt;
+          s.val += s.vel * dt;
+          if (Math.abs(s.val - s.target) < 0.08 && Math.abs(s.vel) < 0.25) {
+            s.val = s.target;
+            s.vel = 0;
+            return false;
+          }
+          return true;
+        };
 
-        const anchorY = window.innerHeight * 0.34;
-        let best = 0;
-        items.forEach((it, i) => {
-          if (!it.target) return;
-          const top = it.target.getBoundingClientRect().top;
-          if (top <= anchorY) best = i;
+        const renderRail = (
+          stem: HTMLElement,
+          corner: SVGElement,
+          pathEl: SVGPathElement,
+          top: number,
+          y: number,
+          reach: number,
+        ) => {
+          const stemH = Math.max(0, y - CORNER - top);
+          stem.style.transform = `translate3d(0, ${top.toFixed(2)}px, 0)`;
+          stem.style.height = `${stemH.toFixed(2)}px`;
+          corner.style.transform = `translate3d(0, ${(y - CORNER).toFixed(2)}px, 0)`;
+          pathEl.setAttribute('d', `M0.5 0a6 6 0 0 0 6 6H${Math.max(8, reach).toFixed(1)}`);
+        };
+
+        const renderAll = () => {
+          renderRail(aStem, aCorner, aPath, aTop.val, aY.val, aReach.val);
+          renderRail(hStem, hCorner, hPath, hTop.val, hY.val, hReach.val);
+        };
+
+        const tick = (now: number) => {
+          const dt = Math.min(0.032, Math.max(0.004, (now - lastTs) / 1000));
+          lastTs = now;
+          let moving = false;
+          if (reduceMq.matches) {
+            aTop.val = aTop.target;
+            aY.val = aY.target;
+            aReach.val = aReach.target;
+            hTop.val = hTop.target;
+            hY.val = hY.target;
+            hReach.val = hReach.target;
+          } else {
+            moving = stepSpring(aTop, dt, 340, 32) || moving;
+            moving = stepSpring(aY, dt, 340, 32) || moving;
+            moving = stepSpring(aReach, dt, 380, 30) || moving;
+            moving = stepSpring(hTop, dt, 420, 36) || moving;
+            moving = stepSpring(hY, dt, 420, 36) || moving;
+            moving = stepSpring(hReach, dt, 420, 34) || moving;
+          }
+          renderAll();
+          if (moving) rafId = requestAnimationFrame(tick);
+          else rafId = 0;
+        };
+
+        const schedule = () => {
+          if (!rafId) {
+            lastTs = performance.now();
+            rafId = requestAnimationFrame(tick);
+          }
+        };
+
+        const reachFor = (idx: number) => (hookItems[idx]?.dataset.depth === '1' ? 24 : 11);
+
+        const syncRails = () => {
+          const rootRect = hookRoot.getBoundingClientRect();
+          if (rootRect.height <= 0) return;
+          const centers = hookItems.map((el) => {
+            const r = el.getBoundingClientRect();
+            return r.top - rootRect.top + r.height / 2;
+          });
+
+          const activeCenter = centers[activeIdx] ?? null;
+          const hoverCenter = hoverIdx !== null ? (centers[hoverIdx] ?? null) : null;
+
+          activeRail.classList.toggle('is-visible', activeCenter !== null);
+          if (activeCenter !== null) {
+            aTop.target = 0;
+            aY.target = activeCenter;
+            aReach.target = reachFor(activeIdx);
+            if (!placed && activeCenter > 0) {
+              placed = true;
+              aTop.val = 0;
+              aY.val = activeCenter;
+              aReach.val = aReach.target;
+            }
+          }
+
+          const showHover =
+            (pointerInside || focusInside) &&
+            hoverIdx !== null &&
+            hoverIdx !== activeIdx &&
+            hoverCenter !== null;
+          hoverRail.classList.toggle('is-visible', showHover);
+          if (hoverCenter !== null && hoverIdx !== null) {
+            const from =
+              activeCenter !== null && hoverCenter <= activeCenter
+                ? Math.max(0, hoverCenter - CORNER)
+                : (activeCenter ?? 0);
+            if (!hoverRail.classList.contains('is-ready')) {
+              hoverRail.classList.add('is-ready');
+              hTop.val = from;
+              hY.val = hoverCenter;
+              hReach.val = reachFor(hoverIdx);
+            }
+            hTop.target = from;
+            hY.target = hoverCenter;
+            hReach.target = reachFor(hoverIdx);
+          }
+
+          renderAll();
+          schedule();
+        };
+
+        const setActive = (idx: number) => {
+          const clamped = Math.max(0, Math.min(hookItems.length - 1, idx));
+          activeIdx = clamped;
+          hookItems.forEach((el, i) => {
+            const hit = i === activeIdx;
+            el.classList.toggle('is-active', hit);
+            if (hit) el.setAttribute('aria-current', 'location');
+            else el.removeAttribute('aria-current');
+          });
+          syncRails();
+        };
+
+        const detectFromScroll = () => {
+          if (pinnedIdx !== null && !userScrolled) {
+            setActive(pinnedIdx);
+            return;
+          }
+          pinnedIdx = null;
+
+          if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40) {
+            setActive(hookItems.length - 1);
+            return;
+          }
+
+          const anchorY = window.innerHeight * 0.34;
+          let best = 0;
+          targets.forEach((el, i) => {
+            if (!el) return;
+            if (el.getBoundingClientRect().top <= anchorY) best = i;
+          });
+          setActive(best);
+        };
+
+        hookItems.forEach((item, idx) => {
+          item.addEventListener('click', () => {
+            pinnedIdx = idx;
+            userScrolled = false;
+            setActive(idx);
+          });
+          item.addEventListener('pointerenter', () => {
+            hoverIdx = idx;
+            pointerInside = true;
+            syncRails();
+          });
+          item.addEventListener('focus', () => {
+            hoverIdx = idx;
+            focusInside = true;
+            syncRails();
+          });
+          item.addEventListener('blur', () => {
+            focusInside = false;
+            syncRails();
+          });
         });
-        setActive(best);
-      };
 
-      items.forEach((it, idx) => {
-        it.link.addEventListener('click', () => {
-          pinnedIdx = idx;
-          userScrolled = false;
-          setActive(idx);
+        hookRoot.addEventListener('pointerleave', () => {
+          pointerInside = false;
+          syncRails();
         });
-      });
 
-      const onIntent = (e: Event) => {
-        if (e.type === 'pointerdown' && e.target instanceof Element && e.target.closest('[data-bounce-sidebar]')) {
-          return;
-        }
-        userScrolled = true;
-      };
+        const onIntent = (e: Event) => {
+          if (e.type === 'pointerdown' && e.target instanceof Element && e.target.closest('[data-main-hook-sidebar]')) {
+            return;
+          }
+          userScrolled = true;
+        };
 
-      window.addEventListener('scroll', detectActiveFromScroll, { passive: true });
-      window.addEventListener('wheel', onIntent, { passive: true });
-      window.addEventListener('touchstart', onIntent, { passive: true });
-      window.addEventListener('pointerdown', onIntent);
-      window.addEventListener('keydown', onIntent);
-      window.addEventListener('resize', () => moveMarkerTo(activeIdx, true));
+        window.addEventListener('scroll', detectFromScroll, { passive: true });
+        window.addEventListener('wheel', onIntent, { passive: true });
+        window.addEventListener('touchstart', onIntent, { passive: true });
+        window.addEventListener('pointerdown', onIntent);
+        window.addEventListener('keydown', onIntent);
+        window.addEventListener('resize', syncRails);
 
-      const ro = new ResizeObserver(() => moveMarkerTo(activeIdx, true));
-      ro.observe(list);
-      document.fonts?.ready.then(() => moveMarkerTo(activeIdx, true)).catch(() => {});
-      detectActiveFromScroll();
+        new ResizeObserver(syncRails).observe(hookRoot);
+        document.fonts?.ready.then(syncRails).catch(() => {});
+        detectFromScroll();
+      }
     }
   }
 </script>
@@ -346,86 +447,91 @@ import LangToggle from './LangToggle.astro';
       padding-block: 6px;
     }
 
-    /* ================= RAREUI BOUNCE SIDEBAR ================= */
-    .bs-list {
+    /* ================= RAREUI HOOK SIDEBAR (with nested project indent) ================= */
+    .sn-hook-list {
       position: relative;
       display: flex;
       flex-direction: column;
       gap: 2px;
       margin: auto 0;
-      padding: 0;
-      list-style: none;
     }
 
-    .bs-marker {
-      position: absolute;
-      left: 4px;
-      top: 0;
-      width: 7px;
-      height: 7px;
-      margin-top: -3.5px;
-      border-radius: 999px;
-      background: var(--c-accent);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 16%, transparent);
-      opacity: 0;
+    .sn-hook-rail {
       pointer-events: none;
-      will-change: transform;
+      position: absolute;
+      inset: 0;
+      opacity: 0;
       transition: opacity 0.2s ease;
     }
-    .bs-marker.is-ready {
+    .sn-hook-rail.is-visible {
       opacity: 1;
     }
+    .sn-hook-rail.is-hover {
+      color: color-mix(in srgb, var(--c-fg) 30%, transparent);
+    }
+    .sn-hook-rail.is-accent {
+      color: var(--c-accent);
+    }
 
-    .bs-heading {
-      margin-top: 14px;
-      margin-bottom: 4px;
-      padding-left: 20px;
+    .sn-hook-stem {
+      position: absolute;
+      left: 2px;
+      top: 0;
+      width: 1px;
+      background-image: repeating-linear-gradient(
+        to top,
+        transparent 0 2px,
+        currentColor 2px 4px
+      );
+    }
+    .sn-hook-corner {
+      position: absolute;
+      left: 2px;
+      top: 0;
+      overflow: visible;
+    }
+
+    .sn-hook-heading {
+      margin-top: 12px;
+      margin-bottom: 3px;
+      padding-left: 18px;
       font-family: var(--f-clash);
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--c-muted);
-      opacity: 0.72;
+      opacity: 0.7;
       user-select: none;
     }
 
-    .bs-item {
+    .sn-hook-item {
       position: relative;
-    }
-
-    .bs-link {
-      display: flex;
-      align-items: center;
-      padding: 5px 8px 5px 20px;
-      border-radius: 8px;
+      display: block;
+      padding-block: 4.5px;
+      padding-right: 6px;
       text-decoration: none;
-      color: var(--c-muted);
       font-family: var(--f-nav);
-      font-size: 13.5px;
       font-weight: 500;
       line-height: 1.3;
-      transition: color 0.18s ease, background-color 0.18s ease;
+      color: var(--c-muted);
+      transition: color 0.16s ease;
+    }
+    .sn-hook-item.is-top {
+      padding-left: 18px;
+      font-size: 13.5px;
+    }
+    .sn-hook-item.is-child {
+      padding-left: 32px;
+      font-size: 13px;
     }
 
-    .bs-label {
-      display: inline-block;
-      transition: transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .bs-link:hover {
+    .sn-hook-item:hover {
       color: var(--c-fg);
     }
-    .bs-link:hover .bs-label {
-      transform: translateX(3px);
-    }
-
-    .bs-link.is-active {
+    .sn-hook-item.is-active {
       color: var(--c-fg);
       font-weight: 600;
-    }
-    .bs-link.is-active .bs-label {
-      transform: translateX(6px);
     }
 
     .side-bottom {
@@ -524,8 +630,7 @@ import LangToggle from './LangToggle.astro';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .side-nav,
-    .bs-label {
+    .side-nav {
       transition: none;
     }
   }

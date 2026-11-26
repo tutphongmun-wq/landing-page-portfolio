@@ -221,21 +221,9 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
         <!-- Right: Sticky Editorial Info Column -->
         <aside class="sp-bento-aside">
           <header class="sp-head">
-            <div class="sp-ed-meta-bar" data-reveal>
-              <span class="sp-no">{p.no} / 07</span>
-              {clientLabel && (
-                <>
-                  <span class="sp-ed-dot" aria-hidden="true">·</span>
-                  <span class="sp-ed-context">{clientLabel}</span>
-                </>
-              )}
-              {yearVal && (
-                <>
-                  <span class="sp-ed-dot" aria-hidden="true">·</span>
-                  <span class="sp-ed-context">{yearVal}</span>
-                </>
-              )}
-            </div>
+            <p class="sp-no" aria-hidden="true" data-reveal>
+              {p.no} / 07
+            </p>
             <h3 id={titleId} class="sp-title" data-reveal style="--reveal-d: 50ms">
               <a
                 class="sp-title-link"
@@ -258,22 +246,6 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
             </p>
           </div>
 
-          {highlightsEn.length > 0 && (
-            <div class="sp-highlights">
-              <h4 class="sp-highlights-title">Highlights</h4>
-              <ul class="sp-highlights-list" data-lang-text="en">
-                {highlightsEn.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-              <ul class="sp-highlights-list" data-lang-text="th">
-                {highlightsTh.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           <dl class="sp-meta-col is-compact">
             <div class="sp-meta-row">
               <dt class="sp-meta-label">Category</dt>
@@ -284,8 +256,8 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
               <dd class="sp-meta-val">{scopeVal}</dd>
             </div>
             <div class="sp-meta-row">
-              <dt class="sp-meta-label">Tools</dt>
-              <dd class="sp-meta-val">{toolsVal}</dd>
+              <dt class="sp-meta-label">Year</dt>
+              <dd class="sp-meta-val">{yearVal}</dd>
             </div>
           </dl>
 
@@ -302,27 +274,9 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
     <div class="sp-inner">
       <!-- 1. Project Index & Title -->
       <header class="sp-head">
-        {isEditorialScale ? (
-          <div class="sp-ed-meta-bar" data-reveal>
-            <span class="sp-no">{p.no} / 07</span>
-            {clientLabel && (
-              <>
-                <span class="sp-ed-dot" aria-hidden="true">·</span>
-                <span class="sp-ed-context">{clientLabel}</span>
-              </>
-            )}
-            {yearVal && (
-              <>
-                <span class="sp-ed-dot" aria-hidden="true">·</span>
-                <span class="sp-ed-context">{yearVal}</span>
-              </>
-            )}
-          </div>
-        ) : (
-          <p class="sp-no" aria-hidden="true" data-reveal>
-            {p.no}
-          </p>
-        )}
+        <p class="sp-no" aria-hidden="true" data-reveal>
+          {p.no} / 07
+        </p>
         <h3 id={titleId} class="sp-title" data-reveal style="--reveal-d: 50ms">
           <a
             class="sp-title-link"
@@ -376,8 +330,8 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
                 <dd class="sp-meta-val">{scopeVal}</dd>
               </div>
               <div class="sp-meta-row">
-                <dt class="sp-meta-label">Tools</dt>
-                <dd class="sp-meta-val">{toolsVal}</dd>
+                <dt class="sp-meta-label">Year</dt>
+                <dd class="sp-meta-val">{yearVal}</dd>
               </div>
             </dl>
 
@@ -531,22 +485,6 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
                 </p>
               </div>
 
-              {isEditorialScale && highlightsEn.length > 0 && (
-                <div class="sp-highlights">
-                  <h4 class="sp-highlights-title">Highlights</h4>
-                  <ul class="sp-highlights-list" data-lang-text="en">
-                    {highlightsEn.map((item) => (
-                      <li>{item}</li>
-                    ))}
-                  </ul>
-                  <ul class="sp-highlights-list" data-lang-text="th">
-                    {highlightsTh.map((item) => (
-                      <li>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
               <a
                 class="sp-cta"
                 href={`#project-${p.slug}`}
@@ -568,8 +506,8 @@ const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
               </div>
 
               <div class="sp-meta-row">
-                <dt class="sp-meta-label">Tools</dt>
-                <dd class="sp-meta-val">{toolsVal}</dd>
+                <dt class="sp-meta-label">Year</dt>
+                <dd class="sp-meta-val">{yearVal}</dd>
               </div>
             </dl>
           </div>
