@@ -10,7 +10,7 @@ import { tools } from '../data/site';
 import { posterUrl } from '../lib/media';
 import Picture from './Picture.astro';
 
-export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial' | 'bento';
+export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial' | 'bento' | 'bento-h';
 
 interface Props {
   project: Project;
@@ -101,10 +101,16 @@ const overviewTh = cs?.subtitleTh ?? (Array.isArray(p.descriptionTh) ? p.descrip
 const highlightsEn = p.role.slice(0, 3);
 const highlightsTh = p.roleTh.slice(0, 3);
 const isGalleryStage = variant === 'gallery' || variant === 'editorial';
+const isEditorialScale = variant === 'editorial' || variant === 'bento-h';
 ---
 
 <article
-  class:list={['project', 'project-showcase', `is-${variant}`, { 'is-wide-canvas': p.slug === 'visual-content' }]}
+  class:list={[
+    'project',
+    'project-showcase',
+    `is-${variant}`,
+    { 'is-editorial': isEditorialScale, 'is-wide-canvas': p.slug === 'visual-content' },
+  ]}
   id={p.slug}
   data-project-title={p.title}
   data-showcase-variant={variant}
@@ -296,7 +302,7 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
     <div class="sp-inner">
       <!-- 1. Project Index & Title -->
       <header class="sp-head">
-        {variant === 'editorial' ? (
+        {isEditorialScale ? (
           <div class="sp-ed-meta-bar" data-reveal>
             <span class="sp-no">{p.no} / 07</span>
             {clientLabel && (
@@ -386,7 +392,70 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
         </div>
       ) : (
         <>
-          {isGalleryStage ? (
+          {variant === 'bento-h' ? (
+            /* ================= HORIZONTAL BENTO GRID (Project 05 Infographic) ================= */
+            <div class="sp-hbento-grid" data-reveal style="--reveal-d: 90ms">
+              <!-- Left Tall 4:5 Tile: EV Sales Infographic -->
+              <a
+                class="sp-bento-tile sp-hb-tall"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+                data-case-trigger
+                aria-label={`Explore ${p.title} — EV Sales Infographic`}
+              >
+                <Picture
+                  name="05-info-ev-sales"
+                  alt="Infographic comparing electric car prices and sales in Thailand"
+                  sizes="(min-width: 1100px) 480px, 92vw"
+                />
+              </a>
+
+              <!-- Center Column: 2 Stacked Editorial Infographics -->
+              <div class="sp-hb-mid">
+                <a
+                  class="sp-bento-tile sp-hb-mid-tile"
+                  href={`#project-${p.slug}`}
+                  data-open-case={p.slug}
+                  data-case-trigger
+                  aria-label={`Explore ${p.title} — Ethereum Roadmap`}
+                >
+                  <Picture
+                    name="05-info-ethereum"
+                    alt="Infographic: the five stages of the Ethereum roadmap"
+                    sizes="(min-width: 1100px) 480px, 92vw"
+                  />
+                </a>
+                <a
+                  class="sp-bento-tile sp-hb-mid-tile is-top-crop"
+                  href={`#project-${p.slug}`}
+                  data-open-case={p.slug}
+                  data-case-trigger
+                  aria-label={`Explore ${p.title} — Bitcoin Timeline`}
+                >
+                  <Picture
+                    name="05-info-bitcoin-timeline"
+                    alt="Timeline of Bitcoin price events from 2020 to 2023"
+                    sizes="(min-width: 1100px) 480px, 92vw"
+                  />
+                </a>
+              </div>
+
+              <!-- Right Tall 4:5 Tile: Pixar 9 Business Lessons -->
+              <a
+                class="sp-bento-tile sp-hb-tall"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+                data-case-trigger
+                aria-label={`Explore ${p.title} — Pixar Business Lessons`}
+              >
+                <Picture
+                  name="05-info-pixar"
+                  alt="Infographic: nine business lessons from Pixar"
+                  sizes="(min-width: 1100px) 480px, 92vw"
+                />
+              </a>
+            </div>
+          ) : isGalleryStage ? (
             /* ================= OPTION 3 / EDITORIAL: MAIN HERO + RIGHT 3-THUMBNAIL PREVIEW STRIP ================= */
             <div class="sp-gallery-stage" data-sp-gallery data-reveal style="--reveal-d: 90ms">
               {heroImage && (
@@ -462,7 +531,7 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
                 </p>
               </div>
 
-              {variant === 'editorial' && highlightsEn.length > 0 && (
+              {isEditorialScale && highlightsEn.length > 0 && (
                 <div class="sp-highlights">
                   <h4 class="sp-highlights-title">Highlights</h4>
                   <ul class="sp-highlights-list" data-lang-text="en">
@@ -1194,8 +1263,83 @@ const isGalleryStage = variant === 'gallery' || variant === 'editorial';
     line-height: 1.5;
   }
 
+  /* ================= HORIZONTAL BENTO GRID (Project 05 Infographic) ================= */
+  .project-showcase.is-bento-h .sp-shell {
+    max-width: 1480px;
+  }
+  .sp-hbento-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    height: clamp(540px, 44vw, 660px);
+  }
+  .sp-hb-tall {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    border-radius: 22px;
+  }
+  .sp-hb-tall :global(picture) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .sp-hb-tall :global(img) {
+    object-fit: cover;
+    object-position: top center;
+  }
+  .sp-hb-mid {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    height: 100%;
+    min-height: 0;
+  }
+  .sp-hb-mid-tile {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    border-radius: 22px;
+  }
+  .sp-hb-mid-tile :global(picture) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .sp-hb-mid-tile :global(img) {
+    object-fit: cover;
+    object-position: center 18%;
+  }
+  .sp-hb-mid-tile.is-top-crop :global(img) {
+    object-position: center 8%;
+  }
+
   /* ================= RESPONSIVE ================= */
   @media (max-width: 1024px) {
+    .sp-hbento-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      height: auto;
+      gap: 12px;
+    }
+    .sp-hb-tall {
+      aspect-ratio: 4 / 5;
+      height: auto;
+    }
+    .sp-hb-mid {
+      grid-column: span 2;
+      grid-template-rows: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      height: auto;
+      gap: 12px;
+      order: 2;
+    }
+    .sp-hb-mid-tile {
+      aspect-ratio: 4 / 3;
+      height: auto;
+    }
     .sp-bento-layout {
       grid-template-columns: 1fr;
       gap: 32px;
