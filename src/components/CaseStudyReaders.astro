@@ -1790,13 +1790,17 @@ const sybilCardItems = [
     font-weight: 400;
   }
 
-  /* K2O (#project-k2o) headings: Space Grotesk Bold, tighter tracking than Clash Display */
-  .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2, .cs-callout h3) {
+  /* K2O (#project-k2o) headings & sidebar title: Space Grotesk Bold, tighter tracking than Clash Display */
+  .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2, .cs-callout h3, .cs-proj-name) {
     font-family: 'Space Grotesk', 'IBM Plex Sans Thai', system-ui, sans-serif;
     font-weight: 700;
   }
-  .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2) {
+  .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2, .cs-proj-name) {
     letter-spacing: -0.02em;
+  }
+  /* K2O (#project-k2o) sidebar nav & UI labels: Plus Jakarta Sans */
+  .cs-reader[data-case-dialog='k2o'] :is(.cs-back, .cs-hook-item, .cs-live-pill, .cs-next-lbl, .cs-next-title) {
+    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', system-ui, sans-serif;
   }
 
   /* K2O (#project-k2o) images & cards: crisp 4px radius */
