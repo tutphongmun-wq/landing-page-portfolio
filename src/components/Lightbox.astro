@@ -47,6 +47,11 @@
   let set: HTMLButtonElement[] = [];
   let i = 0;
   let opener: HTMLButtonElement | null = null;
+  let activeDeck: HTMLElement | null = null;
+  let sourceBtn: HTMLButtonElement | null = null;
+  let isFlip = false;
+  let isClosing = false;
+  let cardAnim: Animation | null = null;
 
   // Holo-Card 3D tilt + idle shimmer state
   let isHolo = false;
@@ -90,7 +95,6 @@
     }
 
     if (!hovering) {
-      // Gentle autonomous idle shimmer (figure-8 tilt & light drift)
       const t = now * 0.001;
       tgtRx = Math.sin(t * 0.95) * 5.2;
       tgtRy = Math.cos(t * 0.72) * 7.2;
@@ -157,12 +161,39 @@
     hovering = false;
   });
 
-  const show = (n: number) => {
+  const setSourceButton = (btn: HTMLButtonElement | null) => {
+    if (sourceBtn && sourceBtn !== btn) {
+      sourceBtn.classList.remove('is-zoomed-source');
+    }
+    sourceBtn = btn;
+    if (sourceBtn && isFlip) {
+      sourceBtn.classList.add('is-zoomed-source');
+    }
+  };
+
+  const primeAspectFromThumb = (btn: HTMLButtonElement) => {
+    const thumb = btn.querySelector<HTMLImageElement>('img');
+    if (thumb && thumb.naturalWidth > 0 && thumb.naturalHeight > 0) {
+      img.style.aspectRatio = `${thumb.naturalWidth} / ${thumb.naturalHeight}`;
+      if (thumb.currentSrc) {
+        img.style.backgroundImage = `url("${thumb.currentSrc}")`;
+        img.style.backgroundSize = 'contain';
+        img.style.backgroundRepeat = 'no-repeat';
+        img.style.backgroundPosition = 'center';
+      }
+    } else {
+      img.style.removeProperty('aspect-ratio');
+      img.style.removeProperty('background-image');
+    }
+  };
+
+  const show = (n: number, fromClick = false) => {
     i = (n + set.length) % set.length;
     const b = set[i];
     const src = b.dataset.zoom!;
     isHolo = b.dataset.zoomHolo === 'true';
 
+    primeAspectFromThumb(b);
     img.src = src;
     img.alt = b.dataset.zoomAlt ?? '';
     caption.textContent = b.dataset.zoomAlt ?? '';
@@ -170,9 +201,13 @@
     dlg.classList.toggle('single', set.length < 2);
     dlg.classList.toggle('is-holo', isHolo);
 
+    if (activeDeck) {
+      activeDeck.dispatchEvent(new CustomEvent('pd:sync', { detail: { index: i, instant: true } }));
+    }
+    setSourceButton(b);
+
     if (isHolo) {
       holoFx.style.setProperty('--holo-mask', `url("${src}")`);
-      // Re-trigger smooth expand animation on card switch
       holoCard.classList.remove('is-pop');
       void holoCard.offsetWidth;
       holoCard.classList.add('is-pop');
@@ -180,43 +215,200 @@
     } else {
       holoFx.style.removeProperty('--holo-mask');
       stopHoloLoop();
+      if (!fromClick && isFlip && !reduceMq.matches) {
+        cardAnim?.cancel();
+        cardAnim = holoCard.animate(
+          [
+            { opacity: 0.78, transform: 'scale(0.965)' },
+            { opacity: 1, transform: 'scale(1)' },
+          ],
+          { duration: 240, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+        );
+      }
     }
+  };
+
+  const playFlipOpen = (firstRect: DOMRect) => {
+    if (reduceMq.matches || firstRect.width <= 0 || firstRect.height <= 0) return;
+    const lastRect = img.getBoundingClientRect();
+    if (lastRect.width <= 0 || lastRect.height <= 0) return;
+
+    const dx = firstRect.left + firstRect.width / 2 - (lastRect.left + lastRect.width / 2);
+    const dy = firstRect.top + firstRect.height / 2 - (lastRect.top + lastRect.height / 2);
+    const sx = firstRect.width / lastRect.width;
+    const sy = firstRect.height / lastRect.height;
+
+    dlg.classList.add('is-flip-entering');
+    void dlg.offsetWidth;
+    requestAnimationFrame(() => dlg.classList.remove('is-flip-entering'));
+
+    cardAnim?.cancel();
+    cardAnim = holoCard.animate(
+      [
+        {
+          transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`,
+          filter: 'drop-shadow(0 8px 18px rgb(0 0 0 / 0.22))',
+        },
+        {
+          transform: 'translate3d(0, 0, 0) scale(1, 1)',
+          filter: 'drop-shadow(0 28px 60px rgb(0 0 0 / 0.56))',
+        },
+      ],
+      {
+        duration: 460,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        fill: 'none',
+      },
+    );
+  };
+
+  const requestClose = async () => {
+    if (!dlg.open || isClosing) return;
+
+    const targetBtn = set[i] ?? opener;
+    const targetImg = targetBtn?.querySelector<HTMLElement>('img') ?? targetBtn;
+    const canFlipBack =
+      isFlip &&
+      !isHolo &&
+      !reduceMq.matches &&
+      targetBtn &&
+      targetBtn.isConnected &&
+      targetImg;
+
+    if (!canFlipBack) {
+      dlg.close();
+      return;
+    }
+
+    isClosing = true;
+    cardAnim?.cancel();
+
+    const fromRect = img.getBoundingClientRect();
+    const destRect = targetImg!.getBoundingClientRect();
+
+    if (
+      fromRect.width <= 0 ||
+      fromRect.height <= 0 ||
+      destRect.width <= 0 ||
+      destRect.height <= 0 ||
+      destRect.bottom < 0 ||
+      destRect.top > window.innerHeight
+    ) {
+      isClosing = false;
+      dlg.close();
+      return;
+    }
+
+    const dx = destRect.left + destRect.width / 2 - (fromRect.left + fromRect.width / 2);
+    const dy = destRect.top + destRect.height / 2 - (fromRect.top + fromRect.height / 2);
+    const sx = destRect.width / fromRect.width;
+    const sy = destRect.height / fromRect.height;
+
+    dlg.classList.add('is-flip-closing');
+    cardAnim = holoCard.animate(
+      [
+        {
+          transform: 'translate3d(0, 0, 0) scale(1, 1)',
+          filter: 'drop-shadow(0 28px 60px rgb(0 0 0 / 0.56))',
+        },
+        {
+          transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`,
+          filter: 'drop-shadow(0 4px 12px rgb(0 0 0 / 0.14))',
+        },
+      ],
+      {
+        duration: 400,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        fill: 'forwards',
+      },
+    );
+
+    try {
+      await Promise.race([
+        cardAnim.finished,
+        new Promise((resolve) => window.setTimeout(resolve, 460)),
+      ]);
+    } catch {
+      // Cancelled externally
+    }
+
+    sourceBtn?.classList.remove('is-zoomed-source');
+    sourceBtn = null;
+    cardAnim?.cancel();
+    cardAnim = null;
+    isClosing = false;
+    if (dlg.open) dlg.close();
   };
 
   document.addEventListener('click', (e) => {
     const b = (e.target as Element).closest<HTMLButtonElement>('button[data-zoom]');
     if (!b) return;
-    const deckScope = b.dataset.zoomHolo === 'true' ? b.closest('[data-poster-deck]') : null;
-    const scope = deckScope ?? b.closest('article') ?? document;
+    const deck = b.closest<HTMLElement>('[data-poster-deck]');
+    const scope = deck ?? b.closest('article') ?? document;
     set = [...scope.querySelectorAll<HTMLButtonElement>('button[data-zoom]')];
+    activeDeck = deck;
+    isFlip = Boolean(deck && b.dataset.zoomHolo !== 'true');
+    isClosing = false;
     opener = b;
+
+    const firstEl = b.querySelector<HTMLElement>('img') ?? b;
+    const firstRect = firstEl.getBoundingClientRect();
+
+    dlg.classList.toggle('is-flip', isFlip);
+    dlg.classList.remove('is-flip-entering', 'is-flip-closing');
     dlg.showModal();
     document.documentElement.classList.add('lb-open');
-    show(set.indexOf(b));
+    show(set.indexOf(b), true);
+
+    if (isFlip) {
+      playFlipOpen(firstRect);
+    }
   });
 
-  dlg.querySelector('[data-lb-close]')!.addEventListener('click', () => dlg.close());
-  dlg.querySelector('[data-lb-prev]')!.addEventListener('click', () => show(i - 1));
-  dlg.querySelector('[data-lb-next]')!.addEventListener('click', () => show(i + 1));
+  dlg.querySelector('[data-lb-close]')!.addEventListener('click', () => requestClose());
+  dlg.querySelector('[data-lb-prev]')!.addEventListener('click', () => {
+    if (!isClosing) show(i - 1);
+  });
+  dlg.querySelector('[data-lb-next]')!.addEventListener('click', () => {
+    if (!isClosing) show(i + 1);
+  });
   dlg.addEventListener('click', (e) => {
-    if (e.target === dlg) dlg.close(); // backdrop
+    if (e.target === dlg) requestClose();
+  });
+  dlg.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    requestClose();
   });
   dlg.addEventListener('keydown', (e) => {
+    if (isClosing) return;
     if (e.key === 'ArrowRight') show(i + 1);
     if (e.key === 'ArrowLeft') show(i - 1);
   });
   dlg.addEventListener('close', () => {
+    cardAnim?.cancel();
+    cardAnim = null;
+    isClosing = false;
     stopHoloLoop();
-    dlg.classList.remove('is-holo');
+    sourceBtn?.classList.remove('is-zoomed-source');
+    sourceBtn = null;
+    activeDeck = null;
+    isFlip = false;
+    dlg.classList.remove('is-holo', 'is-flip', 'is-flip-entering', 'is-flip-closing');
     document.documentElement.classList.remove('lb-open');
     img.removeAttribute('src');
-    opener?.focus();
+    img.style.removeProperty('aspect-ratio');
+    img.style.removeProperty('background-image');
+    img.style.removeProperty('background-size');
+    img.style.removeProperty('background-repeat');
+    img.style.removeProperty('background-position');
+    opener?.focus({ preventScroll: true });
   });
 
   // swipe on touch screens (for non-holo or horizontal swipe)
   let x0 = 0;
   dlg.addEventListener('touchstart', (e) => (x0 = e.touches[0].clientX), { passive: true });
   dlg.addEventListener('touchend', (e) => {
+    if (isClosing) return;
     const dx = e.changedTouches[0].clientX - x0;
     if (Math.abs(dx) > 64) show(i + (dx < 0 ? 1 : -1));
   });
@@ -239,10 +431,41 @@
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
   }
-  .lightbox[open] {
+  .lightbox[open]:not(.is-flip) {
     display: grid;
     place-items: center;
     animation: lb-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lightbox.is-flip[open] {
+    display: grid;
+    place-items: center;
+    background: rgb(10 10 10 / 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition:
+      background-color 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      backdrop-filter 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      -webkit-backdrop-filter 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lightbox.is-flip.is-flip-entering,
+  .lightbox.is-flip.is-flip-closing {
+    background: rgb(10 10 10 / 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  .lightbox.is-flip figcaption,
+  .lightbox.is-flip .lb-btn {
+    transition: opacity 220ms ease 140ms;
+  }
+  .lightbox.is-flip.is-flip-entering figcaption,
+  .lightbox.is-flip.is-flip-entering .lb-btn {
+    opacity: 0;
+  }
+  .lightbox.is-flip.is-flip-closing figcaption,
+  .lightbox.is-flip.is-flip-closing .lb-btn {
+    opacity: 0;
+    transition: opacity 120ms ease;
+    pointer-events: none;
   }
   .lightbox::backdrop {
     background: transparent;
@@ -270,10 +493,10 @@
     position: relative;
     display: inline-grid;
     place-items: center;
+    will-change: transform;
   }
   .lightbox.is-holo .lb-holo-card {
     transform-style: preserve-3d;
-    will-change: transform;
     filter: drop-shadow(var(--shx, 0px) var(--shy, 20px) 34px rgb(0 0 0 / 0.56));
     cursor: grab;
   }
@@ -290,6 +513,9 @@
     border-radius: 10px;
     user-select: none;
     -webkit-user-drag: none;
+  }
+  .lightbox.is-flip img {
+    border-radius: 4px;
   }
   .lightbox.is-holo img {
     height: min(74dvh, 660px);
