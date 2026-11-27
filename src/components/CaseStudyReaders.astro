@@ -1790,10 +1790,13 @@ const sybilCardItems = [
     font-weight: 400;
   }
 
-  /* K2O (#project-k2o) headings: Space Grotesk Bold, same size + spacing */
+  /* K2O (#project-k2o) headings: Space Grotesk Bold, tighter tracking than Clash Display */
   .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2, .cs-callout h3) {
     font-family: 'Space Grotesk', 'IBM Plex Sans Thai', system-ui, sans-serif;
     font-weight: 700;
+  }
+  .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2) {
+    letter-spacing: -0.02em;
   }
 
   /* ================= Segmented Control Pill ================= */
