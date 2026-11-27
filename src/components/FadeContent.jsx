@@ -372,10 +372,15 @@ const FadeContent = ({
   ]);
 
   return (
-    <div ref={ref} className={className} style={{ visibility: 'hidden', minWidth: 0, ...style }} {...props}>
+    <div ref={ref} className={className} style={{ visibility: 'hidden', width: '100%', minWidth: 0, ...style }} {...props}>
       {children}
     </div>
   );
 };
+
+if (typeof window !== 'undefined' && !window.__punFadeRefreshWired) {
+  window.__punFadeRefreshWired = true;
+  window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+}
 
 export default FadeContent;

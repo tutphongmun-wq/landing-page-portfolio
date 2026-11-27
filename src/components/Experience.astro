@@ -5,12 +5,12 @@ import FadeContent from './FadeContent.jsx';
 ---
 
 <section class="exp container section" id="experience" aria-labelledby="exp-title">
-  <FadeContent client:load effect="focus" duration={0.85} threshold={0.1}>
+  <FadeContent client:load effect="focus" duration={0.75} threshold={0.08} once={false} exit={true}>
     <h2 id="exp-title" class="section-title display" style="--fit: 13.4">Experience</h2>
   </FadeContent>
 
   <div class="grid">
-    <FadeContent client:load effect="fade" blur={4} duration={0.85} threshold={0.1}>
+    <FadeContent client:load effect="fade" blur={4} duration={0.75} threshold={0.08} once={false} exit={true}>
       <ol class="timeline" role="list">
         {
           experience.map((job) => (
@@ -30,7 +30,7 @@ import FadeContent from './FadeContent.jsx';
       </ol>
     </FadeContent>
 
-    <FadeContent client:load effect="focus" blur={2} delay={0.08} duration={0.85} threshold={0.1}>
+    <FadeContent client:load effect="focus" blur={2} delay={0.06} duration={0.75} threshold={0.08} once={false} exit={true}>
       <div class="side">
         <div class="block">
           <h3 class="block-title display" style="--fit: 11.7">Skills &amp; Tools</h3>

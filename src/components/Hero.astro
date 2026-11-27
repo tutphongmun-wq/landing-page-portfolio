@@ -23,7 +23,7 @@ import FadeContent from './FadeContent.jsx';
   <div class="hero-body container">
     <div class="hero-stage">
       <!-- Single Portrait Card + Editorial Name Plate -->
-      <FadeContent client:load effect="focus" blur={4} duration={0.85} ease="power2.out" trigger="mount">
+      <FadeContent client:load effect="focus" blur={4} duration={0.75} ease="power2.out" threshold={0.08} once={false} exit={true}>
         <figure class="hero-card" aria-label={`${profile.fullName} — ${profile.role}`}>
           <div class="hero-photo">
             <Picture
@@ -43,7 +43,7 @@ import FadeContent from './FadeContent.jsx';
       </FadeContent>
 
       <!-- Option 1 Concise Bio (EN / TH) + Direct Contact -->
-      <FadeContent client:load effect="focus" blur={2} duration={0.85} delay={0.14} ease="power2.out" trigger="mount">
+      <FadeContent client:load effect="focus" blur={2} duration={0.75} delay={0.1} ease="power2.out" threshold={0.08} once={false} exit={true}>
         <div class="hero-copy">
           <p class="hero-lead">
             <span class="lead-dot" aria-hidden="true"></span>

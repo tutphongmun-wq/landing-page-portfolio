@@ -135,7 +135,7 @@ const worachetMetrics = [
       /* ================= WORACHET-EXACT EDITORIAL LAYOUT (Project 01 K2O) ================= */
       <div class="wr-wrap">
         <!-- 1. Top Header Block (1024px editorial column) -->
-        <FadeContent client:load effect="focus" duration={0.85} threshold={0.12}>
+        <FadeContent client:load once={false} exit={true} effect="focus" duration={0.85} threshold={0.12}>
           <header class="wr-head">
             <p class="wr-kicker">
               <span>{p.no} / 07</span>
@@ -166,7 +166,7 @@ const worachetMetrics = [
         <!-- 2. Full-Bleed Oversized 16:9 Hero Image (breaks out to 1408px × 792px) -->
         {heroImage && (
           <div class="wr-media-bleed">
-            <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
+            <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
               <a
                 class="wr-media"
                 href={`#project-${p.slug}`}
@@ -186,7 +186,7 @@ const worachetMetrics = [
         )}
 
         <!-- 3. Bottom 12-Column Editorial Story + Metrics Grid (1024px column) -->
-        <FadeContent client:load effect="fade" blur={4} duration={0.9} threshold={0.12}>
+        <FadeContent client:load once={false} exit={true} effect="fade" blur={4} duration={0.9} threshold={0.12}>
           <div class="wr-body">
             <!-- Left 7 columns: Story Lead + 2-Col Challenge/Approach + CTA -->
             <div class="wr-story-col">
@@ -247,7 +247,7 @@ const worachetMetrics = [
       /* ================= STICKY SPLIT BENTO GRID (Project 02) ================= */
       <div class="sp-bento-layout">
         <!-- Left: 5-Tile Editorial Bento Collage -->
-        <FadeContent client:load effect="focus" blur={4} duration={0.9} threshold={0.08}>
+        <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.9} threshold={0.08}>
           <div class="sp-bento-grid">
           <!-- Row 1 Left (8 cols): Billboard Hero -->
           <a
@@ -348,7 +348,7 @@ const worachetMetrics = [
 
         <!-- Right: Sticky Editorial Info Column -->
         <aside class="sp-bento-aside">
-          <FadeContent client:load effect="focus" duration={0.85} threshold={0.1}>
+          <FadeContent client:load once={false} exit={true} effect="focus" duration={0.85} threshold={0.1}>
             <header class="sp-head">
               <p class="sp-no" aria-hidden="true">
                 {p.no} / 07
@@ -368,7 +368,7 @@ const worachetMetrics = [
             </header>
           </FadeContent>
 
-          <FadeContent client:load effect="fade" blur={2} delay={0.08} duration={0.85} threshold={0.1}>
+          <FadeContent client:load once={false} exit={true} effect="fade" blur={2} delay={0.08} duration={0.85} threshold={0.1}>
             <div class="sp-overview-copy">
               <h4 class="sp-kicker">Overview</h4>
               <p class="sp-desc">
@@ -405,7 +405,7 @@ const worachetMetrics = [
     ) : (
     <div class="sp-inner">
       <!-- 1. Project Index & Title -->
-      <FadeContent client:load effect="focus" duration={0.85} threshold={0.12}>
+      <FadeContent client:load once={false} exit={true} effect="focus" duration={0.85} threshold={0.12}>
         <header class="sp-head">
           <p class="sp-no" aria-hidden="true">
             {p.no} / 07
@@ -427,7 +427,7 @@ const worachetMetrics = [
 
       {variant === 'split' ? (
         /* ================= OPTION 2: HORIZONTAL SPLIT (LEFT VISUAL / RIGHT DETAILS) ================= */
-        <FadeContent client:load effect="focus" blur={4} duration={0.9} threshold={0.1}>
+        <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.9} threshold={0.1}>
           <div class="sp-split-grid">
             {heroImage && (
               <a
@@ -484,7 +484,7 @@ const worachetMetrics = [
         <>
           {variant === 'bento-h' ? (
             /* ================= HORIZONTAL BENTO GRID (Project 05 Infographic) ================= */
-            <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
+            <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
               <div class="sp-hbento-grid">
                 <!-- Left Tall 4:5 Tile: EV Sales Infographic -->
                 <a
@@ -549,7 +549,7 @@ const worachetMetrics = [
             </FadeContent>
           ) : isGalleryStage ? (
             /* ================= OPTION 3 / EDITORIAL: MAIN HERO + RIGHT 3-THUMBNAIL PREVIEW STRIP ================= */
-            <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
+            <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
               <div class="sp-gallery-stage" data-sp-gallery>
                 {heroImage && (
                   <a
@@ -596,7 +596,7 @@ const worachetMetrics = [
           ) : (
             /* ================= OPTION 1: FULL-GRID 1280PX WIDE HERO ================= */
             heroImage && (
-              <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
+              <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
                 <a
                   class="sp-media sp-wide-media"
                   href={`#project-${p.slug}`}
@@ -616,7 +616,7 @@ const worachetMetrics = [
           )}
 
           <!-- Bottom Two-Column Info Row (Full-Width Flush with Hero) -->
-          <FadeContent client:load effect="fade" blur={4} duration={0.85} threshold={0.12}>
+          <FadeContent client:load once={false} exit={true} effect="fade" blur={4} duration={0.85} threshold={0.12}>
             <div class="sp-bottom">
             <div class="sp-overview-col">
               <div class="sp-overview-copy">
