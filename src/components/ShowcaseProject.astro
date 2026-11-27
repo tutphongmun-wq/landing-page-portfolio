@@ -22,24 +22,47 @@ const { project: p, variant = 'wide' } = Astro.props;
 const titleId = `${p.slug}-title`;
 const cs = caseStudies[p.slug];
 
+const worachetCoverOverride: Record<string, { image: string; alt: string; pos: string }> = {
+  'visual-content': {
+    image: '04-content-post-tree-of-alpha',
+    alt: 'Editorial newspaper collage visual for Tree of Alpha',
+    pos: 'center 26%',
+  },
+  infographic: {
+    image: '05-info-ethereum',
+    alt: 'Editorial infographic illustrating the five stages of the Ethereum roadmap',
+    pos: 'center 14%',
+  },
+  '16-personalities': {
+    image: '06-16p-all-spreads',
+    alt: 'All sixteen illustrated spreads of the 16 Personalities editorial print book',
+    pos: 'center center',
+  },
+};
+
+const coverOverride = variant === 'worachet' ? worachetCoverOverride[p.slug] : undefined;
+
 const heroImage =
-  cs?.cover.kind === 'photo' || cs?.cover.kind === 'framed'
+  coverOverride?.image ??
+  (cs?.cover.kind === 'photo' || cs?.cover.kind === 'framed'
     ? cs.cover.image
-    : p.media.find((m) => m.kind === 'image')?.name ?? '';
+    : p.media.find((m) => m.kind === 'image')?.name ?? '');
 
 const heroAlt =
+  coverOverride?.alt ??
   cs?.cover.alt ??
   (p.media.find((m) => m.kind === 'image') as { alt?: string } | undefined)?.alt ??
   p.title;
 
 const heroPos =
-  p.slug === 'infographic'
+  coverOverride?.pos ??
+  (p.slug === 'infographic'
     ? 'center 10%'
     : p.slug === 'visual-content'
       ? 'center 25%'
       : cs?.cover.kind === 'photo' && cs.cover.position
         ? cs.cover.position
-        : 'center center';
+        : 'center center');
 
 // Curated 3 preview images for Option 3 ("gallery" & "editorial" variants)
 const allImages = p.media.filter((m): m is Extract<Media, { kind: 'image' }> => m.kind === 'image');
@@ -122,6 +145,26 @@ const worachetMetricsMap: Record<string, { value: string; labelEn: string; label
     { value: '3', labelEn: 'Vertical 9:16 key posters', labelTh: 'โปสเตอร์รายการแนวตั้ง 9:16' },
     { value: yearVal || '2025', labelEn: 'MollageBKK · Bangkok', labelTh: 'MollageBKK · กรุงเทพฯ' },
   ],
+  'visual-content': [
+    { value: '11', labelEn: 'Editorial social visuals', labelTh: 'ชิ้นงาน Editorial Social Media' },
+    { value: '2', labelEn: 'Brands · Enter to Start & Binance TH', labelTh: 'แบรนด์ · Enter to Start & Binance TH' },
+    { value: yearVal || '2022–2024', labelEn: 'Editorial Social Design', labelTh: 'Editorial Social Design' },
+  ],
+  infographic: [
+    { value: '7', labelEn: 'Illustrated 4:5 infographics', labelTh: 'ชิ้นงาน Infographic แนวตั้ง 4:5' },
+    { value: '4', labelEn: 'Topics · Crypto, EV, Tech & Biz', labelTh: 'หัวข้อ · คริปโต, EV, เทคฯ และธุรกิจ' },
+    { value: yearVal || '2022–2024', labelEn: 'Enter to Start · Bangkok', labelTh: 'Enter to Start · กรุงเทพฯ' },
+  ],
+  '16-personalities': [
+    { value: '16', labelEn: 'Original MBTI characters', labelTh: 'คาแรคเตอร์ MBTI ออกแบบใหม่' },
+    { value: '16', labelEn: 'Thematic illustrated spreads', labelTh: 'หน้าคู่ภาพประกอบประจำบุคลิก' },
+    { value: yearVal || '2022', labelEn: 'Print Book · Sripatum Univ.', labelTh: 'หนังสือภาพประกอบ · ม.ศรีปทุม' },
+  ],
+  'sybil-husky': [
+    { value: '6', labelEn: 'Collectible NFT card tiers', labelTh: 'ระดับการ์ด NFT สะสม' },
+    { value: '8', labelEn: 'Arctic character companions', labelTh: 'คาแรคเตอร์ฮัสกี้ขั้วโลก' },
+    { value: yearVal || '2024', labelEn: 'Brand Identity & Next.js UI', labelTh: 'อัตลักษณ์แบรนด์และหน้าเว็บ Next.js' },
+  ],
 };
 const worachetMetrics = worachetMetricsMap[p.slug] ?? [
   { value: categoryVal, labelEn: 'Category', labelTh: 'ประเภทงาน' },
@@ -131,9 +174,16 @@ const worachetMetrics = worachetMetricsMap[p.slug] ?? [
 const worachetRoleMap: Record<string, string> = {
   k2o: 'Graphic & Visual Designer · S2O Festival, Bangkok',
   'thumbnails-posters': 'Freelance Graphic Designer · MollageBKK, Bangkok',
+  'visual-content': 'Visual & Graphic Designer · Enter to Start, Bangkok',
+  infographic: 'Visual & Graphic Designer · Enter to Start, Bangkok',
+  '16-personalities': 'Book Designer & Illustrator · Editorial Project',
+  'sybil-husky': 'Brand, Character & UI Designer · Web3 Project',
 };
 const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer · ${clientLabel || 'Bangkok'}`;
-const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-posters';
+const isWorachetMediaFirst =
+  variant === 'worachet' &&
+  ['thumbnails-posters', 'visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
+const hasParallaxCover = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
 ---
 
 <article
@@ -160,6 +210,7 @@ const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-po
                 href={`#project-${p.slug}`}
                 data-open-case={p.slug}
                 data-case-trigger
+                data-parallax-cover={hasParallaxCover ? 'true' : undefined}
                 aria-label={`Explore ${p.title}`}
                 style={`--sp-pos: ${heroPos};`}
               >
@@ -728,6 +779,76 @@ const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-po
       });
     });
   });
+
+  // Subtle GPU mouse-follow parallax for project covers (scoped to Projects 04–07)
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll<HTMLElement>('[data-parallax-cover="true"]').forEach((wrap) => {
+    const img = wrap.querySelector<HTMLImageElement>('img');
+    if (!img) return;
+
+    const MAX_X = 10;
+    const MAX_Y = 7;
+    const HOVER_SCALE = 1.045;
+    const LERP = 0.095;
+
+    let curX = 0;
+    let curY = 0;
+    let curS = 1;
+    let tgtX = 0;
+    let tgtY = 0;
+    let tgtS = 1;
+    let raf = 0;
+
+    const step = () => {
+      curX += (tgtX - curX) * LERP;
+      curY += (tgtY - curY) * LERP;
+      curS += (tgtS - curS) * LERP;
+
+      const done =
+        Math.abs(tgtX - curX) < 0.03 &&
+        Math.abs(tgtY - curY) < 0.03 &&
+        Math.abs(tgtS - curS) < 0.0005;
+
+      if (done) {
+        curX = tgtX;
+        curY = tgtY;
+        curS = tgtS;
+        raf = 0;
+        if (tgtS === 1 && tgtX === 0 && tgtY === 0) {
+          img.style.transform = '';
+          return;
+        }
+      } else {
+        raf = requestAnimationFrame(step);
+      }
+
+      img.style.transform = `translate3d(${curX.toFixed(2)}px, ${curY.toFixed(2)}px, 0) scale(${curS.toFixed(4)})`;
+    };
+
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(step);
+    };
+
+    wrap.addEventListener('pointermove', (e) => {
+      if (!finePointer.matches || reducedMotion.matches) return;
+      const r = wrap.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return;
+      const nx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+      const ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+      tgtX = nx * MAX_X;
+      tgtY = ny * MAX_Y;
+      tgtS = HOVER_SCALE;
+      wake();
+    });
+
+    wrap.addEventListener('pointerleave', () => {
+      tgtX = 0;
+      tgtY = 0;
+      tgtS = 1;
+      wake();
+    });
+  });
 </script>
 
 <style>
@@ -735,6 +856,9 @@ const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-po
     padding-block: clamp(44px, 5vw, 68px);
     padding-inline: var(--gutter);
     scroll-margin-top: 40px;
+  }
+  :global(article.project-showcase + article.project-showcase) {
+    border-top: 1px solid var(--c-line);
   }
 
   .sp-shell {
@@ -1441,6 +1565,7 @@ const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-po
   .project-showcase.is-worachet {
     padding-block: clamp(88px, 10vw, 144px);
     padding-inline: clamp(20px, 5vw, 64px);
+    overflow-x: clip;
   }
   .project-showcase.is-worachet .sp-shell {
     max-width: 1024px;
@@ -1469,11 +1594,11 @@ const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-po
   }
   .wr-title {
     margin: 20px 0 0;
-    font-family: var(--f-clash);
-    font-weight: 500;
+    font-family: var(--f-heading);
+    font-weight: 700;
     font-size: clamp(3rem, 6.6vw, 7rem);
     line-height: 0.95;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
     color: var(--c-fg);
   }
   .wr-title-link {
@@ -1538,8 +1663,12 @@ const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-po
     object-position: var(--sp-pos, center center);
     transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .wr-media:hover :global(img) {
+  .wr-media:not([data-parallax-cover='true']):hover :global(img) {
     transform: scale(1.02);
+  }
+  .wr-media[data-parallax-cover='true'] :global(img) {
+    transition: none;
+    will-change: transform;
   }
 
   /* 3. Bottom 12-Column Editorial Story + Metrics Grid */
@@ -1652,11 +1781,11 @@ const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-po
   }
   .wr-metric-val {
     margin: 0;
-    font-family: var(--f-clash);
-    font-weight: 500;
+    font-family: var(--f-heading);
+    font-weight: 700;
     font-size: clamp(2rem, 2.8vw, 2.75rem);
     line-height: 1.05;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     color: var(--c-fg);
   }
   .wr-metric-lbl {

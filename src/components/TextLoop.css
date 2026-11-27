@@ -17,11 +17,11 @@
 
 .text-loop-text {
   user-select: none;
-  font-family: var(--f-nav, var(--f-body));
+  font-family: var(--f-display);
 }
 
 .text-loop-measure {
   visibility: hidden;
   pointer-events: none;
-  font-family: var(--f-nav, var(--f-body));
+  font-family: var(--f-display);
 }

@@ -11,7 +11,7 @@ import ThemeToggle from './ThemeToggle.astro';
 <aside class="side-nav" data-side-nav aria-label="Section navigation" inert>
   <div class="side-head">
     <div class="side-top-row">
-      <a class="brand" href="#top" aria-label="Pun, back to top">PUN</a>
+      <a class="brand" href="#top" aria-label="tutphong, back to top">tutphong</a>
     </div>
     <p class="role">{profile.role}</p>
   </div>
@@ -423,9 +423,11 @@ import ThemeToggle from './ThemeToggle.astro';
     .brand {
       display: inline-block;
       font-family: var(--f-display);
-      font-size: 1.45rem;
+      font-weight: 700;
+      font-size: 1.3125rem;
       line-height: 1;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      text-transform: lowercase;
       text-decoration: none;
       color: var(--c-fg);
     }

@@ -1,53 +1,5 @@
 @import './tokens.css';
 
-@font-face {
-  font-family: 'Clash Display';
-  src: url('../assets/fonts/ClashDisplay-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Clash Display';
-  src: url('../assets/fonts/ClashDisplay-Semibold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('../assets/fonts/Satoshi-Light.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('../assets/fonts/Satoshi-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('../assets/fonts/Satoshi-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('../assets/fonts/Satoshi-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 *,
 *::before,
 *::after {
@@ -160,10 +112,9 @@ a {
 
 .display {
   font-family: var(--f-display);
-  font-weight: 400;
-  text-transform: uppercase;
-  line-height: 0.88;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  line-height: 0.96;
+  letter-spacing: -0.025em;
 }
 
 .section {

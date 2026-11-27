@@ -1,15 +1,17 @@
 ---
-import '@fontsource/archivo-black/400.css';
-import '@fontsource/bbh-bartle/400.css';
-// Preload the wordmark face: its width is very different from the fallback,
-// so a late swap would shift the hero (CLS).
-import bbhBartle from '@fontsource/bbh-bartle/files/bbh-bartle-latin-400-normal.woff2?url';
+import '@fontsource/space-grotesk/400.css';
+import '@fontsource/space-grotesk/500.css';
+import '@fontsource/space-grotesk/600.css';
+import '@fontsource/space-grotesk/700.css';
+import spaceGroteskBold from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url';
+import '@fontsource/plus-jakarta-sans/400.css';
+import '@fontsource/plus-jakarta-sans/500.css';
+import '@fontsource/plus-jakarta-sans/600.css';
+import '@fontsource/plus-jakarta-sans/700.css';
 import '@fontsource/ibm-plex-sans-thai/400.css';
 import '@fontsource/ibm-plex-sans-thai/500.css';
 import '@fontsource/ibm-plex-sans-thai/600.css';
 import '@fontsource/ibm-plex-sans-thai/700.css';
-import '@fontsource/plus-jakarta-sans/400.css';
-import '@fontsource/space-grotesk/700.css';
 import '../styles/global.css';
 import { site } from '../data/site';
 import { assetUrl } from '../lib/media';
@@ -60,7 +62,7 @@ const ogImage = new URL(assetUrl('og.jpg'), Astro.site);
     <!-- Private preview: remove once Pun approves public launch -->
     <meta name="robots" content="noindex, nofollow" />
 
-    <link rel="preload" as="font" type="font/woff2" href={bbhBartle} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={spaceGroteskBold} crossorigin />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

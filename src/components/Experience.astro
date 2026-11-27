@@ -1,60 +1,70 @@
 ---
-import { education, experience, profileTools, skills } from '../data/site';
-import ToolChips from './ToolChips.astro';
+import { education, experience, profileTools, skills, tools } from '../data/site';
 import FadeContent from './FadeContent.jsx';
 ---
 
-<section class="exp container section" id="experience" aria-labelledby="exp-title">
-  <FadeContent client:load effect="focus" duration={0.75} threshold={0.08} once={false} exit={true}>
-    <h2 id="exp-title" class="section-title display" style="--fit: 13.4">Experience</h2>
-  </FadeContent>
+<section class="exp" id="experience" aria-labelledby="exp-title">
+  <div class="exp-shell">
+    <FadeContent client:load effect="focus" duration={0.75} threshold={0.08} once={false} exit={true}>
+      <header class="exp-head">
+        <p class="exp-kicker">Profile</p>
+        <h2 id="exp-title" class="exp-heading">Experience</h2>
+      </header>
+    </FadeContent>
 
-  <div class="grid">
-    <FadeContent client:load effect="fade" blur={4} duration={0.75} threshold={0.08} once={false} exit={true}>
-      <ol class="timeline" role="list">
+    <FadeContent client:load effect="fade" blur={3} duration={0.75} threshold={0.06} once={false} exit={true}>
+      <ol class="exp-list" role="list">
         {
           experience.map((job) => (
-            <li>
-              <p class="meta">
-                <span class="period">{job.period}</span>
-                <span class="title">{job.title}</span>
-              </p>
-              <h3 class="company">{job.company}</h3>
-              <p class="summary">
-                <span data-lang-text="en">{job.summary}</span>
-                <span data-lang-text="th">{job.summaryTh}</span>
-              </p>
+            <li class="exp-row">
+              <div class="exp-meta">
+                <span class="exp-period">{job.period}</span>
+                <span class="exp-role">{job.title}</span>
+              </div>
+              <div class="exp-detail">
+                <h3 class="exp-company">{job.company}</h3>
+                <p class="exp-summary">
+                  <span data-lang-text="en">{job.summary}</span>
+                  <span data-lang-text="th">{job.summaryTh}</span>
+                </p>
+              </div>
             </li>
           ))
         }
       </ol>
     </FadeContent>
 
-    <FadeContent client:load effect="focus" blur={2} delay={0.06} duration={0.75} threshold={0.08} once={false} exit={true}>
-      <div class="side">
-        <div class="block">
-          <h3 class="block-title display" style="--fit: 11.7">Skills &amp; Tools</h3>
-          <ul class="skills" role="list" aria-label="Skills">
-            {skills.map((s) => <li>{s}</li>)}
-          </ul>
-          <ToolChips ids={profileTools} label="Software" />
+    <FadeContent client:load effect="fade" blur={3} delay={0.06} duration={0.75} threshold={0.08} once={false} exit={true}>
+      <div class="exp-subgrid">
+        <div class="exp-col">
+          <h3 class="exp-subhead">Education</h3>
+          <ol class="edu-list" role="list">
+            {
+              education.map((e) => (
+                <li class="edu-item">
+                  <span class="edu-period">{e.period}</span>
+                  <h4 class="edu-school">{e.school}</h4>
+                  <p class="edu-program">{e.program}</p>
+                </li>
+              ))
+            }
+          </ol>
         </div>
 
-        <div class="block">
-        <h3 class="block-title display" style="--fit: 11.7">Education</h3>
-        <ol class="timeline edu" role="list">
-          {
-            education.map((e) => (
-              <li>
-                <p class="meta">
-                  <span class="period">{e.period}</span>
-                </p>
-                <h4 class="company">{e.school}</h4>
-                <p class="summary">{e.program}</p>
-              </li>
-            ))
-          }
-        </ol>
+        <div class="exp-col exp-col-cap">
+          <div class="cap-group">
+            <h3 class="exp-subhead">Skills</h3>
+            <ul class="cap-list" role="list" aria-label="Skills">
+              {skills.map((s) => <li>{s}</li>)}
+            </ul>
+          </div>
+
+          <div class="cap-group">
+            <h3 class="exp-subhead">Tools &amp; Software</h3>
+            <ul class="cap-list" role="list" aria-label="Software">
+              {profileTools.map((id) => <li>{tools[id].name}</li>)}
+            </ul>
+          </div>
         </div>
       </div>
     </FadeContent>
@@ -63,100 +73,236 @@ import FadeContent from './FadeContent.jsx';
 
 <style>
   .exp {
-    container-type: inline-size;
     border-top: 1px solid var(--c-line);
-  }
-  .grid {
-    display: grid;
-    gap: clamp(48px, 6vw, 96px);
-    margin-top: clamp(32px, 5vw, 64px);
-  }
-  .timeline {
-    display: grid;
-    gap: 32px;
-    margin: 0;
-  }
-  .timeline li {
-    position: relative;
-    padding-left: 28px;
-  }
-  .timeline li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.55em;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--c-accent);
-  }
-  .timeline li:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    left: 4px;
-    top: calc(0.55em + 14px);
-    bottom: -28px;
-    width: 2px;
-    background: linear-gradient(var(--c-accent), transparent);
-    opacity: 0.6;
-  }
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px 12px;
-    font-size: var(--fs-0);
-  }
-  .period {
-    font-weight: 700;
-  }
-  .title {
-    color: var(--c-muted);
-  }
-  .company {
-    margin: 4px 0 6px;
-    color: var(--c-accent);
-    font-size: var(--fs-3);
-    line-height: 1.25;
-  }
-  .summary {
-    color: var(--c-fg-soft);
-    max-width: 62ch;
-  }
-  .side {
-    display: grid;
-    gap: 56px;
-    align-content: start;
-  }
-  .block {
-    container-type: inline-size;
-    display: grid;
-    gap: 20px;
-  }
-  .block-title {
-    font-family: var(--f-heading);
-    font-size: min(var(--fs-4), calc(100cqi / var(--fit, 11.7)));
-    color: var(--c-accent);
-  }
-  .skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0;
-  }
-  .skills li {
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: var(--c-bg-raised);
-    font-size: var(--fs-0);
-    font-weight: 700;
-  }
-  .edu .company {
-    font-size: var(--fs-2);
+    padding-block: clamp(88px, 10vw, 144px);
+    padding-inline: clamp(20px, 5vw, 64px);
+    scroll-margin-top: 40px;
   }
 
-  @media (min-width: 960px) {
-    .grid {
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  .exp-shell {
+    width: 100%;
+    max-width: 1024px;
+    margin-inline: auto;
+  }
+
+  .exp-head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: clamp(40px, 5vw, 64px);
+  }
+
+  .exp-kicker {
+    margin: 0;
+    font-family: var(--f-heading);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--c-accent);
+  }
+
+  .exp-heading {
+    margin: 0;
+    font-family: var(--f-heading);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 5.2vw, 4.5rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+    color: var(--c-fg);
+  }
+
+  /* Clean Editorial Work History Rows */
+  .exp-list {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--c-line);
+  }
+
+  .exp-row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 12px 32px;
+    padding-block: clamp(28px, 3.2vw, 40px);
+    border-bottom: 1px solid var(--c-line);
+    align-items: baseline;
+  }
+
+  .exp-meta {
+    grid-column: 1 / span 4;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .exp-period {
+    font-family: var(--f-body);
+    font-size: 13px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    color: var(--c-muted);
+  }
+
+  .exp-role {
+    font-family: var(--f-body);
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--c-fg-soft);
+  }
+
+  .exp-detail {
+    grid-column: 5 / span 8;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .exp-company {
+    margin: 0;
+    font-family: var(--f-heading);
+    font-weight: 700;
+    font-size: clamp(1.375rem, 2.1vw, 1.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--c-fg);
+  }
+
+  .exp-summary {
+    margin: 0;
+    max-width: 58ch;
+    font-family: var(--f-body);
+    font-size: 15.5px;
+    font-weight: 400;
+    line-height: 1.68;
+    color: var(--c-muted);
+  }
+
+  /* Lower Editorial Grid: Education + Skills & Tools */
+  .exp-subgrid {
+    margin-top: clamp(56px, 6vw, 88px);
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 48px 32px;
+    align-items: start;
+  }
+
+  .exp-col {
+    grid-column: 1 / span 5;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .exp-col-cap {
+    grid-column: 7 / span 6;
+    gap: 36px;
+  }
+
+  .exp-subhead {
+    margin: 0;
+    font-family: var(--f-heading);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  .edu-list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .edu-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .edu-period {
+    font-family: var(--f-body);
+    font-size: 12.5px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--c-muted);
+  }
+
+  .edu-school {
+    margin: 2px 0 0;
+    font-family: var(--f-heading);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    color: var(--c-fg);
+  }
+
+  .edu-program {
+    margin: 0;
+    font-family: var(--f-body);
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--c-muted);
+  }
+
+  .cap-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cap-list {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 24px;
+  }
+
+  .cap-list li {
+    font-family: var(--f-body);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--c-fg-soft);
+  }
+
+  @media (max-width: 820px) {
+    .exp-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+    .exp-meta,
+    .exp-detail {
+      grid-column: 1 / -1;
+    }
+    .exp-meta {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 12px;
+    }
+    .exp-subgrid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 40px;
+    }
+    .exp-col,
+    .exp-col-cap {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .cap-list {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
     }
   }
 </style>

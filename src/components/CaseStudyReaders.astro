@@ -1395,11 +1395,11 @@ const sybilCardItems = [
 
   .cs-proj-name {
     margin: 0 0 4px 12px;
-    font-family: var(--f-clash);
+    font-family: var(--f-heading);
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--cs-fg);
-    letter-spacing: 0.01em;
+    letter-spacing: -0.02em;
     line-height: 1.15;
   }
 
@@ -1724,20 +1724,20 @@ const sybilCardItems = [
     object-fit: cover;
   }
 
-  /* ================= Editorial Typography (Clash Display 600 + Satoshi 400/500/700) ================= */
+  /* ================= Editorial Typography (Space Grotesk 700 + Plus Jakarta Sans 400/500/700) ================= */
   .cs-h1 {
     margin: 12px auto 0;
-    font-family: var(--f-clash);
-    font-weight: 600;
+    font-family: var(--f-heading);
+    font-weight: 700;
     font-size: clamp(38px, 4.6vw, 56px);
     line-height: 1.04;
-    letter-spacing: 0.01em;
+    letter-spacing: -0.025em;
     color: var(--cs-fg);
   }
 
   .cs-subtitle {
     margin: -8px auto 0;
-    font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-nav);
+    font: 400 clamp(16px, 1.4vw, 19px) / 1.55 var(--f-body);
     color: var(--cs-muted);
   }
 
@@ -1751,29 +1751,29 @@ const sybilCardItems = [
     gap: 24px;
   }
   .cs-meta-grid dt {
-    font: 400 12px / 1.3 var(--f-nav);
+    font: 400 12px / 1.3 var(--f-body);
     color: var(--cs-muted);
     margin-bottom: 4px;
   }
   .cs-meta-grid dd {
     margin: 0;
-    font: 500 14px / 1.45 var(--f-nav);
+    font: 500 14px / 1.45 var(--f-body);
     color: var(--cs-fg);
   }
 
   .cs-h2 {
     margin: 0 auto;
-    font-family: var(--f-clash);
-    font-weight: 600;
+    font-family: var(--f-heading);
+    font-weight: 700;
     font-size: clamp(26px, 2.7vw, 34px);
     line-height: 1.12;
-    letter-spacing: 0.01em;
+    letter-spacing: -0.02em;
     color: var(--cs-fg);
   }
 
   .cs-prose {
     margin: 0 auto;
-    font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-nav);
+    font: 400 clamp(16px, 1.2vw, 18px) / 1.7 var(--f-body);
     color: var(--cs-fg-soft);
   }
 
@@ -1794,36 +1794,17 @@ const sybilCardItems = [
   }
   .cs-callout h3 {
     margin: 0;
-    font-family: var(--f-nav);
+    font-family: var(--f-heading);
     font-weight: 700;
     font-size: 15.5px;
     line-height: 1.35;
-    letter-spacing: 0;
+    letter-spacing: -0.01em;
     color: var(--cs-accent);
   }
   .cs-callout p {
     margin: 0;
-    font: 400 14px / 1.55 var(--f-nav);
+    font: 400 14px / 1.55 var(--f-body);
     color: var(--cs-fg-soft);
-  }
-
-  /* K2O (#project-k2o) body copy: Plus Jakarta Sans Regular, same size + spacing */
-  .cs-reader[data-case-dialog='k2o'] :is(.cs-subtitle, .cs-prose, .cs-callout p) {
-    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', system-ui, sans-serif;
-    font-weight: 400;
-  }
-
-  /* K2O (#project-k2o) headings & sidebar title: Space Grotesk Bold, tighter tracking than Clash Display */
-  .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2, .cs-callout h3, .cs-proj-name) {
-    font-family: 'Space Grotesk', 'IBM Plex Sans Thai', system-ui, sans-serif;
-    font-weight: 700;
-  }
-  .cs-reader[data-case-dialog='k2o'] :is(.cs-h1, .cs-h2, .cs-proj-name) {
-    letter-spacing: -0.02em;
-  }
-  /* K2O (#project-k2o) sidebar nav & UI labels: Plus Jakarta Sans */
-  .cs-reader[data-case-dialog='k2o'] :is(.cs-back, .cs-hook-item, .cs-live-pill, .cs-next-lbl, .cs-next-title) {
-    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', system-ui, sans-serif;
   }
 
   /* K2O (#project-k2o) images & cards: crisp 4px radius */

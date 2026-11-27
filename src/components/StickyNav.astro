@@ -10,7 +10,7 @@ const total = String(projects.length).padStart(2, '0');
 
 <header class="sticky-nav" data-sticky-nav aria-label="Page navigation" inert>
   <div class="bar">
-    <a class="brand" href="#top" aria-label="Pun, back to top">PUN</a>
+    <a class="brand" href="#top" aria-label="tutphong, back to top">tutphong</a>
 
     <a class="now" href="#work" data-now hidden>
       <span class="now-no" data-now-no>01</span><span class="now-of">/ {total}</span>
@@ -111,10 +111,13 @@ const total = String(projects.length).padStart(2, '0');
   }
   .brand {
     font-family: var(--f-display);
-    font-size: 1.25rem;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    font-size: 1.1875rem;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: lowercase;
     text-decoration: none;
-    color: var(--c-accent);
+    color: var(--c-fg);
   }
 
   .now {

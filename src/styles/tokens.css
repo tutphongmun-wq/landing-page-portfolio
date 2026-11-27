@@ -24,12 +24,12 @@
   --c-ink: #000; /* small text on red needs pure black for contrast */
   --c-ink-display: #111; /* >= 3:1 on the darker swirl bands for large text */
 
-  /* Type */
-  --f-display: 'Archivo Black', 'Arial Black', system-ui, sans-serif;
-  --f-heading: 'BBH Bartle', 'Archivo Black', 'Arial Black', system-ui, sans-serif; /* section headings + wordmark */
-  --f-body: 'IBM Plex Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --f-nav: 'Satoshi', var(--f-body);
-  --f-clash: 'Clash Display', 'IBM Plex Sans Thai', system-ui, sans-serif;
+  /* Type — unified Space Grotesk (headings/emphasis) + Plus Jakarta Sans (body/details) */
+  --f-display: 'Space Grotesk', 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --f-heading: 'Space Grotesk', 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --f-clash: 'Space Grotesk', 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --f-body: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-nav: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --fs-0: 0.875rem;
   --fs-1: 1rem;
   --fs-2: 1.125rem;

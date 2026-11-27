@@ -55,13 +55,13 @@ const year = new Date().getFullYear();
     background: var(--c-bg);
     color: var(--c-fg);
     border-top: 1px solid var(--c-line);
-    padding-inline: var(--gutter);
+    padding-inline: clamp(20px, 5vw, 64px);
     padding-block: clamp(88px, 11vw, 152px) clamp(40px, 5vw, 64px);
   }
 
   .contact-inner {
     width: 100%;
-    max-width: var(--max-w);
+    max-width: 1024px;
     margin-inline: auto;
     display: flex;
     flex-direction: column;
@@ -71,45 +71,45 @@ const year = new Date().getFullYear();
 
   .contact-kicker {
     margin: 0;
-    font-family: var(--f-clash);
+    font-family: var(--f-heading);
     font-weight: 500;
-    font-size: 18px;
-    line-height: 1.1;
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--c-accent);
   }
 
   .contact-heading {
     margin: 0;
-    font-family: var(--f-clash);
-    font-weight: 600;
+    font-family: var(--f-heading);
+    font-weight: 700;
     font-size: clamp(2.75rem, 6vw, 5.5rem);
     line-height: 0.96;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     color: var(--c-fg);
   }
 
   .contact-lead {
     margin: 0;
-    font-family: var(--f-nav);
-    font-weight: 500;
+    font-family: var(--f-body);
+    font-weight: 400;
     font-size: clamp(1.0625rem, 1.35vw, 1.3125rem);
-    line-height: 1.5;
+    line-height: 1.55;
     color: var(--c-muted);
     max-width: 44ch;
-  }
-  :global(:root[data-lang='th']) .contact-lead {
-    font-family: var(--f-body);
   }
 
   .contact-email {
     margin-top: 8px;
-    font-family: var(--f-clash);
-    font-weight: 500;
+    font-family: var(--f-heading);
+    font-weight: 600;
     font-size: clamp(1.375rem, 2.8vw, 2.75rem);
     line-height: 1.15;
+    letter-spacing: -0.025em;
     color: var(--c-fg);
     text-decoration: none;
-    border-bottom: 2px solid var(--c-line);
+    border-bottom: 1.5px solid var(--c-line);
     padding-bottom: 6px;
     overflow-wrap: anywhere;
     transition: color 200ms ease, border-color 200ms ease;
