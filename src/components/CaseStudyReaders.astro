@@ -1517,6 +1517,29 @@ const sybilCardItems = [
     padding: 0 0 120px;
     box-sizing: border-box;
   }
+  .cs-scroller::-webkit-scrollbar {
+    width: 11px;
+  }
+  .cs-scroller::-webkit-scrollbar-track,
+  .cs-scroller::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  .cs-scroller::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--cs-fg) 22%, transparent);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 9999px;
+  }
+  .cs-scroller::-webkit-scrollbar-thumb:hover,
+  .cs-scroller::-webkit-scrollbar-thumb:active {
+    background-color: var(--cs-accent);
+  }
+  @supports not selector(::-webkit-scrollbar) {
+    .cs-scroller {
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--cs-fg) 24%, transparent) transparent;
+    }
+  }
   .cs-scroller:focus,
   .cs-scroller:focus-visible {
     outline: none;

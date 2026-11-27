@@ -88,6 +88,32 @@ body {
   overflow-x: clip;
 }
 
+/* Minimal transparent floating-capsule scrollbar (Chrome/Safari/Edge + Firefox fallback) */
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--c-fg) 22%, transparent);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--c-accent);
+}
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--c-fg) 24%, transparent) transparent;
+  }
+}
+
 img,
 video,
 svg,
