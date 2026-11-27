@@ -1799,6 +1799,19 @@ const sybilCardItems = [
     letter-spacing: -0.02em;
   }
 
+  /* K2O (#project-k2o) images & cards: crisp 4px radius */
+  .cs-reader[data-case-dialog='k2o'] :is(
+    .cs-callout,
+    .cs-img-box,
+    .cs-gallery-card,
+    .cs-palette-wrap,
+    .cs-media-frame,
+    .cs-model-frame,
+    .cs-map-frame
+  ) {
+    border-radius: 4px;
+  }
+
   /* ================= Segmented Control Pill ================= */
   .cs-seg {
     display: inline-flex;
