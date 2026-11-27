@@ -112,15 +112,10 @@ import ThemeToggle from './ThemeToggle.astro';
         data-toggle-lang
         aria-pressed="false"
         aria-label="Switch language to TH (current: EN)"
-        title="Switch language: EN → TH"
+        title="Switch language: EN / TH"
       >
-        <span class="lang-tech" aria-hidden="true">
-          <span class="lt-top">
-            <span class="lt-en-main">EN</span><span class="lt-th-main">TH</span><span class="lt-arr">→</span>
-          </span>
-          <span class="lt-bot">
-            <span class="lt-th-sub">TH</span><span class="lt-en-sub">EN</span>
-          </span>
+        <span class="lang-code" aria-hidden="true">
+          <span class="lc-en">EN</span><span class="lc-th">TH</span>
         </span>
       </button>
 
@@ -674,50 +669,22 @@ import ThemeToggle from './ThemeToggle.astro';
       border-radius: 999px;
     }
 
-    /* Compact tech EN→TH / TH→EN language glyph inside circular button */
-    .lang-tech {
+    /* Single centered EN / TH text label inside circular button */
+    .lang-code {
       display: grid;
-      justify-items: center;
-      gap: 2px;
-      line-height: 0.95;
-      font-family: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, monospace;
+      place-items: center;
+      font: 700 11px / 1 ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, monospace;
+      letter-spacing: 0.03em;
+      color: var(--c-fg);
       user-select: none;
     }
-    .lt-top {
-      display: inline-flex;
-      align-items: center;
-      gap: 1px;
-      font-size: 8px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      color: var(--c-fg);
-      transform: translateX(-1px);
-    }
-    .lt-arr {
-      font-size: 7px;
-      font-weight: 700;
-      color: var(--c-accent);
-      line-height: 1;
-    }
-    .lt-bot {
-      display: inline-flex;
-      justify-content: center;
-      font-size: 7.5px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      opacity: 0.62;
-      transform: translateX(2px);
-    }
-    .lt-th-main,
-    .lt-en-sub {
+    .lc-th {
       display: none;
     }
-    :global(:root[data-lang='th']) .lt-en-main,
-    :global(:root[data-lang='th']) .lt-th-sub {
+    :global(:root[data-lang='th']) .lc-en {
       display: none;
     }
-    :global(:root[data-lang='th']) .lt-th-main,
-    :global(:root[data-lang='th']) .lt-en-sub {
+    :global(:root[data-lang='th']) .lc-th {
       display: inline;
     }
   }
