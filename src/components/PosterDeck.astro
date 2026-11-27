@@ -75,36 +75,54 @@ const startItem = items[initialIndex] ?? items[0];
     </div>
   </div>
 
-  <!-- Minimal Centered Control Triad: ( < )   Artist Name / 3 of 6   ( > ) -->
+  <!-- RareUI StepPlayer-style Pagination: Artist Label + ( < ) [dots] ( > ) -->
   <div class="pd-controls">
-    <button
-      type="button"
-      class="pd-nav"
-      data-pd-prev
-      aria-label="Previous artist poster"
-      disabled={initialIndex <= 0}
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M15 18l-6-6 6-6" />
-      </svg>
-    </button>
-
     <div class="pd-info" aria-live="polite">
       <span class="pd-title" data-pd-title>{startItem?.label ?? ''}</span>
-      <span class="pd-count" data-pd-count>{initialIndex + 1} of {total}</span>
     </div>
 
-    <button
-      type="button"
-      class="pd-nav"
-      data-pd-next
-      aria-label="Next artist poster"
-      disabled={initialIndex >= total - 1}
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 18l6-6-6-6" />
-      </svg>
-    </button>
+    <div class="pd-pager">
+      <button
+        type="button"
+        class="pd-nav"
+        data-pd-prev
+        aria-label="Previous artist poster"
+        disabled={initialIndex <= 0}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+
+      <div class="pd-dots" role="tablist" aria-label="Poster slides" data-pd-dots>
+        {
+          items.map((item, idx) => (
+            <button
+              type="button"
+              class:list={['pd-dot', { 'is-active': idx === initialIndex }]}
+              data-pd-dot={idx}
+              role="tab"
+              aria-selected={idx === initialIndex ? 'true' : 'false'}
+              aria-label={item.label ? `Show ${item.label} (${idx + 1} of ${total})` : `Slide ${idx + 1} of ${total}`}
+            >
+              <span class="pd-dot-pill" aria-hidden="true" />
+            </button>
+          ))
+        }
+      </div>
+
+      <button
+        type="button"
+        class="pd-nav"
+        data-pd-next
+        aria-label="Next artist poster"
+        disabled={initialIndex >= total - 1}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -115,12 +133,13 @@ const startItem = items[initialIndex] ?? items[0];
     const prevBtn = root.querySelector<HTMLButtonElement>('[data-pd-prev]')!;
     const nextBtn = root.querySelector<HTMLButtonElement>('[data-pd-next]')!;
     const titleEl = root.querySelector<HTMLElement>('[data-pd-title]')!;
-    const countEl = root.querySelector<HTMLElement>('[data-pd-count]')!;
+    const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-pd-dot]')];
 
     const total = cards.length;
     if (total === 0) return;
 
     const isTransparent = root.dataset.transparent === 'true';
+    const isWide = root.closest("[data-case-dialog='k2o']") !== null;
     const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
     let activeIdx = Math.max(0, Math.min(total - 1, Number(root.dataset.initial ?? 0)));
     let dragOffset = 0; // continuous card units while dragging
@@ -128,7 +147,7 @@ const startItem = items[initialIndex] ?? items[0];
     let suppressNextClick = false;
 
     const getCardWidth = () => {
-      const w = cards[0]?.offsetWidth || 268;
+      const w = cards[0]?.offsetWidth || (isWide ? 320 : 268);
       return Math.max(140, w);
     };
 
@@ -136,8 +155,8 @@ const startItem = items[initialIndex] ?? items[0];
       const cardW = getCardWidth();
       const stageW = stage.clientWidth || 864;
       const isCompact = stageW < 560;
-      const firstGap = isCompact ? cardW * 0.45 : cardW * 0.58;
-      const stepGap = isCompact ? cardW * 0.17 : cardW * 0.24;
+      const firstGap = isCompact ? cardW * 0.45 : isWide ? cardW * 0.61 : cardW * 0.58;
+      const stepGap = isCompact ? cardW * 0.17 : isWide ? cardW * 0.185 : cardW * 0.24;
       const pos = activeIdx - dragOffset;
 
       cards.forEach((card, i) => {
@@ -145,7 +164,7 @@ const startItem = items[initialIndex] ?? items[0];
         const absD = Math.abs(d);
         const sign = d === 0 ? 0 : d > 0 ? 1 : -1;
 
-        // Smooth nonlinear Cover Flow X placement: generous clearance beside center, tighter fan outward
+        // Smooth nonlinear Cover Flow X placement: generous clearance beside center, balanced fan outward
         let tx = 0;
         if (absD <= 1) {
           tx = d * firstGap;
@@ -153,7 +172,7 @@ const startItem = items[initialIndex] ?? items[0];
           tx = sign * (firstGap + (absD - 1) * stepGap);
         }
 
-        // Concave amphitheater perspective rotation matching reference video
+        // Concave amphitheater perspective rotation
         let rotY = 0;
         if (absD <= 1) {
           rotY = -d * 34;
@@ -173,7 +192,7 @@ const startItem = items[initialIndex] ?? items[0];
             : 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 360ms ease, filter 420ms ease';
         card.style.transform = `translate3d(${tx.toFixed(1)}px, 0, ${tz.toFixed(1)}px) rotateY(${rotY.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
         card.style.zIndex = String(zIndex);
-        card.style.opacity = absD > 4.6 ? '0' : '1';
+        card.style.opacity = absD > (isWide ? 3.8 : 4.6) ? '0' : '1';
 
         const shade = card.querySelector<HTMLElement>('.pd-card-shade');
         if (isTransparent) {
@@ -202,7 +221,29 @@ const startItem = items[initialIndex] ?? items[0];
       } else {
         titleEl.textContent = label;
       }
-      countEl.textContent = `${activeIdx + 1} of ${total}`;
+
+      // RareUI StepPlayer dot pagination: 5-dot sliding window when total > 5
+      const WIN = 5;
+      const winStart =
+        total > WIN ? Math.max(0, Math.min(total - WIN, activeIdx - Math.floor(WIN / 2))) : 0;
+      const winEnd = Math.min(total - 1, winStart + WIN - 1);
+
+      dots.forEach((dot, i) => {
+        const isActive = i === activeIdx;
+        const isVisible = total <= WIN || (i >= winStart && i <= winEnd);
+        const isEdge =
+          total > WIN &&
+          isVisible &&
+          !isActive &&
+          ((i === winStart && winStart > 0) || (i === winEnd && winEnd < total - 1));
+
+        dot.classList.toggle('is-active', isActive);
+        dot.classList.toggle('is-hidden', !isVisible);
+        dot.classList.toggle('is-edge', isEdge);
+        dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        dot.tabIndex = isVisible ? 0 : -1;
+      });
+
       prevBtn.disabled = activeIdx <= 0;
       nextBtn.disabled = activeIdx >= total - 1;
     };
@@ -217,6 +258,7 @@ const startItem = items[initialIndex] ?? items[0];
 
     prevBtn.addEventListener('click', () => goTo(activeIdx - 1));
     nextBtn.addEventListener('click', () => goTo(activeIdx + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
 
     // Intercept clicks in capture phase on stage BEFORE Lightbox sees [data-zoom]:
     //  - Non-active side card -> glide it smoothly to center
@@ -455,13 +497,35 @@ const startItem = items[initialIndex] ?? items[0];
     transition: opacity 420ms ease;
   }
 
-  /* Minimal Centered Control Triad matching card-animation-ref.mov */
+  /* RareUI StepPlayer-style Controls: Artist Label + ( < ) [dots] ( > ) */
   .pd-controls {
     display: grid;
-    grid-template-columns: 36px minmax(150px, 210px) 36px;
+    justify-items: center;
+    gap: 10px;
+  }
+
+  .pd-info {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    min-width: 0;
+  }
+  .pd-title {
+    font: 500 14px / 1.25 var(--f-nav, var(--f-body));
+    color: var(--cs-fg, var(--c-fg));
+    white-space: nowrap;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+  .pd-title.is-swapping {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+
+  .pd-pager {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+    gap: 14px;
   }
 
   .pd-nav {
@@ -490,27 +554,74 @@ const startItem = items[initialIndex] ?? items[0];
     cursor: default;
   }
 
-  .pd-info {
-    display: grid;
-    justify-items: center;
-    gap: 3px;
-    text-align: center;
-    min-width: 0;
+  .pd-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .pd-title {
-    font: 500 14px / 1.25 var(--f-nav, var(--f-body));
-    color: var(--cs-fg, var(--c-fg));
-    white-space: nowrap;
-    transition: opacity 0.16s ease, transform 0.16s ease;
+
+  .pd-dot {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    overflow: hidden;
+    transition:
+      width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 220ms ease;
   }
-  .pd-title.is-swapping {
+  .pd-dot.is-active {
+    width: 30px;
+  }
+  .pd-dot.is-edge {
+    width: 11px;
+  }
+  .pd-dot.is-hidden {
+    width: 0;
     opacity: 0;
-    transform: translateY(3px);
+    pointer-events: none;
   }
-  .pd-count {
-    font: 400 11.5px / 1.2 var(--f-nav, var(--f-body));
-    font-variant-numeric: tabular-nums;
-    color: var(--cs-muted, var(--c-muted));
+
+  .pd-dot-pill {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgb(23 21 20 / 0.2);
+    transition:
+      width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 240ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 220ms ease,
+      transform 220ms ease;
+  }
+  :global(:root[data-theme='dark']) .pd-dot-pill {
+    background: rgb(255 255 255 / 0.24);
+  }
+  .pd-dot:hover:not(.is-active) .pd-dot-pill {
+    background: rgb(23 21 20 / 0.42);
+  }
+  :global(:root[data-theme='dark']) .pd-dot:hover:not(.is-active) .pd-dot-pill {
+    background: rgb(255 255 255 / 0.46);
+  }
+  .pd-dot.is-active .pd-dot-pill {
+    width: 24px;
+    height: 7px;
+    background: var(--cs-accent, #ff2b2b);
+  }
+  .pd-dot.is-edge .pd-dot-pill {
+    width: 4.5px;
+    height: 4.5px;
+  }
+  .pd-dot:focus-visible {
+    outline: 2px solid var(--cs-accent, #ff2b2b);
+    outline-offset: 2px;
+    border-radius: 999px;
   }
 
   @media (max-width: 720px) {
@@ -523,9 +634,8 @@ const startItem = items[initialIndex] ?? items[0];
     .pd-card {
       width: 204px;
     }
-    .pd-controls {
-      grid-template-columns: 34px minmax(130px, 180px) 34px;
-      gap: 12px;
+    .pd-pager {
+      gap: 10px;
     }
     .pd-nav {
       width: 34px;

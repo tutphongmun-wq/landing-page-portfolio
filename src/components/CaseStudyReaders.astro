@@ -1812,6 +1812,26 @@ const sybilCardItems = [
     border-radius: 4px;
   }
 
+  /* K2O (#project-k2o) Artist Posters: crisp 0px corners + wider/taller stage to balance left-right with 864px blocks */
+  .cs-reader[data-case-dialog='k2o'] :global(.pd-card),
+  .cs-reader[data-case-dialog='k2o'] :global(.pd-card-media) {
+    border-radius: 0;
+  }
+  .cs-reader[data-case-dialog='k2o'] :global(.pd-stage) {
+    height: clamp(330px, 49vw, 462px);
+  }
+  .cs-reader[data-case-dialog='k2o'] :global(.pd-card) {
+    width: clamp(220px, 39.5%, 340px);
+  }
+  @media (max-width: 720px) {
+    .cs-reader[data-case-dialog='k2o'] :global(.pd-stage) {
+      height: 318px;
+    }
+    .cs-reader[data-case-dialog='k2o'] :global(.pd-card) {
+      width: 222px;
+    }
+  }
+
   /* ================= Segmented Control Pill ================= */
   .cs-seg {
     display: inline-flex;
