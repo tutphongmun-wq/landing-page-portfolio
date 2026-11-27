@@ -133,6 +133,7 @@ const worachetRoleMap: Record<string, string> = {
   'thumbnails-posters': 'Freelance Graphic Designer Â· MollageBKK, Bangkok',
 };
 const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer Â· ${clientLabel || 'Bangkok'}`;
+const isWorachetMediaFirst = variant === 'worachet' && p.slug === 'thumbnails-posters';
 ---
 
 <article
@@ -149,9 +150,30 @@ const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer Â
 >
   <div class="sp-shell">
     {variant === 'worachet' ? (
-      /* ================= WORACHET-EXACT EDITORIAL LAYOUT (Project 01 K2O) ================= */
-      <div class="wr-wrap">
-        <!-- 1. Top Header Block (1024px editorial column) -->
+      /* ================= WORACHET-EXACT EDITORIAL LAYOUT (Projects 01 & 03) ================= */
+      <div class:list={['wr-wrap', { 'is-media-first': isWorachetMediaFirst }]}>
+        {isWorachetMediaFirst && heroImage && (
+          <div class="wr-media-bleed">
+            <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
+              <a
+                class="wr-media"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+                data-case-trigger
+                aria-label={`Explore ${p.title}`}
+                style={`--sp-pos: ${heroPos};`}
+              >
+                <Picture
+                  name={heroImage}
+                  alt={heroAlt}
+                  sizes="(min-width: 1200px) 1408px, 100vw"
+                />
+              </a>
+            </FadeContent>
+          </div>
+        )}
+
+        <!-- Top Header Block (1024px editorial column) -->
         <FadeContent client:load once={false} exit={true} effect="focus" duration={0.85} threshold={0.12}>
           <header class="wr-head">
             <p class="wr-kicker">
@@ -180,8 +202,8 @@ const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer Â
           </header>
         </FadeContent>
 
-        <!-- 2. Full-Bleed Oversized 16:9 Hero Image (breaks out to 1408px Ã— 792px) -->
-        {heroImage && (
+        <!-- Full-Bleed Oversized 16:9 Hero Image (breaks out to 1408px Ã— 792px) -->
+        {!isWorachetMediaFirst && heroImage && (
           <div class="wr-media-bleed">
             <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
               <a
@@ -1486,6 +1508,12 @@ const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer Â
     margin-top: clamp(44px, 5vw, 64px);
     margin-left: clamp(-64px, -4vw, -20px);
     margin-right: calc(-1 * clamp(20px, 4vw, 64px) - max(0px, min(20rem, calc((100vw - 88rem) / 2))));
+  }
+  .wr-wrap.is-media-first .wr-media-bleed {
+    margin-top: 0;
+  }
+  .wr-wrap.is-media-first .wr-head {
+    margin-top: clamp(44px, 5vw, 64px);
   }
   .wr-media {
     position: relative;
