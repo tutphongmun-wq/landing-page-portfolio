@@ -111,11 +111,28 @@ const challengeEn = cs?.challenge.paragraphs[0] ?? '';
 const challengeTh = cs?.challenge.paragraphsTh[0] ?? challengeEn;
 const approachEn = cs?.challenge.callouts[0]?.body ?? '';
 const approachTh = cs?.challenge.callouts[0]?.bodyTh ?? approachEn;
-const worachetMetrics = [
-  { value: '6', labelEn: 'Headliner artist posters', labelTh: 'โปสเตอร์เปิดตัวศิลปินหลัก' },
-  { value: '5-Panel', labelEn: 'BTS Asok Plan B OOH motion', labelTh: 'จอ Motion 5 แผง BTS อโศก' },
-  { value: yearVal || '2026', labelEn: 'S2O Festival · Bangkok', labelTh: 'S2O Festival · กรุงเทพฯ' },
+const worachetMetricsMap: Record<string, { value: string; labelEn: string; labelTh: string }[]> = {
+  k2o: [
+    { value: '6', labelEn: 'Headliner artist posters', labelTh: 'โปสเตอร์เปิดตัวศิลปินหลัก' },
+    { value: '5-Panel', labelEn: 'BTS Asok Plan B OOH motion', labelTh: 'จอ Motion 5 แผง BTS อโศก' },
+    { value: yearVal || '2026', labelEn: 'S2O Festival · Bangkok', labelTh: 'S2O Festival · กรุงเทพฯ' },
+  ],
+  'thumbnails-posters': [
+    { value: '6', labelEn: 'Netflix TH 16:9 thumbnails', labelTh: 'ปกคลิป 16:9 Netflix Thailand' },
+    { value: '3', labelEn: 'Vertical 9:16 key posters', labelTh: 'โปสเตอร์รายการแนวตั้ง 9:16' },
+    { value: yearVal || '2025', labelEn: 'MollageBKK · Bangkok', labelTh: 'MollageBKK · กรุงเทพฯ' },
+  ],
+};
+const worachetMetrics = worachetMetricsMap[p.slug] ?? [
+  { value: categoryVal, labelEn: 'Category', labelTh: 'ประเภทงาน' },
+  { value: scopeVal, labelEn: 'Scope', labelTh: 'ขอบเขตงาน' },
+  { value: yearVal || '2025', labelEn: clientLabel || 'Bangkok', labelTh: clientLabel || 'กรุงเทพฯ' },
 ];
+const worachetRoleMap: Record<string, string> = {
+  k2o: 'Graphic & Visual Designer · S2O Festival, Bangkok',
+  'thumbnails-posters': 'Freelance Graphic Designer · MollageBKK, Bangkok',
+};
+const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer · ${clientLabel || 'Bangkok'}`;
 ---
 
 <article
@@ -238,7 +255,7 @@ const worachetMetrics = [
                   </div>
                 ))}
               </dl>
-              <p class="wr-role-line">Graphic &amp; Visual Designer · S2O Festival, Bangkok</p>
+              <p class="wr-role-line">{worachetRoleLine}</p>
             </div>
           </div>
         </FadeContent>
