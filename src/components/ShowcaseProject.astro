@@ -9,6 +9,7 @@ import { caseStudies } from '../data/caseStudies';
 import { tools } from '../data/site';
 import { posterUrl } from '../lib/media';
 import Picture from './Picture.astro';
+import FadeContent from './FadeContent.jsx';
 
 export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial' | 'bento' | 'bento-h' | 'worachet';
 
@@ -134,113 +135,120 @@ const worachetMetrics = [
       /* ================= WORACHET-EXACT EDITORIAL LAYOUT (Project 01 K2O) ================= */
       <div class="wr-wrap">
         <!-- 1. Top Header Block (1024px editorial column) -->
-        <header class="wr-head">
-          <p class="wr-kicker" data-reveal>
-            <span>{p.no} / 07</span>
-            <span>{categoryVal}</span>
-            {yearVal && <span>{yearVal}</span>}
-          </p>
+        <FadeContent client:load effect="focus" duration={0.85} threshold={0.12}>
+          <header class="wr-head">
+            <p class="wr-kicker">
+              <span>{p.no} / 07</span>
+              <span>{categoryVal}</span>
+              {yearVal && <span>{yearVal}</span>}
+            </p>
 
-          <h3 id={titleId} class="wr-title" data-reveal style="--reveal-d: 50ms">
-            <a
-              class="wr-title-link"
-              href={`#project-${p.slug}`}
-              data-open-case={p.slug}
-              data-case-trigger
-              aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
-            >
-              <span class="visually-hidden">Project {p.no}: </span>
-              {p.title}
-            </a>
-          </h3>
+            <h3 id={titleId} class="wr-title">
+              <a
+                class="wr-title-link"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+                data-case-trigger
+                aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+              >
+                <span class="visually-hidden">Project {p.no}: </span>
+                {p.title}
+              </a>
+            </h3>
 
-          <p class="wr-subtitle" data-reveal style="--reveal-d: 90ms">
-            <span data-lang-text="en">{overviewEn}</span>
-            <span data-lang-text="th">{overviewTh}</span>
-          </p>
-        </header>
+            <p class="wr-subtitle">
+              <span data-lang-text="en">{overviewEn}</span>
+              <span data-lang-text="th">{overviewTh}</span>
+            </p>
+          </header>
+        </FadeContent>
 
         <!-- 2. Full-Bleed Oversized 16:9 Hero Image (breaks out to 1408px × 792px) -->
         {heroImage && (
-          <div class="wr-media-bleed" data-reveal style="--reveal-d: 120ms">
-            <a
-              class="wr-media"
-              href={`#project-${p.slug}`}
-              data-open-case={p.slug}
-              data-case-trigger
-              aria-label={`Explore ${p.title}`}
-              style={`--sp-pos: ${heroPos};`}
-            >
-              <Picture
-                name={heroImage}
-                alt={heroAlt}
-                sizes="(min-width: 1200px) 1408px, 100vw"
-              />
-            </a>
+          <div class="wr-media-bleed">
+            <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
+              <a
+                class="wr-media"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+                data-case-trigger
+                aria-label={`Explore ${p.title}`}
+                style={`--sp-pos: ${heroPos};`}
+              >
+                <Picture
+                  name={heroImage}
+                  alt={heroAlt}
+                  sizes="(min-width: 1200px) 1408px, 100vw"
+                />
+              </a>
+            </FadeContent>
           </div>
         )}
 
         <!-- 3. Bottom 12-Column Editorial Story + Metrics Grid (1024px column) -->
-        <div class="wr-body" data-reveal style="--reveal-d: 140ms">
-          <!-- Left 7 columns: Story Lead + 2-Col Challenge/Approach + CTA -->
-          <div class="wr-story-col">
-            <p class="wr-story-lead">
-              <span data-lang-text="en">{storyEn}</span>
-              <span data-lang-text="th">{storyTh}</span>
-            </p>
+        <FadeContent client:load effect="fade" blur={4} duration={0.9} threshold={0.12}>
+          <div class="wr-body">
+            <!-- Left 7 columns: Story Lead + 2-Col Challenge/Approach + CTA -->
+            <div class="wr-story-col">
+              <p class="wr-story-lead">
+                <span data-lang-text="en">{storyEn}</span>
+                <span data-lang-text="th">{storyTh}</span>
+              </p>
 
-            <div class="wr-subgrid">
-              <div class="wr-subblock">
-                <h4 class="wr-subhead">The challenge</h4>
-                <p class="wr-subcopy">
-                  <span data-lang-text="en">{challengeEn}</span>
-                  <span data-lang-text="th">{challengeTh}</span>
-                </p>
-              </div>
-
-              <div class="wr-subblock">
-                <h4 class="wr-subhead">Approach</h4>
-                <p class="wr-subcopy">
-                  <span data-lang-text="en">{approachEn}</span>
-                  <span data-lang-text="th">{approachTh}</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="wr-actions">
-              <a
-                class="wr-cta"
-                href={`#project-${p.slug}`}
-                data-open-case={p.slug}
-              >
-                <span>Read the full case study</span>
-                <span aria-hidden="true">→</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Right 4 columns (col-start-9): 3 Stacked Metrics + Role Credit -->
-          <div class="wr-metrics-col">
-            <dl class="wr-metrics-list">
-              {worachetMetrics.map((m) => (
-                <div class="wr-metric">
-                  <dt class="wr-metric-val">{m.value}</dt>
-                  <dd class="wr-metric-lbl">
-                    <span data-lang-text="en">{m.labelEn}</span>
-                    <span data-lang-text="th">{m.labelTh}</span>
-                  </dd>
+              <div class="wr-subgrid">
+                <div class="wr-subblock">
+                  <h4 class="wr-subhead">The challenge</h4>
+                  <p class="wr-subcopy">
+                    <span data-lang-text="en">{challengeEn}</span>
+                    <span data-lang-text="th">{challengeTh}</span>
+                  </p>
                 </div>
-              ))}
-            </dl>
-            <p class="wr-role-line">Graphic &amp; Visual Designer · S2O Festival, Bangkok</p>
+
+                <div class="wr-subblock">
+                  <h4 class="wr-subhead">Approach</h4>
+                  <p class="wr-subcopy">
+                    <span data-lang-text="en">{approachEn}</span>
+                    <span data-lang-text="th">{approachTh}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="wr-actions">
+                <a
+                  class="wr-cta"
+                  href={`#project-${p.slug}`}
+                  data-open-case={p.slug}
+                >
+                  <span>Read the full case study</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Right 4 columns (col-start-9): 3 Stacked Metrics + Role Credit -->
+            <div class="wr-metrics-col">
+              <dl class="wr-metrics-list">
+                {worachetMetrics.map((m) => (
+                  <div class="wr-metric">
+                    <dt class="wr-metric-val">{m.value}</dt>
+                    <dd class="wr-metric-lbl">
+                      <span data-lang-text="en">{m.labelEn}</span>
+                      <span data-lang-text="th">{m.labelTh}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p class="wr-role-line">Graphic &amp; Visual Designer · S2O Festival, Bangkok</p>
+            </div>
           </div>
-        </div>
+        </FadeContent>
       </div>
     ) : variant === 'bento' ? (
       /* ================= STICKY SPLIT BENTO GRID (Project 02) ================= */
       <div class="sp-bento-layout">
         <!-- Left: 5-Tile Editorial Bento Collage -->
-        <div class="sp-bento-grid" data-reveal style="--reveal-d: 60ms">
+        <FadeContent client:load effect="focus" blur={4} duration={0.9} threshold={0.08}>
+          <div class="sp-bento-grid">
           <!-- Row 1 Left (8 cols): Billboard Hero -->
           <a
             class="sp-bento-tile is-span-8 is-r1"
@@ -335,35 +343,40 @@ const worachetMetrics = [
               sizes="(min-width: 1100px) 900px, 92vw"
             />
           </a>
-        </div>
+          </div>
+        </FadeContent>
 
         <!-- Right: Sticky Editorial Info Column -->
         <aside class="sp-bento-aside">
-          <header class="sp-head">
-            <p class="sp-no" aria-hidden="true" data-reveal>
-              {p.no} / 07
-            </p>
-            <h3 id={titleId} class="sp-title" data-reveal style="--reveal-d: 50ms">
-              <a
-                class="sp-title-link"
-                href={`#project-${p.slug}`}
-                data-open-case={p.slug}
-                data-case-trigger
-                aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
-              >
-                <span class="visually-hidden">Project {p.no}: </span>
-                {p.title}
-              </a>
-            </h3>
-          </header>
+          <FadeContent client:load effect="focus" duration={0.85} threshold={0.1}>
+            <header class="sp-head">
+              <p class="sp-no" aria-hidden="true">
+                {p.no} / 07
+              </p>
+              <h3 id={titleId} class="sp-title">
+                <a
+                  class="sp-title-link"
+                  href={`#project-${p.slug}`}
+                  data-open-case={p.slug}
+                  data-case-trigger
+                  aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
+                >
+                  <span class="visually-hidden">Project {p.no}: </span>
+                  {p.title}
+                </a>
+              </h3>
+            </header>
+          </FadeContent>
 
-          <div class="sp-overview-copy">
-            <h4 class="sp-kicker">Overview</h4>
-            <p class="sp-desc">
-              <span data-lang-text="en">{overviewEn}</span>
-              <span data-lang-text="th">{overviewTh}</span>
-            </p>
-          </div>
+          <FadeContent client:load effect="fade" blur={2} delay={0.08} duration={0.85} threshold={0.1}>
+            <div class="sp-overview-copy">
+              <h4 class="sp-kicker">Overview</h4>
+              <p class="sp-desc">
+                <span data-lang-text="en">{overviewEn}</span>
+                <span data-lang-text="th">{overviewTh}</span>
+              </p>
+            </div>
+          </FadeContent>
 
           <dl class="sp-meta-col is-compact">
             <div class="sp-meta-row">
@@ -392,209 +405,219 @@ const worachetMetrics = [
     ) : (
     <div class="sp-inner">
       <!-- 1. Project Index & Title -->
-      <header class="sp-head">
-        <p class="sp-no" aria-hidden="true" data-reveal>
-          {p.no} / 07
-        </p>
-        <h3 id={titleId} class="sp-title" data-reveal style="--reveal-d: 50ms">
-          <a
-            class="sp-title-link"
-            href={`#project-${p.slug}`}
-            data-open-case={p.slug}
-            data-case-trigger
-            aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
-          >
-            <span class="visually-hidden">Project {p.no}: </span>
-            {p.title}
-          </a>
-        </h3>
-      </header>
-
-      {variant === 'split' ? (
-        /* ================= OPTION 2: HORIZONTAL SPLIT (LEFT VISUAL / RIGHT DETAILS) ================= */
-        <div class="sp-split-grid" data-reveal style="--reveal-d: 90ms">
-          {heroImage && (
+      <FadeContent client:load effect="focus" duration={0.85} threshold={0.12}>
+        <header class="sp-head">
+          <p class="sp-no" aria-hidden="true">
+            {p.no} / 07
+          </p>
+          <h3 id={titleId} class="sp-title">
             <a
-              class="sp-media sp-split-media"
+              class="sp-title-link"
               href={`#project-${p.slug}`}
               data-open-case={p.slug}
               data-case-trigger
-              aria-label={`Explore ${p.title}`}
-              style={`--sp-pos: ${heroPos};`}
+              aria-label={`Project ${p.no}: ${p.title} — Click to Explore full project`}
             >
-              <Picture
-                name={heroImage}
-                alt={heroAlt}
-                sizes="(min-width: 1100px) 760px, 92vw"
-              />
+              <span class="visually-hidden">Project {p.no}: </span>
+              {p.title}
             </a>
-          )}
+          </h3>
+        </header>
+      </FadeContent>
 
-          <div class="sp-split-aside">
-            <div class="sp-overview-copy">
-              <h4 class="sp-kicker">Overview</h4>
-              <p class="sp-desc">
-                <span data-lang-text="en">{overviewEn}</span>
-                <span data-lang-text="th">{overviewTh}</span>
-              </p>
+      {variant === 'split' ? (
+        /* ================= OPTION 2: HORIZONTAL SPLIT (LEFT VISUAL / RIGHT DETAILS) ================= */
+        <FadeContent client:load effect="focus" blur={4} duration={0.9} threshold={0.1}>
+          <div class="sp-split-grid">
+            {heroImage && (
+              <a
+                class="sp-media sp-split-media"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+                data-case-trigger
+                aria-label={`Explore ${p.title}`}
+                style={`--sp-pos: ${heroPos};`}
+              >
+                <Picture
+                  name={heroImage}
+                  alt={heroAlt}
+                  sizes="(min-width: 1100px) 760px, 92vw"
+                />
+              </a>
+            )}
+
+            <div class="sp-split-aside">
+              <div class="sp-overview-copy">
+                <h4 class="sp-kicker">Overview</h4>
+                <p class="sp-desc">
+                  <span data-lang-text="en">{overviewEn}</span>
+                  <span data-lang-text="th">{overviewTh}</span>
+                </p>
+              </div>
+
+              <dl class="sp-meta-col is-compact">
+                <div class="sp-meta-row">
+                  <dt class="sp-meta-label">Category</dt>
+                  <dd class="sp-meta-val">{categoryVal}</dd>
+                </div>
+                <div class="sp-meta-row">
+                  <dt class="sp-meta-label">Scope</dt>
+                  <dd class="sp-meta-val">{scopeVal}</dd>
+                </div>
+                <div class="sp-meta-row">
+                  <dt class="sp-meta-label">Year</dt>
+                  <dd class="sp-meta-val">{yearVal}</dd>
+                </div>
+              </dl>
+
+              <a
+                class="sp-cta"
+                href={`#project-${p.slug}`}
+                data-open-case={p.slug}
+              >
+                Explore project
+              </a>
             </div>
-
-            <dl class="sp-meta-col is-compact">
-              <div class="sp-meta-row">
-                <dt class="sp-meta-label">Category</dt>
-                <dd class="sp-meta-val">{categoryVal}</dd>
-              </div>
-              <div class="sp-meta-row">
-                <dt class="sp-meta-label">Scope</dt>
-                <dd class="sp-meta-val">{scopeVal}</dd>
-              </div>
-              <div class="sp-meta-row">
-                <dt class="sp-meta-label">Year</dt>
-                <dd class="sp-meta-val">{yearVal}</dd>
-              </div>
-            </dl>
-
-            <a
-              class="sp-cta"
-              href={`#project-${p.slug}`}
-              data-open-case={p.slug}
-            >
-              Explore project
-            </a>
           </div>
-        </div>
+        </FadeContent>
       ) : (
         <>
           {variant === 'bento-h' ? (
             /* ================= HORIZONTAL BENTO GRID (Project 05 Infographic) ================= */
-            <div class="sp-hbento-grid" data-reveal style="--reveal-d: 90ms">
-              <!-- Left Tall 4:5 Tile: EV Sales Infographic -->
-              <a
-                class="sp-bento-tile sp-hb-tall"
-                href={`#project-${p.slug}`}
-                data-open-case={p.slug}
-                data-case-trigger
-                aria-label={`Explore ${p.title} — EV Sales Infographic`}
-              >
-                <Picture
-                  name="05-info-ev-sales"
-                  alt="Infographic comparing electric car prices and sales in Thailand"
-                  sizes="(min-width: 1100px) 480px, 92vw"
-                />
-              </a>
-
-              <!-- Center Column: 2 Stacked Editorial Infographics -->
-              <div class="sp-hb-mid">
+            <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
+              <div class="sp-hbento-grid">
+                <!-- Left Tall 4:5 Tile: EV Sales Infographic -->
                 <a
-                  class="sp-bento-tile sp-hb-mid-tile"
+                  class="sp-bento-tile sp-hb-tall"
                   href={`#project-${p.slug}`}
                   data-open-case={p.slug}
                   data-case-trigger
-                  aria-label={`Explore ${p.title} — Ethereum Roadmap`}
+                  aria-label={`Explore ${p.title} — EV Sales Infographic`}
                 >
                   <Picture
-                    name="05-info-ethereum"
-                    alt="Infographic: the five stages of the Ethereum roadmap"
+                    name="05-info-ev-sales"
+                    alt="Infographic comparing electric car prices and sales in Thailand"
                     sizes="(min-width: 1100px) 480px, 92vw"
                   />
                 </a>
+
+                <!-- Center Column: 2 Stacked Editorial Infographics -->
+                <div class="sp-hb-mid">
+                  <a
+                    class="sp-bento-tile sp-hb-mid-tile"
+                    href={`#project-${p.slug}`}
+                    data-open-case={p.slug}
+                    data-case-trigger
+                    aria-label={`Explore ${p.title} — Ethereum Roadmap`}
+                  >
+                    <Picture
+                      name="05-info-ethereum"
+                      alt="Infographic: the five stages of the Ethereum roadmap"
+                      sizes="(min-width: 1100px) 480px, 92vw"
+                    />
+                  </a>
+                  <a
+                    class="sp-bento-tile sp-hb-mid-tile is-top-crop"
+                    href={`#project-${p.slug}`}
+                    data-open-case={p.slug}
+                    data-case-trigger
+                    aria-label={`Explore ${p.title} — Bitcoin Timeline`}
+                  >
+                    <Picture
+                      name="05-info-bitcoin-timeline"
+                      alt="Timeline of Bitcoin price events from 2020 to 2023"
+                      sizes="(min-width: 1100px) 480px, 92vw"
+                    />
+                  </a>
+                </div>
+
+                <!-- Right Tall 4:5 Tile: Pixar 9 Business Lessons -->
                 <a
-                  class="sp-bento-tile sp-hb-mid-tile is-top-crop"
+                  class="sp-bento-tile sp-hb-tall"
                   href={`#project-${p.slug}`}
                   data-open-case={p.slug}
                   data-case-trigger
-                  aria-label={`Explore ${p.title} — Bitcoin Timeline`}
+                  aria-label={`Explore ${p.title} — Pixar Business Lessons`}
                 >
                   <Picture
-                    name="05-info-bitcoin-timeline"
-                    alt="Timeline of Bitcoin price events from 2020 to 2023"
+                    name="05-info-pixar"
+                    alt="Infographic: nine business lessons from Pixar"
                     sizes="(min-width: 1100px) 480px, 92vw"
                   />
                 </a>
               </div>
-
-              <!-- Right Tall 4:5 Tile: Pixar 9 Business Lessons -->
-              <a
-                class="sp-bento-tile sp-hb-tall"
-                href={`#project-${p.slug}`}
-                data-open-case={p.slug}
-                data-case-trigger
-                aria-label={`Explore ${p.title} — Pixar Business Lessons`}
-              >
-                <Picture
-                  name="05-info-pixar"
-                  alt="Infographic: nine business lessons from Pixar"
-                  sizes="(min-width: 1100px) 480px, 92vw"
-                />
-              </a>
-            </div>
+            </FadeContent>
           ) : isGalleryStage ? (
             /* ================= OPTION 3 / EDITORIAL: MAIN HERO + RIGHT 3-THUMBNAIL PREVIEW STRIP ================= */
-            <div class="sp-gallery-stage" data-sp-gallery data-reveal style="--reveal-d: 90ms">
-              {heroImage && (
+            <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
+              <div class="sp-gallery-stage" data-sp-gallery>
+                {heroImage && (
+                  <a
+                    class="sp-media sp-gallery-main"
+                    href={`#project-${p.slug}`}
+                    data-open-case={p.slug}
+                    data-case-trigger
+                    aria-label={`Explore ${p.title}`}
+                    style={`--sp-pos: ${heroPos};`}
+                  >
+                    <img
+                      src={galleryItems[0]?.src ?? posterUrl(heroImage)}
+                      alt={galleryItems[0]?.alt ?? heroAlt}
+                      class="sp-gallery-main-img"
+                      data-sp-main-img
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                )}
+
+                <div class="sp-thumb-rail" role="tablist" aria-label={`${p.title} preview thumbnails`}>
+                  {galleryItems.map((item, idx) => (
+                    <button
+                      type="button"
+                      role="tab"
+                      class:list={['sp-thumb-btn', { 'is-active': idx === 0 }]}
+                      aria-selected={idx === 0 ? 'true' : 'false'}
+                      aria-label={`Preview ${idx + 1}: ${item.alt}`}
+                      data-sp-thumb
+                      data-src={item.src}
+                      data-alt={item.alt}
+                    >
+                      <Picture
+                        name={item.name}
+                        alt=""
+                        sizes="(min-width: 900px) 264px, 32vw"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </FadeContent>
+          ) : (
+            /* ================= OPTION 1: FULL-GRID 1280PX WIDE HERO ================= */
+            heroImage && (
+              <FadeContent client:load effect="focus" blur={4} duration={0.95} threshold={0.1}>
                 <a
-                  class="sp-media sp-gallery-main"
+                  class="sp-media sp-wide-media"
                   href={`#project-${p.slug}`}
                   data-open-case={p.slug}
                   data-case-trigger
                   aria-label={`Explore ${p.title}`}
                   style={`--sp-pos: ${heroPos};`}
                 >
-                  <img
-                    src={galleryItems[0]?.src ?? posterUrl(heroImage)}
-                    alt={galleryItems[0]?.alt ?? heroAlt}
-                    class="sp-gallery-main-img"
-                    data-sp-main-img
-                    loading="lazy"
-                    decoding="async"
+                  <Picture
+                    name={heroImage}
+                    alt={heroAlt}
+                    sizes="(min-width: 1100px) 1280px, 92vw"
                   />
                 </a>
-              )}
-
-              <div class="sp-thumb-rail" role="tablist" aria-label={`${p.title} preview thumbnails`}>
-                {galleryItems.map((item, idx) => (
-                  <button
-                    type="button"
-                    role="tab"
-                    class:list={['sp-thumb-btn', { 'is-active': idx === 0 }]}
-                    aria-selected={idx === 0 ? 'true' : 'false'}
-                    aria-label={`Preview ${idx + 1}: ${item.alt}`}
-                    data-sp-thumb
-                    data-src={item.src}
-                    data-alt={item.alt}
-                  >
-                    <Picture
-                      name={item.name}
-                      alt=""
-                      sizes="(min-width: 900px) 264px, 32vw"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            /* ================= OPTION 1: FULL-GRID 1280PX WIDE HERO ================= */
-            heroImage && (
-              <a
-                class="sp-media sp-wide-media"
-                href={`#project-${p.slug}`}
-                data-open-case={p.slug}
-                data-case-trigger
-                aria-label={`Explore ${p.title}`}
-                data-reveal
-                style={`--reveal-d: 90ms; --sp-pos: ${heroPos};`}
-              >
-                <Picture
-                  name={heroImage}
-                  alt={heroAlt}
-                  sizes="(min-width: 1100px) 1280px, 92vw"
-                />
-              </a>
+              </FadeContent>
             )
           )}
 
           <!-- Bottom Two-Column Info Row (Full-Width Flush with Hero) -->
-          <div class="sp-bottom" data-reveal style="--reveal-d: 140ms">
+          <FadeContent client:load effect="fade" blur={4} duration={0.85} threshold={0.12}>
+            <div class="sp-bottom">
             <div class="sp-overview-col">
               <div class="sp-overview-copy">
                 <h4 class="sp-kicker">Overview</h4>
@@ -629,7 +652,8 @@ const worachetMetrics = [
                 <dd class="sp-meta-val">{yearVal}</dd>
               </div>
             </dl>
-          </div>
+            </div>
+          </FadeContent>
         </>
       )}
     </div>

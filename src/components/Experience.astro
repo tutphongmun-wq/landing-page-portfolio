@@ -1,40 +1,46 @@
 ---
 import { education, experience, profileTools, skills } from '../data/site';
 import ToolChips from './ToolChips.astro';
+import FadeContent from './FadeContent.jsx';
 ---
 
 <section class="exp container section" id="experience" aria-labelledby="exp-title">
-  <h2 id="exp-title" class="section-title display" style="--fit: 13.4" data-reveal>Experience</h2>
+  <FadeContent client:load effect="focus" duration={0.85} threshold={0.1}>
+    <h2 id="exp-title" class="section-title display" style="--fit: 13.4">Experience</h2>
+  </FadeContent>
 
   <div class="grid">
-    <ol class="timeline" role="list">
-      {
-        experience.map((job, i) => (
-          <li data-reveal style={`--reveal-d: ${i * 70}ms`}>
-            <p class="meta">
-              <span class="period">{job.period}</span>
-              <span class="title">{job.title}</span>
-            </p>
-            <h3 class="company">{job.company}</h3>
-            <p class="summary">
-              <span data-lang-text="en">{job.summary}</span>
-              <span data-lang-text="th">{job.summaryTh}</span>
-            </p>
-          </li>
-        ))
-      }
-    </ol>
+    <FadeContent client:load effect="fade" blur={4} duration={0.85} threshold={0.1}>
+      <ol class="timeline" role="list">
+        {
+          experience.map((job) => (
+            <li>
+              <p class="meta">
+                <span class="period">{job.period}</span>
+                <span class="title">{job.title}</span>
+              </p>
+              <h3 class="company">{job.company}</h3>
+              <p class="summary">
+                <span data-lang-text="en">{job.summary}</span>
+                <span data-lang-text="th">{job.summaryTh}</span>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </FadeContent>
 
-    <div class="side">
-      <div class="block" data-reveal style="--reveal-d: 60ms">
-        <h3 class="block-title display" style="--fit: 11.7">Skills &amp; Tools</h3>
-        <ul class="skills" role="list" aria-label="Skills">
-          {skills.map((s) => <li>{s}</li>)}
-        </ul>
-        <ToolChips ids={profileTools} label="Software" />
-      </div>
+    <FadeContent client:load effect="focus" blur={2} delay={0.08} duration={0.85} threshold={0.1}>
+      <div class="side">
+        <div class="block">
+          <h3 class="block-title display" style="--fit: 11.7">Skills &amp; Tools</h3>
+          <ul class="skills" role="list" aria-label="Skills">
+            {skills.map((s) => <li>{s}</li>)}
+          </ul>
+          <ToolChips ids={profileTools} label="Software" />
+        </div>
 
-      <div class="block" data-reveal style="--reveal-d: 140ms">
+        <div class="block">
         <h3 class="block-title display" style="--fit: 11.7">Education</h3>
         <ol class="timeline edu" role="list">
           {
@@ -49,8 +55,9 @@ import ToolChips from './ToolChips.astro';
             ))
           }
         </ol>
+        </div>
       </div>
-    </div>
+    </FadeContent>
   </div>
 </section>
 

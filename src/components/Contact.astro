@@ -1,24 +1,26 @@
 ---
 import { contact } from '../data/site';
+import FadeContent from './FadeContent.jsx';
 const year = new Date().getFullYear();
 ---
 
 <section class="contact" id="contact" aria-labelledby="contact-title">
-  <div class="contact-inner">
-    <p class="contact-kicker" data-reveal>Contact</p>
-    <h2 id="contact-title" class="contact-heading" data-reveal style="--reveal-d: 50ms">
-      Let’s talk.
-    </h2>
-    <p class="contact-lead" data-reveal style="--reveal-d: 90ms">
-      <span data-lang-text="en">Open to Visual, Graphic, Digital, and UI / Web design roles.</span>
-      <span data-lang-text="th">เปิดรับโอกาสงานสาย Visual, Graphic, Digital และ UI / Web Design</span>
-    </p>
+  <FadeContent client:load effect="focus" blur={2} duration={0.9} threshold={0.12}>
+    <div class="contact-inner">
+      <p class="contact-kicker">Contact</p>
+      <h2 id="contact-title" class="contact-heading">
+        Let’s talk.
+      </h2>
+      <p class="contact-lead">
+        <span data-lang-text="en">Open to Visual, Graphic, Digital, and UI / Web design roles.</span>
+        <span data-lang-text="th">เปิดรับโอกาสงานสาย Visual, Graphic, Digital และ UI / Web Design</span>
+      </p>
 
-    <a class="contact-email" href={`mailto:${contact.email}`} data-reveal style="--reveal-d: 130ms">
-      {contact.email}
-    </a>
+      <a class="contact-email" href={`mailto:${contact.email}`}>
+        {contact.email}
+      </a>
 
-    <ul class="contact-links" role="list" data-reveal style="--reveal-d: 170ms">
+      <ul class="contact-links" role="list">
       <li>
         <a href={contact.linkedin.href} rel="noopener" target="_blank">
           LinkedIn <span class="visually-hidden">(opens in a new tab)</span>
@@ -43,7 +45,8 @@ const year = new Date().getFullYear();
       © {year} Tutphong Mungkalakul · Hook Sidebar inspired by
       <a href="https://www.rareui.com" rel="noopener" target="_blank">Rare UI</a>
     </p>
-  </div>
+    </div>
+  </FadeContent>
 </section>
 
 <style>

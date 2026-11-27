@@ -3,6 +3,7 @@ import { contact, profile } from '../data/site';
 import Picture from './Picture.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import LangToggle from './LangToggle.astro';
+import FadeContent from './FadeContent.jsx';
 ---
 
 <header class="hero" id="top">
@@ -22,68 +23,72 @@ import LangToggle from './LangToggle.astro';
   <div class="hero-body container">
     <div class="hero-stage">
       <!-- Single Portrait Card + Editorial Name Plate -->
-      <figure class="hero-card" aria-label={`${profile.fullName} — ${profile.role}`}>
-        <div class="hero-photo">
-          <Picture
-            name="about-portrait"
-            alt={`Portrait of ${profile.nickname} (${profile.fullName})`}
-            sizes="(min-width: 900px) 288px, 68vw"
-            loading="eager"
-          />
-        </div>
-        <figcaption class="hero-plate">
-          <span class="plate-name">{profile.fullName}</span>
-          <span class="plate-role">
-            “{profile.nickname}” · {profile.role}
-          </span>
-        </figcaption>
-      </figure>
+      <FadeContent client:load effect="focus" blur={4} duration={0.85} ease="power2.out" trigger="mount">
+        <figure class="hero-card" aria-label={`${profile.fullName} — ${profile.role}`}>
+          <div class="hero-photo">
+            <Picture
+              name="about-portrait"
+              alt={`Portrait of ${profile.nickname} (${profile.fullName})`}
+              sizes="(min-width: 900px) 288px, 68vw"
+              loading="eager"
+            />
+          </div>
+          <figcaption class="hero-plate">
+            <span class="plate-name">{profile.fullName}</span>
+            <span class="plate-role">
+              “{profile.nickname}” · {profile.role}
+            </span>
+          </figcaption>
+        </figure>
+      </FadeContent>
 
       <!-- Option 1 Concise Bio (EN / TH) + Direct Contact -->
-      <div class="hero-copy">
-        <p class="hero-lead">
-          <span class="lead-dot" aria-hidden="true"></span>
-          <span data-lang-text="en">
-            I love shaping ideas into visual systems — from key visuals, infographics, and motion to UI and web interfaces.
-          </span>
-          <span data-lang-text="th">
-            ชอบเปลี่ยนไอเดียให้กลายเป็นงานภาพที่สื่อสารได้ชัด — ตั้งแต่ Key Visual, Infographic, Motion Graphics ไปจนถึง UI และหน้าเว็บ
-          </span>
-        </p>
+      <FadeContent client:load effect="focus" blur={2} duration={0.85} delay={0.14} ease="power2.out" trigger="mount">
+        <div class="hero-copy">
+          <p class="hero-lead">
+            <span class="lead-dot" aria-hidden="true"></span>
+            <span data-lang-text="en">
+              I love shaping ideas into visual systems — from key visuals, infographics, and motion to UI and web interfaces.
+            </span>
+            <span data-lang-text="th">
+              ชอบเปลี่ยนไอเดียให้กลายเป็นงานภาพที่สื่อสารได้ชัด — ตั้งแต่ Key Visual, Infographic, Motion Graphics ไปจนถึง UI และหน้าเว็บ
+            </span>
+          </p>
 
-        <p class="hero-prev">
-          <span data-lang-text="en">
-            Previously crafting campaigns at <strong>S2O Festival</strong>, <strong>MollageBKK (Netflix TH)</strong> &amp; <strong>Binance TH</strong>.
-          </span>
-          <span data-lang-text="th">
-            เคยดูแลงานแคมเปญให้ <strong>S2O Festival</strong>, <strong>MollageBKK (Netflix TH)</strong> และ <strong>Binance TH</strong>
-          </span>
-        </p>
+          <p class="hero-prev">
+            <span data-lang-text="en">
+              Previously crafting campaigns at <strong>S2O Festival</strong>, <strong>MollageBKK (Netflix TH)</strong> &amp; <strong>Binance TH</strong>.
+            </span>
+            <span data-lang-text="th">
+              เคยดูแลงานแคมเปญให้ <strong>S2O Festival</strong>, <strong>MollageBKK (Netflix TH)</strong> และ <strong>Binance TH</strong>
+            </span>
+          </p>
 
-        <p class="hero-meta">
-          <span data-lang-text="en">Based in Bangkok · Open to Visual, Graphic &amp; UI/Web roles</span>
-          <span data-lang-text="th">ประจำอยู่ที่กรุงเทพฯ · พร้อมรับงาน Visual, Graphic &amp; UI/Web</span>
-        </p>
+          <p class="hero-meta">
+            <span data-lang-text="en">Based in Bangkok · Open to Visual, Graphic &amp; UI/Web roles</span>
+            <span data-lang-text="th">ประจำอยู่ที่กรุงเทพฯ · พร้อมรับงาน Visual, Graphic &amp; UI/Web</span>
+          </p>
 
-        <div class="hero-contact" aria-label="Contact links">
-          <a class="hc-pill is-primary" href={`mailto:${contact.email}`}>
-            <span>{contact.email}</span>
-            <span aria-hidden="true">↗</span>
-          </a>
-          <a class="hc-pill" href={contact.linkedin.href} rel="noopener" target="_blank">
-            <span>LinkedIn</span>
-            <span aria-hidden="true">↗</span>
-          </a>
-          <a class="hc-pill" href={contact.behance.href} rel="noopener" target="_blank">
-            <span>Behance</span>
-            <span aria-hidden="true">↗</span>
-          </a>
-          <a class="hc-pill" href="#contact">
-            <span>Contact</span>
-            <span aria-hidden="true">↓</span>
-          </a>
+          <div class="hero-contact" aria-label="Contact links">
+            <a class="hc-pill is-primary" href={`mailto:${contact.email}`}>
+              <span>{contact.email}</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a class="hc-pill" href={contact.linkedin.href} rel="noopener" target="_blank">
+              <span>LinkedIn</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a class="hc-pill" href={contact.behance.href} rel="noopener" target="_blank">
+              <span>Behance</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a class="hc-pill" href="#contact">
+              <span>Contact</span>
+              <span aria-hidden="true">↓</span>
+            </a>
+          </div>
         </div>
-      </div>
+      </FadeContent>
     </div>
   </div>
 </header>
