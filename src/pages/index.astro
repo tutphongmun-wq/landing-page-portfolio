@@ -1,7 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
-import About from '../components/About.astro';
 import ProjectSection from '../components/ProjectSection.astro';
 import Experience from '../components/Experience.astro';
 import Contact from '../components/Contact.astro';
@@ -22,7 +21,6 @@ import { projects } from '../data/projects';
       <section id="work" aria-label="Projects">
         {projects.map((project) => <ProjectSection project={project} />)}
       </section>
-      <About />
       <Experience />
       <Contact />
     </div>

@@ -1,41 +1,88 @@
 ---
-import { profile } from '../data/site';
-import { assetUrl } from '../lib/media';
+import { contact, profile } from '../data/site';
+import Picture from './Picture.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import LangToggle from './LangToggle.astro';
-import HeroGridDistortion from './HeroGridDistortion';
 ---
 
 <header class="hero" id="top">
-  <div class="shapes">
-    <HeroGridDistortion client:load imageSrc={assetUrl('media/hero-grid-bg.webp')} />
-  </div>
   <nav class="hero-nav container" aria-label="Primary">
     <a class="brand" href="#top" aria-label="Pun, back to top">PUN</a>
     <ul role="list">
       <li><a href="#work">Projects</a></li>
-      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
       <li><a href="#contact">Contact</a></li>
       <li class="hero-utils">
-        <LangToggle variant="hero" />
+        <LangToggle variant="surface" />
         <ThemeToggle />
       </li>
     </ul>
   </nav>
 
   <div class="hero-body container">
-    <div class="hero-intro" data-shape-obstacle="box">
-      <p class="hero-status">
-        <span class="status-dot" aria-hidden="true"></span>
-        {profile.availability}
-      </p>
-      <h1 class="hero-name">
-        Hi, I’m <span class="nick">{profile.nickname}</span> — {profile.role}
-      </h1>
-      <p class="hero-lead">{profile.heroSummary}</p>
-      <div class="hero-cta">
-        <a class="btn btn-dark" href="#work">Explore projects</a>
-        <a class="btn btn-light" href="#contact">Get in touch</a>
+    <div class="hero-stage">
+      <!-- Single Portrait Card + Editorial Name Plate -->
+      <figure class="hero-card" aria-label={`${profile.fullName} — ${profile.role}`}>
+        <div class="hero-photo">
+          <Picture
+            name="about-portrait"
+            alt={`Portrait of ${profile.nickname} (${profile.fullName})`}
+            sizes="(min-width: 900px) 288px, 68vw"
+            loading="eager"
+          />
+        </div>
+        <figcaption class="hero-plate">
+          <span class="plate-name">{profile.fullName}</span>
+          <span class="plate-role">
+            “{profile.nickname}” · {profile.role}
+          </span>
+        </figcaption>
+      </figure>
+
+      <!-- Option 1 Concise Bio (EN / TH) + Direct Contact -->
+      <div class="hero-copy">
+        <p class="hero-lead">
+          <span class="lead-dot" aria-hidden="true"></span>
+          <span data-lang-text="en">
+            I love shaping ideas into visual systems — from key visuals, infographics, and motion to UI and web interfaces.
+          </span>
+          <span data-lang-text="th">
+            ชอบเปลี่ยนไอเดียให้กลายเป็นงานภาพที่สื่อสารได้ชัด — ตั้งแต่ Key Visual, Infographic, Motion Graphics ไปจนถึง UI และหน้าเว็บ
+          </span>
+        </p>
+
+        <p class="hero-prev">
+          <span data-lang-text="en">
+            Previously crafting campaigns at <strong>S2O Festival</strong>, <strong>MollageBKK (Netflix TH)</strong> &amp; <strong>Binance TH</strong>.
+          </span>
+          <span data-lang-text="th">
+            เคยดูแลงานแคมเปญให้ <strong>S2O Festival</strong>, <strong>MollageBKK (Netflix TH)</strong> และ <strong>Binance TH</strong>
+          </span>
+        </p>
+
+        <p class="hero-meta">
+          <span data-lang-text="en">Based in Bangkok · Open to Visual, Graphic &amp; UI/Web roles</span>
+          <span data-lang-text="th">ประจำอยู่ที่กรุงเทพฯ · พร้อมรับงาน Visual, Graphic &amp; UI/Web</span>
+        </p>
+
+        <div class="hero-contact" aria-label="Contact links">
+          <a class="hc-pill is-primary" href={`mailto:${contact.email}`}>
+            <span>{contact.email}</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a class="hc-pill" href={contact.linkedin.href} rel="noopener" target="_blank">
+            <span>LinkedIn</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a class="hc-pill" href={contact.behance.href} rel="noopener" target="_blank">
+            <span>Behance</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a class="hc-pill" href="#contact">
+            <span>Contact</span>
+            <span aria-hidden="true">↓</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -47,28 +94,15 @@ import HeroGridDistortion from './HeroGridDistortion';
     display: flex;
     flex-direction: column;
     min-height: 100svh;
-    background: var(--c-hero); /* same red as the shapes canvas, shown until it hydrates */
-    color: var(--c-ink);
-    overflow: hidden;
-  }
-  /* Shape Physics fills the hero behind the content */
-  .shapes {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-  }
-  .hero > :not(.shapes) {
-    position: relative;
-    z-index: 1;
-  }
-  /* let the pointer through to the shapes except on links and controls */
-  .hero-nav,
-  .hero-body {
-    pointer-events: none;
-  }
-  .hero-nav :is(a, button, label, input),
-  .hero-body :is(a, button) {
-    pointer-events: auto;
+    background-color: var(--c-bg);
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--c-fg) 13%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+    color: var(--c-fg);
+    border-bottom: 1px solid var(--c-line);
+    overflow-x: clip;
   }
 
   .hero-nav {
@@ -76,12 +110,13 @@ import HeroGridDistortion from './HeroGridDistortion';
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding-block: 20px;
+    padding-block: 22px;
+    width: 100%;
   }
   .brand {
     font-family: var(--f-display);
-    font-size: 1.5rem;
-    color: var(--c-ink-display);
+    font-size: 1.45rem;
+    color: var(--c-fg);
     text-decoration: none;
     letter-spacing: -0.02em;
     flex: none;
@@ -89,7 +124,7 @@ import HeroGridDistortion from './HeroGridDistortion';
   .hero-nav ul {
     display: flex;
     align-items: center;
-    gap: clamp(12px, 3vw, 32px);
+    gap: clamp(12px, 2.8vw, 28px);
     margin: 0;
   }
   .hero-utils {
@@ -99,31 +134,30 @@ import HeroGridDistortion from './HeroGridDistortion';
   }
   .hero-nav a:not(.brand) {
     display: inline-block;
-    padding-block: 10px;
-    font-weight: 700;
+    padding-block: 8px;
+    font-family: var(--f-nav);
+    font-weight: 500;
+    font-size: var(--fs-0);
+    color: var(--c-fg-soft);
     text-decoration: none;
-    text-underline-offset: 4px;
+    transition: color 0.16s ease;
   }
   .hero-nav a:not(.brand):hover {
-    text-decoration: underline;
+    color: var(--c-accent);
   }
-  @media (max-width: 480px) {
+  @media (max-width: 560px) {
     .hero-nav .brand {
       font-size: 1.25rem;
     }
     .hero-nav ul {
-      gap: 9px;
+      gap: 10px;
       font-size: 0.8125rem;
     }
+    .hero-nav li:not(:last-child) {
+      display: none;
+    }
     .hero-utils {
-      gap: 4px;
-    }
-    .hero-nav :global(.lang-btn) {
-      padding: 4px 7px;
-      font-size: 10.5px;
-    }
-    .hero-nav :global(.theme-toggle) {
-      min-width: 44px;
+      gap: 6px;
     }
   }
 
@@ -131,77 +165,204 @@ import HeroGridDistortion from './HeroGridDistortion';
     flex: 1;
     display: grid;
     place-items: center;
-    padding-block: clamp(24px, 6vh, 64px) clamp(56px, 10vh, 104px);
+    padding-block: clamp(28px, 6vh, 64px) clamp(56px, 9vh, 96px);
   }
 
-  .hero-intro {
+  .hero-stage {
     display: grid;
-    gap: 18px;
-    justify-items: center;
-    text-align: center;
-    max-width: min(100%, 720px);
-    padding: 20px 24px;
-  }
-  .hero-status {
-    display: inline-flex;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: rgb(0 0 0 / 0.14);
-    border: 1px solid rgb(0 0 0 / 0.22);
-    color: var(--c-ink);
-    font-size: var(--fs-0);
-    font-weight: 700;
-    line-height: 1.2;
+    justify-items: center;
+    gap: clamp(32px, 5vw, 72px);
+    width: 100%;
+    max-width: 980px;
   }
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #111;
-    box-shadow: 0 0 0 3px rgb(255 255 255 / 0.45);
+
+  @media (min-width: 860px) {
+    .hero-stage {
+      grid-template-columns: auto minmax(0, 1fr);
+      justify-items: start;
+    }
   }
-  .hero-name {
-    font-family: var(--f-display);
+
+  /* Single Portrait Card + Overlaid Editorial Name Plate */
+  .hero-card {
+    position: relative;
+    margin: 0;
+    padding-bottom: 24px;
+    width: clamp(248px, 25vw, 286px);
+  }
+  .hero-photo {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--c-ph-a);
+    border: 1px solid var(--c-line);
+    box-shadow: 0 22px 54px -12px var(--c-shadow-soft);
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s ease;
+  }
+  .hero-card:hover .hero-photo {
+    transform: translateY(-3px);
+    box-shadow: 0 28px 64px -12px var(--c-shadow);
+  }
+  .hero-photo :global(picture),
+  .hero-photo :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .hero-plate {
+    position: relative;
+    z-index: 2;
+    margin: -34px 12px 0;
+    padding: 13px 16px;
+    border-radius: 12px;
+    background: #141312;
+    color: #fbf5eb;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow: 0 14px 32px rgb(0 0 0 / 0.24);
+    display: grid;
+    gap: 2px;
+  }
+  .plate-name {
+    font-family: var(--f-clash);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #fbf5eb;
+  }
+  .plate-role {
+    font-family: var(--f-nav);
     font-weight: 400;
-    font-size: clamp(1.9rem, 1.3rem + 2.4vw, 3.1rem);
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    color: var(--c-ink-display);
+    font-size: 12.5px;
+    line-height: 1.3;
+    color: rgb(251 245 235 / 0.72);
   }
-  .nick {
-    white-space: nowrap;
+
+  /* Right Column: Concise Intro + Contact */
+  .hero-copy {
+    display: grid;
+    gap: 16px;
+    max-width: 540px;
+    min-width: 0;
   }
+
   .hero-lead {
-    max-width: 54ch;
-    color: var(--c-ink);
-    font-size: clamp(1rem, 0.94rem + 0.35vw, 1.2rem);
+    position: relative;
+    margin: 0;
+    padding-left: 20px;
+    font-family: var(--f-nav);
     font-weight: 500;
-    line-height: 1.6;
+    font-size: clamp(1.0625rem, 1.35vw, 1.25rem);
+    line-height: 1.55;
+    color: var(--c-fg);
   }
-  .hero-cta {
+  :global(:root[data-lang='th']) .hero-lead,
+  :global(:root[data-lang='th']) .hero-prev,
+  :global(:root[data-lang='th']) .hero-meta {
+    font-family: var(--f-body);
+  }
+
+  .lead-dot {
+    position: absolute;
+    left: 0;
+    top: 0.56em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--c-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 20%, transparent);
+  }
+
+  .hero-prev {
+    margin: 0;
+    padding-left: 20px;
+    font-family: var(--f-nav);
+    font-weight: 400;
+    font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+    line-height: 1.55;
+    color: var(--c-fg-soft);
+  }
+  .hero-prev strong {
+    font-weight: 600;
+    color: var(--c-fg);
+  }
+
+  .hero-meta {
+    margin: 0;
+    padding-left: 20px;
+    font-family: var(--f-nav);
+    font-weight: 400;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--c-muted);
+  }
+
+  .hero-contact {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
+    align-items: center;
+    gap: 8px;
+    padding-left: 20px;
     margin-top: 6px;
   }
-  .btn-dark {
-    background: var(--c-ink-display);
-    color: #f2f2f2;
+  .hc-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--c-line);
+    background: var(--c-bg-raised);
+    color: var(--c-fg-soft);
+    font-family: var(--f-nav);
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1;
+    text-decoration: none;
+    transition:
+      color 0.16s ease,
+      border-color 0.16s ease,
+      background-color 0.16s ease,
+      transform 0.16s ease;
   }
-  .btn-dark:hover {
-    background: #000;
+  .hc-pill:hover {
+    color: var(--c-fg);
+    border-color: var(--c-muted);
+    transform: translateY(-1px);
   }
-  .btn-light {
-    background: #f2f2f2;
-    color: #000;
+  .hc-pill.is-primary {
+    background: var(--c-fg);
+    color: var(--c-bg);
+    border-color: var(--c-fg);
   }
-  .btn-light:hover {
-    background: #fff;
+  .hc-pill.is-primary:hover {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: #ffffff;
   }
-  .hero :focus-visible {
-    box-shadow: 0 0 0 3px var(--c-hero), 0 0 0 6px #000;
+  .hc-pill:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+
+  @media (max-width: 859px) {
+    .hero-copy {
+      max-width: 460px;
+    }
+    .hero-lead,
+    .hero-prev,
+    .hero-meta,
+    .hero-contact {
+      padding-left: 0;
+    }
+    .hero-lead {
+      padding-left: 18px;
+    }
   }
 </style>
