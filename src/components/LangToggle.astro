@@ -28,14 +28,29 @@ const { variant = 'surface' } = Astro.props;
       btn.setAttribute('aria-pressed', String(active));
       btn.classList.toggle('is-active', active);
     });
+    document.querySelectorAll<HTMLButtonElement>('[data-toggle-lang]').forEach((btn) => {
+      const next = lang === 'th' ? 'EN' : 'TH';
+      btn.setAttribute('aria-pressed', String(lang === 'th'));
+      btn.setAttribute('aria-label', `Switch language to ${next} (current: ${lang.toUpperCase()})`);
+      btn.setAttribute('title', `Switch language: ${lang.toUpperCase()} → ${next}`);
+    });
   };
 
   if (!(window as unknown as { __punLangWired?: boolean }).__punLangWired) {
     (window as unknown as { __punLangWired?: boolean }).__punLangWired = true;
     document.addEventListener('click', (e) => {
-      const btn = (e.target as Element)?.closest<HTMLButtonElement>('[data-set-lang]');
-      if (!btn) return;
-      const next = btn.dataset.setLang === 'th' ? 'th' : 'en';
+      const target = e.target as Element | null;
+      const setBtn = target?.closest<HTMLButtonElement>('[data-set-lang]');
+      const toggleBtn = !setBtn ? target?.closest<HTMLButtonElement>('[data-toggle-lang]') : null;
+      if (!setBtn && !toggleBtn) return;
+
+      const next: 'en' | 'th' = setBtn
+        ? setBtn.dataset.setLang === 'th'
+          ? 'th'
+          : 'en'
+        : getLang() === 'th'
+          ? 'en'
+          : 'th';
       try {
         localStorage.setItem('lang', next);
       } catch {}
