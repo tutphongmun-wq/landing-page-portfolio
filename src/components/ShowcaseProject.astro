@@ -183,8 +183,26 @@ const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer Â
 const isWorachetMediaFirst =
   variant === 'worachet' &&
   ['thumbnails-posters', 'visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
-const hasParallaxCover = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
+const hasParallaxCover = ['infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
 const hasCardSurface = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
+const hasFeaturedTriptych = p.slug === 'visual-content';
+const triptychCards = [
+  {
+    pos: 'is-left',
+    name: '04-content-chatgpt',
+    alt: 'Social post comparing ChatGPT and Google Translate',
+  },
+  {
+    pos: 'is-right',
+    name: '04-content-call-center',
+    alt: 'Social post on call-center scam psychology',
+  },
+  {
+    pos: 'is-center',
+    name: '04-content-buyback',
+    alt: 'Social post explaining crypto buyback and token burn',
+  },
+];
 ---
 
 <article
@@ -211,7 +229,7 @@ const hasCardSurface = ['visual-content', 'infographic', '16-personalities', 'sy
           <div class="wr-media-bleed">
             <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
               <a
-                class="wr-media"
+                class:list={['wr-media', { 'is-triptych': hasFeaturedTriptych }]}
                 href={`#project-${p.slug}`}
                 data-open-case={p.slug}
                 data-case-trigger
@@ -219,11 +237,25 @@ const hasCardSurface = ['visual-content', 'infographic', '16-personalities', 'sy
                 aria-label={`Explore ${p.title}`}
                 style={`--sp-pos: ${heroPos};`}
               >
-                <Picture
-                  name={heroImage}
-                  alt={heroAlt}
-                  sizes="(min-width: 1200px) 1408px, 100vw"
-                />
+                {hasFeaturedTriptych ? (
+                  <div class="vc-triptych" aria-hidden="true">
+                    {triptychCards.map((card) => (
+                      <div class:list={['vc-card', card.pos]}>
+                        <Picture
+                          name={card.name}
+                          alt={card.alt}
+                          sizes="(min-width: 1200px) 560px, 50vw"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <Picture
+                    name={heroImage}
+                    alt={heroAlt}
+                    sizes="(min-width: 1200px) 1408px, 100vw"
+                  />
+                )}
               </a>
             </FadeContent>
           </div>
@@ -1740,12 +1772,113 @@ const hasCardSurface = ['visual-content', 'infographic', '16-personalities', 'sy
     object-position: var(--sp-pos, center center);
     transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .wr-media:not([data-parallax-cover='true']):hover :global(img) {
+  .wr-media:not([data-parallax-cover='true']):not(.is-triptych):hover :global(img) {
     transform: scale(1.02);
   }
   .wr-media[data-parallax-cover='true'] :global(img) {
     transition: none;
     will-change: transform;
+  }
+
+  /* Project 04 â€” 3-Card Layered Featured Triptych (content bg.mov reference) */
+  .wr-media.is-triptych {
+    background-color: color-mix(in srgb, var(--c-bg) 45%, #ffffff);
+    background-image:
+      radial-gradient(rgb(17 17 17 / 0.06) 1px, transparent 1px),
+      radial-gradient(ellipse 80% 70% at 50% 100%, rgb(0 0 0 / 0.045), transparent 72%);
+    background-size: 16px 16px, 100% 100%;
+  }
+  :global(:root[data-theme='dark']) .wr-media.is-triptych {
+    background-color: color-mix(in srgb, #ffffff 5.5%, var(--c-bg));
+    background-image:
+      radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      radial-gradient(ellipse 80% 70% at 50% 100%, rgb(0 0 0 / 0.32), transparent 72%);
+    background-size: 16px 16px, 100% 100%;
+  }
+  .vc-triptych {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .vc-card {
+    position: absolute;
+    aspect-ratio: 1 / 1;
+    border-radius: clamp(10px, 1.3vw, 18px);
+    overflow: hidden;
+    background: var(--c-bg-raised);
+    box-shadow:
+      0 14px 36px rgb(0 0 0 / 0.14),
+      0 2px 8px rgb(0 0 0 / 0.06);
+    transition:
+      transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .vc-card.is-left {
+    left: 9%;
+    top: 12%;
+    width: 38%;
+    z-index: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  .vc-card.is-right {
+    right: 9%;
+    top: 12%;
+    width: 38%;
+    z-index: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  .vc-card.is-center {
+    left: 50%;
+    top: 22%;
+    width: 44%;
+    z-index: 2;
+    border-radius: clamp(12px, 1.5vw, 20px);
+    transform: translate3d(-50%, 0, 0) scale(1);
+    box-shadow:
+      0 22px 54px rgb(0 0 0 / 0.22),
+      0 4px 14px rgb(0 0 0 / 0.1);
+  }
+  .wr-media.is-triptych:hover .vc-card.is-left,
+  .wr-media.is-triptych:focus-visible .vc-card.is-left {
+    transform: translate3d(-7%, -3.5%, 0) rotate(-3.5deg) scale(1.015);
+    box-shadow:
+      0 20px 44px rgb(0 0 0 / 0.18),
+      0 4px 12px rgb(0 0 0 / 0.08);
+  }
+  .wr-media.is-triptych:hover .vc-card.is-right,
+  .wr-media.is-triptych:focus-visible .vc-card.is-right {
+    transform: translate3d(7%, -3.5%, 0) rotate(3.5deg) scale(1.015);
+    box-shadow:
+      0 20px 44px rgb(0 0 0 / 0.18),
+      0 4px 12px rgb(0 0 0 / 0.08);
+  }
+  .wr-media.is-triptych:hover .vc-card.is-center,
+  .wr-media.is-triptych:focus-visible .vc-card.is-center {
+    transform: translate3d(-50%, -4.5%, 0) scale(1.035);
+    box-shadow:
+      0 30px 68px rgb(0 0 0 / 0.28),
+      0 8px 20px rgb(0 0 0 / 0.12);
+  }
+  .wr-media.is-triptych:hover .vc-card.is-left:hover {
+    transform: translate3d(-9%, -5.5%, 0) rotate(-4.5deg) scale(1.03);
+  }
+  .wr-media.is-triptych:hover .vc-card.is-right:hover {
+    transform: translate3d(9%, -5.5%, 0) rotate(4.5deg) scale(1.03);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vc-card {
+      transition: none;
+    }
+    .wr-media.is-triptych:hover .vc-card.is-left,
+    .wr-media.is-triptych:hover .vc-card.is-right,
+    .wr-media.is-triptych:hover .vc-card.is-center {
+      transform: none;
+    }
+    .wr-media.is-triptych:hover .vc-card.is-center {
+      transform: translate3d(-50%, 0, 0);
+    }
   }
 
   /* 3. Bottom 12-Column Editorial Story + Metrics Grid */
