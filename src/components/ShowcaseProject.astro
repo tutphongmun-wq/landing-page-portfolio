@@ -24,6 +24,16 @@ const titleId = `${p.slug}-title`;
 const cs = caseStudies[p.slug];
 
 const worachetCoverOverride: Record<string, { image: string; alt: string; pos: string }> = {
+  k2o: {
+    image: '01-k2o-logo-water',
+    alt: 'K2O Songkran Music Festival 3D neon glass emblem underwater',
+    pos: 'center 63%',
+  },
+  'startup-standup': {
+    image: '02-standup-motion-poster',
+    alt: 'Startup Standup Comedy key visual and bold event identity',
+    pos: 'center center',
+  },
   'visual-content': {
     image: '04-content-post-tree-of-alpha',
     alt: 'Editorial newspaper collage visual for Tree of Alpha',
@@ -181,11 +191,11 @@ const worachetRoleMap: Record<string, string> = {
   'sybil-husky': 'Brand, Character & UI Designer · Web3 Project',
 };
 const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer · ${clientLabel || 'Bangkok'}`;
-const isWorachetMediaFirst =
-  variant === 'worachet' &&
-  ['thumbnails-posters', 'visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
-const hasParallaxCover = ['16-personalities', 'sybil-husky'].includes(p.slug);
-const hasCardSurface = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
+const isWorachetMediaFirst = variant === 'worachet';
+const hasParallaxCover = ['k2o', 'startup-standup', 'thumbnails-posters', '16-personalities', 'sybil-husky'].includes(
+  p.slug,
+);
+const hasCardSurface = variant === 'worachet';
 const hasFeaturedTriptych = p.slug === 'visual-content';
 const hasGridMotion = p.slug === 'infographic';
 const gridMotionItems = hasGridMotion
@@ -256,6 +266,7 @@ const triptychCards = [
                           name={card.name}
                           alt={card.alt}
                           sizes="(min-width: 1200px) 560px, 50vw"
+                          eager
                         />
                       </div>
                     ))}
@@ -284,6 +295,7 @@ const triptychCards = [
                     name={heroImage}
                     alt={heroAlt}
                     sizes="(min-width: 1200px) 1408px, 100vw"
+                    eager
                   />
                 )}
               </a>
