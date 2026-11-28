@@ -1582,15 +1582,20 @@ const hasCardSurface = p.slug === 'sybil-husky';
     flex-direction: column;
   }
 
-  /* Single padded rounded surface container (test on Project 07 Sybil Husky) */
+  /* Single padded rounded surface container — flush right edge, left margin preserved (Project 07) */
+  .project-showcase.is-worachet.is-card-surface {
+    padding-right: 0;
+  }
   .project-showcase.is-worachet.is-card-surface .sp-shell {
-    max-width: 1096px;
+    max-width: none;
+    margin-inline: 0;
   }
   .project-showcase.is-worachet.is-card-surface .wr-wrap {
-    padding: clamp(20px, 2.8vw, 36px);
-    border-radius: 20px;
+    padding: clamp(20px, 2.8vw, 36px) 0 clamp(28px, 3.2vw, 44px) clamp(20px, 2.8vw, 36px);
+    border-radius: 20px 0 0 20px;
     background: color-mix(in srgb, var(--c-fg) 4%, var(--c-bg));
     border: 1px solid var(--c-line);
+    border-right: 0;
   }
   :global(:root[data-theme='dark']) .project-showcase.is-worachet.is-card-surface .wr-wrap {
     background: color-mix(in srgb, #ffffff 4.5%, var(--c-bg));
@@ -1600,7 +1605,12 @@ const hasCardSurface = p.slug === 'sybil-husky';
     margin-right: 0;
   }
   .project-showcase.is-worachet.is-card-surface .wr-media {
-    border-radius: 12px;
+    border-radius: 12px 0 0 12px;
+  }
+  .project-showcase.is-worachet.is-card-surface .wr-head,
+  .project-showcase.is-worachet.is-card-surface .wr-body {
+    max-width: 1024px;
+    padding-right: clamp(20px, 4vw, 48px);
   }
 
   /* 1. Top Header */
