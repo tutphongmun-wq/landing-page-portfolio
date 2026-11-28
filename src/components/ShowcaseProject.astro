@@ -184,6 +184,7 @@ const isWorachetMediaFirst =
   variant === 'worachet' &&
   ['thumbnails-posters', 'visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
 const hasParallaxCover = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
+const hasCardSurface = p.slug === 'sybil-husky';
 ---
 
 <article
@@ -191,7 +192,11 @@ const hasParallaxCover = ['visual-content', 'infographic', '16-personalities', '
     'project',
     'project-showcase',
     `is-${variant}`,
-    { 'is-editorial': isEditorialScale, 'is-wide-canvas': p.slug === 'visual-content' },
+    {
+      'is-editorial': isEditorialScale,
+      'is-wide-canvas': p.slug === 'visual-content',
+      'is-card-surface': hasCardSurface,
+    },
   ]}
   id={p.slug}
   data-project-title={p.title}
@@ -1575,6 +1580,27 @@ const hasParallaxCover = ['visual-content', 'infographic', '16-personalities', '
     width: 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Single padded rounded surface container (test on Project 07 Sybil Husky) */
+  .project-showcase.is-worachet.is-card-surface .sp-shell {
+    max-width: 1096px;
+  }
+  .project-showcase.is-worachet.is-card-surface .wr-wrap {
+    padding: clamp(20px, 2.8vw, 36px);
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--c-fg) 4%, var(--c-bg));
+    border: 1px solid var(--c-line);
+  }
+  :global(:root[data-theme='dark']) .project-showcase.is-worachet.is-card-surface .wr-wrap {
+    background: color-mix(in srgb, #ffffff 4.5%, var(--c-bg));
+  }
+  .project-showcase.is-worachet.is-card-surface .wr-media-bleed {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .project-showcase.is-worachet.is-card-surface .wr-media {
+    border-radius: 12px;
   }
 
   /* 1. Top Header */
