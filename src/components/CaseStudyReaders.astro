@@ -127,10 +127,13 @@ const sybilCardItems = [
       { id: `${p.slug}-outcome`, label: 'Outcome' },
     ];
 
+    const isSplitReader = p.slug === 'k2o';
+
     return (
       <dialog
-        class="cs-reader"
+        class:list={['cs-reader', { 'is-split-reader': isSplitReader }]}
         data-case-dialog={p.slug}
+        data-split-reader={isSplitReader ? 'true' : undefined}
         aria-labelledby={`cs-title-${p.slug}`}
       >
         <div class="cs-layout">
@@ -753,16 +756,57 @@ const sybilCardItems = [
     });
   }
 
+  const reduceMotionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const closeTimers = new WeakMap<HTMLDialogElement, number>();
+
+  function clearCloseTimer(dlg: HTMLDialogElement) {
+    const tid = closeTimers.get(dlg);
+    if (tid) {
+      window.clearTimeout(tid);
+      closeTimers.delete(dlg);
+    }
+  }
+
+  function finishCloseDialog(dlg: HTMLDialogElement) {
+    clearCloseTimer(dlg);
+    dlg.classList.remove('is-entered', 'is-closing', 'is-switch-enter');
+    if (dlg.open) {
+      pauseDialogMedia(dlg);
+      dlg.close();
+    }
+  }
+
   function closeAllDialogs(updateHash = false) {
     const prevSlug = activeSlug;
+    let waitForSplitClose = false;
+
     dialogs.forEach((dlg) => {
-      if (dlg.open) {
-        pauseDialogMedia(dlg);
-        dlg.close();
+      if (!dlg.open) return;
+      clearCloseTimer(dlg);
+      pauseDialogMedia(dlg);
+
+      const isSplit = dlg.dataset.splitReader === 'true' && !reduceMotionMq.matches;
+      if (isSplit) {
+        waitForSplitClose = true;
+        dlg.classList.remove('is-entered', 'is-switch-enter');
+        dlg.classList.add('is-closing');
+        const tid = window.setTimeout(() => {
+          finishCloseDialog(dlg);
+          if (!activeSlug) {
+            document.documentElement.style.overflow = '';
+          }
+        }, 440);
+        closeTimers.set(dlg, tid);
+      } else {
+        finishCloseDialog(dlg);
       }
     });
+
     activeSlug = null;
-    document.documentElement.style.overflow = '';
+    document.documentElement.classList.remove('cs-depth-open');
+    if (!waitForSplitClose) {
+      document.documentElement.style.overflow = '';
+    }
     if (updateHash && location.hash.startsWith(HASH_PREFIX)) {
       const fallbackHash = prevSlug && document.getElementById(prevSlug) ? `#${prevSlug}` : '#work';
       history.pushState(null, '', fallbackHash);
@@ -776,14 +820,18 @@ const sybilCardItems = [
 
     hideCursorTip();
 
-    // Close any other currently open case study dialog smoothly
+    const isSwitching = Boolean(activeSlug && activeSlug !== slug);
+    const isSplit = dlg.dataset.splitReader === 'true';
+
+    // Close any other currently open case study dialog immediately when switching
     dialogs.forEach((other, otherSlug) => {
       if (otherSlug !== slug && other.open) {
-        pauseDialogMedia(other);
-        other.close();
+        finishCloseDialog(other);
       }
     });
 
+    clearCloseTimer(dlg);
+    dlg.classList.remove('is-closing');
     activeSlug = slug;
 
     const scroller = dlg.querySelector<HTMLElement>('[data-cs-scroller]');
@@ -791,12 +839,33 @@ const sybilCardItems = [
     const sections = [...dlg.querySelectorAll<HTMLElement>('[data-cs-section]')];
 
     if (!dlg.open) {
+      if (isSplit) {
+        dlg.classList.remove('is-entered');
+        dlg.classList.toggle('is-switch-enter', isSwitching);
+      }
       dlg.showModal();
       document.documentElement.style.overflow = 'hidden';
+      if (isSplit) {
+        if (reduceMotionMq.matches) {
+          dlg.classList.add('is-entered');
+          document.documentElement.classList.add('cs-depth-open');
+        } else {
+          // Force initial offscreen frame before entering so CSS transitions play smoothly
+          void dlg.offsetWidth;
+          requestAnimationFrame(() => {
+            if (activeSlug !== slug || !dlg.open) return;
+            dlg.classList.add('is-entered');
+            document.documentElement.classList.add('cs-depth-open');
+          });
+        }
+      } else {
+        document.documentElement.classList.remove('cs-depth-open');
+      }
     }
 
     if (scroller) {
       scroller.scrollTop = 0;
+      dlg.dispatchEvent(new CustomEvent('cs-scroll-reset'));
       scroller.focus({ preventScroll: true });
     }
     const firstId = sections[0]?.id;
@@ -1021,6 +1090,108 @@ const sybilCardItems = [
     scroller?.addEventListener('wheel', clearPin, { passive: true });
     scroller?.addEventListener('touchstart', clearPin, { passive: true });
 
+    // Studio Scroll Weight (matches main-page Studio preset: lerp 0.085, wheel 0.85) — K2O only
+    let studioScrollTo: ((dest: number) => void) | null = null;
+    if (dlg.dataset.splitReader === 'true' && scroller) {
+      const desktopMq = window.matchMedia('(min-width: 1024px)');
+      const STUDIO_LERP = 0.085;
+      const STUDIO_WHEEL = 0.85;
+      let curY = 0;
+      let tgtY = 0;
+      let rafId = 0;
+      let lastTs = 0;
+
+      const maxY = () => Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      const stopStudio = () => {
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+      };
+
+      const stepStudio = (now: number) => {
+        if (!dlg.open || reduceMotionMq.matches || !desktopMq.matches) {
+          rafId = 0;
+          return;
+        }
+        const dt = lastTs ? Math.min(64, Math.max(4, now - lastTs)) : 16.667;
+        lastTs = now;
+
+        const clampedTarget = Math.max(0, Math.min(maxY(), tgtY));
+        tgtY = clampedTarget;
+        const frames = Math.min(4, Math.max(0.25, dt / 16.667));
+        const alpha = 1 - Math.pow(1 - STUDIO_LERP, frames);
+        curY += (clampedTarget - curY) * alpha;
+
+        if (Math.abs(clampedTarget - curY) < 0.45) {
+          curY = clampedTarget;
+          scroller.scrollTop = curY;
+          rafId = 0;
+          return;
+        }
+        scroller.scrollTop = curY;
+        rafId = requestAnimationFrame(stepStudio);
+      };
+
+      const wakeStudio = () => {
+        if (!rafId) {
+          lastTs = performance.now();
+          rafId = requestAnimationFrame(stepStudio);
+        }
+      };
+
+      studioScrollTo = (dest: number) => {
+        if (reduceMotionMq.matches || !desktopMq.matches) {
+          scroller.scrollTo({ top: dest, behavior: 'smooth' });
+          return;
+        }
+        curY = scroller.scrollTop;
+        tgtY = Math.max(0, Math.min(maxY(), dest));
+        wakeStudio();
+      };
+
+      scroller.addEventListener(
+        'wheel',
+        (e) => {
+          if (!dlg.open || reduceMotionMq.matches || !desktopMq.matches) return;
+          if (e.ctrlKey || e.metaKey) return;
+          // Preserve native wheel zoom/pan on interactive 3D models & Festival Map
+          const hit = e.target as Element | null;
+          if (hit?.closest('model-viewer, [data-festival-map], .fm-stage')) return;
+
+          e.preventDefault();
+          const lineH = e.deltaMode === 1 ? 36 : e.deltaMode === 2 ? scroller.clientHeight : 1;
+          const delta = e.deltaY * lineH * STUDIO_WHEEL;
+          if (!rafId) {
+            curY = scroller.scrollTop;
+            tgtY = curY;
+          }
+          tgtY = Math.max(0, Math.min(maxY(), tgtY + delta));
+          wakeStudio();
+        },
+        { passive: false },
+      );
+
+      // Keep Studio targets synced when user drags scrollbar or uses keyboard arrows/Space
+      scroller.addEventListener(
+        'scroll',
+        () => {
+          if (!rafId) {
+            curY = scroller.scrollTop;
+            tgtY = scroller.scrollTop;
+          }
+        },
+        { passive: true },
+      );
+
+      dlg.addEventListener('cs-scroll-reset', () => {
+        stopStudio();
+        curY = 0;
+        tgtY = 0;
+      });
+      dlg.addEventListener('close', stopStudio);
+    }
+
     // TOC smooth scroll inside reader
     tocLinks.forEach((link) => {
       link.addEventListener('click', (e) => {
@@ -1032,10 +1203,15 @@ const sybilCardItems = [
           tocPinnedUntil = performance.now() + 900;
           setActiveToc(id!);
           const isOverview = target.classList.contains('cs-sec-overview');
-          scroller.scrollTo({
-            top: isOverview ? 0 : Math.max(0, target.offsetTop - 48),
-            behavior: 'smooth',
-          });
+          const dest = isOverview ? 0 : Math.max(0, target.offsetTop - 48);
+          if (studioScrollTo) {
+            studioScrollTo(dest);
+          } else {
+            scroller.scrollTo({
+              top: dest,
+              behavior: 'smooth',
+            });
+          }
         }
       });
     });
@@ -1061,11 +1237,20 @@ const sybilCardItems = [
       { passive: true },
     );
 
+    // Intercept Escape key on split-reader so it plays the animated slide-out instead of snapping closed
+    dlg.addEventListener('cancel', (e) => {
+      if (dlg.dataset.splitReader === 'true' && !reduceMotionMq.matches) {
+        e.preventDefault();
+        closeAllDialogs(true);
+      }
+    });
+
     // Handle ESC / native dialog close
     dlg.addEventListener('close', () => {
       pauseDialogMedia(dlg);
       if (activeSlug === slug) {
         activeSlug = null;
+        document.documentElement.classList.remove('cs-depth-open');
         document.documentElement.style.overflow = '';
         if (location.hash === `${HASH_PREFIX}${slug}`) {
           const fallbackHash = document.getElementById(slug) ? `#${slug}` : '#work';
@@ -1327,6 +1512,153 @@ const sybilCardItems = [
   }
   :global(:root[data-theme='dark']) .cs-reader::backdrop {
     background: rgb(18 18 18 / 0.88);
+  }
+
+  /* ================= K2O Split Slide-Over Transition (1–5) & Borderless Sidebar ================= */
+  :global(#main),
+  :global(#top),
+  :global(.intro-loop-divider) {
+    transition:
+      transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.44s ease;
+    transform-origin: center top;
+  }
+  :global(html.cs-depth-open #main),
+  :global(html.cs-depth-open #top),
+  :global(html.cs-depth-open .intro-loop-divider) {
+    transform: scale(0.985);
+    opacity: 0.72;
+  }
+  :global(html.cs-depth-open .side-nav) {
+    opacity: 0.35;
+  }
+
+  .cs-reader.is-split-reader {
+    background: transparent;
+  }
+  .cs-reader.is-split-reader[open] {
+    animation: none;
+  }
+  .cs-reader.is-split-reader::backdrop {
+    background: rgb(23 21 20 / 0.42);
+    opacity: 0;
+    transition: opacity 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(:root[data-theme='dark']) .cs-reader.is-split-reader::backdrop {
+    background: rgb(10 10 12 / 0.72);
+  }
+  .cs-reader.is-split-reader.is-entered::backdrop {
+    opacity: 1;
+  }
+  .cs-reader.is-split-reader.is-closing::backdrop {
+    opacity: 0;
+    transition-duration: 0.38s;
+  }
+
+  .cs-reader.is-split-reader .cs-sidebar {
+    border-right: 0;
+    transform: translate3d(-104%, 0, 0);
+    transition:
+      transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.25s ease;
+    will-change: transform;
+  }
+  .cs-reader.is-split-reader .cs-scroller {
+    background: var(--cs-bg);
+    scroll-behavior: auto;
+    transform: translate3d(104%, 0, 0);
+    transition:
+      transform 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.25s ease;
+    will-change: transform;
+  }
+  .cs-reader.is-split-reader.is-entered .cs-sidebar,
+  .cs-reader.is-split-reader.is-entered .cs-scroller {
+    transform: translate3d(0, 0, 0);
+  }
+  .cs-reader.is-split-reader.is-closing .cs-sidebar,
+  .cs-reader.is-split-reader.is-closing .cs-scroller {
+    transition-duration: 0.42s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 4. Inner content stagger */
+  .cs-reader.is-split-reader .cs-hero-banner,
+  .cs-reader.is-split-reader .cs-article {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    transition:
+      opacity 0.48s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
+      transform 0.56s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+  }
+  .cs-reader.is-split-reader .cs-article {
+    transition-delay: 0.15s;
+  }
+  .cs-reader.is-split-reader.is-entered .cs-hero-banner,
+  .cs-reader.is-split-reader.is-entered .cs-article {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  .cs-reader.is-split-reader.is-closing .cs-hero-banner,
+  .cs-reader.is-split-reader.is-closing .cs-article {
+    transition-delay: 0s;
+    transition-duration: 0.22s;
+  }
+
+  /* 3. Seamless switch when navigating from another open case study */
+  .cs-reader.is-split-reader.is-switch-enter .cs-sidebar {
+    transform: translate3d(0, 0, 0);
+    transition: background-color 0.25s ease;
+  }
+  .cs-reader.is-split-reader.is-switch-enter .cs-scroller {
+    transform: translate3d(32px, 0, 0);
+    opacity: 0;
+    transition:
+      transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.32s ease,
+      background-color 0.25s ease;
+  }
+  .cs-reader.is-split-reader.is-switch-enter.is-entered .cs-scroller {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  /* 5. Mobile slide-over from right edge */
+  @media (max-width: 900px) {
+    .cs-reader.is-split-reader .cs-layout {
+      background: var(--cs-bg);
+      transform: translate3d(100%, 0, 0);
+      transition: transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+    .cs-reader.is-split-reader.is-entered .cs-layout {
+      transform: translate3d(0, 0, 0);
+    }
+    .cs-reader.is-split-reader.is-closing .cs-layout {
+      transition-duration: 0.38s;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cs-reader.is-split-reader .cs-sidebar,
+    .cs-reader.is-split-reader .cs-scroller {
+      transform: none;
+      transition: background-color 0.25s ease;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(#main),
+    :global(#top),
+    :global(.intro-loop-divider),
+    .cs-reader.is-split-reader::backdrop,
+    .cs-reader.is-split-reader .cs-layout,
+    .cs-reader.is-split-reader .cs-sidebar,
+    .cs-reader.is-split-reader .cs-scroller,
+    .cs-reader.is-split-reader .cs-hero-banner,
+    .cs-reader.is-split-reader .cs-article {
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
   }
 
   .cs-layout {
