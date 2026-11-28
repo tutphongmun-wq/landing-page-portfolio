@@ -10,6 +10,7 @@ import { tools } from '../data/site';
 import { posterUrl } from '../lib/media';
 import Picture from './Picture.astro';
 import FadeContent from './FadeContent.jsx';
+import GridMotion from './GridMotion.jsx';
 
 export type ShowcaseVariant = 'wide' | 'split' | 'gallery' | 'editorial' | 'bento' | 'bento-h' | 'worachet';
 
@@ -183,9 +184,19 @@ const worachetRoleLine = worachetRoleMap[p.slug] ?? `Graphic & Visual Designer Â
 const isWorachetMediaFirst =
   variant === 'worachet' &&
   ['thumbnails-posters', 'visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
-const hasParallaxCover = ['infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
+const hasParallaxCover = ['16-personalities', 'sybil-husky'].includes(p.slug);
 const hasCardSurface = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
 const hasFeaturedTriptych = p.slug === 'visual-content';
+const hasGridMotion = p.slug === 'infographic';
+const gridMotionItems = hasGridMotion
+  ? p.media
+      .filter((m): m is Extract<Media, { kind: 'image' }> => m.kind === 'image')
+      .map((m) => ({
+        src: posterUrl(m.name) ?? '',
+        alt: m.alt,
+      }))
+      .filter((item) => Boolean(item.src))
+  : [];
 const triptychCards = [
   {
     pos: 'is-left',
@@ -229,7 +240,7 @@ const triptychCards = [
           <div class="wr-media-bleed">
             <FadeContent client:load once={false} exit={true} effect="focus" blur={4} duration={0.95} threshold={0.1}>
               <a
-                class:list={['wr-media', { 'is-triptych': hasFeaturedTriptych }]}
+                class:list={['wr-media', { 'is-triptych': hasFeaturedTriptych, 'is-grid-motion': hasGridMotion }]}
                 href={`#project-${p.slug}`}
                 data-open-case={p.slug}
                 data-case-trigger
@@ -249,6 +260,25 @@ const triptychCards = [
                       </div>
                     ))}
                   </div>
+                ) : hasGridMotion ? (
+                  <GridMotion
+                    client:load
+                    items={gridMotionItems}
+                    rows={6}
+                    aspectRatio={0.8}
+                    gap={16}
+                    radius={14}
+                    angle={-28}
+                    tilt={50}
+                    speed={30}
+                    direction="alternate"
+                    parallax={0.5}
+                    spotlight={0.6}
+                    dim={0.2}
+                    fade={0.35}
+                    grayscale={false}
+                    theme="light"
+                  />
                 ) : (
                   <Picture
                     name={heroImage}
@@ -1772,12 +1802,22 @@ const triptychCards = [
     object-position: var(--sp-pos, center center);
     transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .wr-media:not([data-parallax-cover='true']):not(.is-triptych):hover :global(img) {
+  .wr-media:not([data-parallax-cover='true']):not(.is-triptych):not(.is-grid-motion):hover :global(img) {
     transform: scale(1.02);
   }
   .wr-media[data-parallax-cover='true'] :global(img) {
     transition: none;
     will-change: transform;
+  }
+  .wr-media.is-grid-motion {
+    background: transparent;
+  }
+  .wr-media.is-grid-motion :global(.grid-motion) {
+    width: 100%;
+    height: 100%;
+  }
+  .wr-media.is-grid-motion :global(img) {
+    transition: none;
   }
 
   /* Project 04 â€” 3-Card Layered Featured Triptych (content bg.mov reference) */
