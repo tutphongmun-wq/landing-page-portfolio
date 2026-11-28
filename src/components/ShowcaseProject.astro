@@ -1603,16 +1603,15 @@ const hasCardSurface = p.slug === 'sybil-husky';
     flex-direction: column;
   }
 
-  /* Single padded rounded surface container — flush right edge, left margin preserved (Project 07) */
+  /* Single padded rounded surface container — aligned to 1024px grid, flush right edge (Project 07) */
   .project-showcase.is-worachet.is-card-surface {
-    padding-right: 0;
-  }
-  .project-showcase.is-worachet.is-card-surface .sp-shell {
-    max-width: none;
-    margin-inline: 0;
+    --card-pad: clamp(20px, 2.8vw, 36px);
   }
   .project-showcase.is-worachet.is-card-surface .wr-wrap {
-    padding: clamp(20px, 2.8vw, 36px) 0 clamp(28px, 3.2vw, 44px) clamp(20px, 2.8vw, 36px);
+    width: auto;
+    padding: var(--card-pad) 0 clamp(28px, 3.2vw, 44px) var(--card-pad);
+    margin-left: calc(-1 * var(--card-pad));
+    margin-right: calc(-1 * max(clamp(20px, 5vw, 64px), (100vw - var(--sidebar-w) - 1024px) / 2));
     border-radius: 20px 0 0 20px;
     background: color-mix(in srgb, var(--c-fg) 4%, var(--c-bg));
     border: 0;
@@ -1630,7 +1629,18 @@ const hasCardSurface = p.slug === 'sybil-husky';
   .project-showcase.is-worachet.is-card-surface .wr-head,
   .project-showcase.is-worachet.is-card-surface .wr-body {
     max-width: 1024px;
-    padding-right: clamp(20px, 4vw, 48px);
+    padding-right: clamp(20px, 3vw, 36px);
+  }
+  @media (min-width: 1200px) {
+    .project-showcase.is-worachet.is-card-surface .wr-head,
+    .project-showcase.is-worachet.is-card-surface .wr-body {
+      padding-right: 0;
+    }
+  }
+  @media (max-width: 760px) {
+    .project-showcase.is-worachet.is-card-surface .wr-wrap {
+      margin-left: 0;
+    }
   }
   .wr-metrics-list.is-meta-list {
     gap: 20px;
