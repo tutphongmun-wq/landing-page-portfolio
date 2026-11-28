@@ -184,7 +184,7 @@ const isWorachetMediaFirst =
   variant === 'worachet' &&
   ['thumbnails-posters', 'visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
 const hasParallaxCover = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
-const hasCardSurface = p.slug === 'sybil-husky';
+const hasCardSurface = ['visual-content', 'infographic', '16-personalities', 'sybil-husky'].includes(p.slug);
 ---
 
 <article
@@ -318,7 +318,7 @@ const hasCardSurface = p.slug === 'sybil-husky';
                   href={`#project-${p.slug}`}
                   data-open-case={p.slug}
                 >
-                  <span>Read the full case study</span>
+                  <span>Explore project</span>
                   <span aria-hidden="true">→</span>
                 </a>
               </div>
@@ -883,9 +883,6 @@ const hasCardSurface = p.slug === 'sybil-husky';
     padding-inline: var(--gutter);
     scroll-margin-top: 40px;
   }
-  :global(article.project-showcase + article.project-showcase) {
-    border-top: 1px solid var(--c-line);
-  }
 
   .sp-shell {
     width: 100%;
@@ -1203,7 +1200,6 @@ const hasCardSurface = p.slug === 'sybil-husky';
   /* ================= EDITORIAL 2-BEAT PACING (Projects 04–07) ================= */
   .project-showcase.is-editorial {
     padding-block: clamp(84px, 8.5vw, 132px);
-    border-top: 1px solid var(--c-line);
   }
 
   .project-showcase.is-editorial .sp-inner {
@@ -1381,7 +1377,6 @@ const hasCardSurface = p.slug === 'sybil-husky';
   /* ================= STICKY SPLIT BENTO GRID (Project 02) ================= */
   .project-showcase.is-bento {
     padding-block: clamp(72px, 7.5vw, 112px);
-    border-top: 1px solid var(--c-line);
   }
   .project-showcase.is-bento .sp-shell {
     max-width: 1480px;
