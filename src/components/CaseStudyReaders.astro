@@ -202,7 +202,8 @@ const sybilCardItems = [
           </aside>
 
           <!-- Right Scrollable Editorial Reading Column -->
-          <div class="cs-scroller" data-cs-scroller tabindex="-1">
+          <div class="cs-pane">
+            <div class="cs-scroller" data-cs-scroller tabindex="-1">
             <article class="cs-scope">
               <!-- Section 1: Overview + Full-Width Flush-Top Cover Banner -->
               <section
@@ -712,6 +713,7 @@ const sybilCardItems = [
                 </section>
               </div>
             </article>
+            </div>
           </div>
         </div>
       </dialog>
@@ -795,7 +797,7 @@ const sybilCardItems = [
           if (!activeSlug) {
             document.documentElement.style.overflow = '';
           }
-        }, 280);
+        }, 540);
         closeTimers.set(dlg, tid);
       } else {
         finishCloseDialog(dlg);
@@ -803,7 +805,6 @@ const sybilCardItems = [
     });
 
     activeSlug = null;
-    document.documentElement.classList.remove('cs-depth-open');
     if (!waitForSplitClose) {
       document.documentElement.style.overflow = '';
     }
@@ -848,18 +849,14 @@ const sybilCardItems = [
       if (isSplit) {
         if (reduceMotionMq.matches) {
           dlg.classList.add('is-entered');
-          document.documentElement.classList.add('cs-depth-open');
         } else {
           // Force initial offscreen frame before entering so CSS transitions play smoothly
           void dlg.offsetWidth;
           requestAnimationFrame(() => {
             if (activeSlug !== slug || !dlg.open) return;
             dlg.classList.add('is-entered');
-            document.documentElement.classList.add('cs-depth-open');
           });
         }
-      } else {
-        document.documentElement.classList.remove('cs-depth-open');
       }
     }
 
@@ -1515,8 +1512,10 @@ const sybilCardItems = [
   }
 
   /* ================= K2O Split Slide-Over Transition & Elevated Content Sheet ================= */
-  :global(html.cs-depth-open .side-nav) {
-    opacity: 0;
+  .cs-pane {
+    min-width: 0;
+    width: 100%;
+    height: 100dvh;
   }
 
   .cs-reader.is-split-reader {
@@ -1526,104 +1525,106 @@ const sybilCardItems = [
     animation: none;
   }
   .cs-reader.is-split-reader::backdrop {
-    background: rgb(23 21 20 / 0.36);
+    background: rgb(23 21 20 / 0.16);
     opacity: 0;
-    transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
   :global(:root[data-theme='dark']) .cs-reader.is-split-reader::backdrop {
-    background: rgb(10 10 12 / 0.68);
+    background: rgb(0 0 0 / 0.36);
   }
   .cs-reader.is-split-reader.is-entered::backdrop {
     opacity: 1;
   }
   .cs-reader.is-split-reader.is-closing::backdrop {
     opacity: 0;
-    transition-duration: 0.24s;
+    transition-duration: 0.46s;
   }
 
-  /* Supporting pane (Left SideNav): short calm glide (-24px + fade) with 60ms delay */
+  /* Supporting pane (Left SideNav): calm glide (-28px + fade) with 100ms delay */
   .cs-reader.is-split-reader .cs-sidebar {
     position: relative;
     z-index: 1;
     border-right: 0;
     opacity: 0;
-    transform: translate3d(-24px, 0, 0);
+    transform: translate3d(-28px, 0, 0);
     transition:
-      transform 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.06s,
-      opacity 0.32s ease 0.06s,
+      transform 0.62s cubic-bezier(0.16, 1, 0.3, 1) 0.1s,
+      opacity 0.54s ease 0.1s,
       background-color 0.25s ease;
     will-change: transform, opacity;
   }
-  /* Seamless backdrop extension behind the 32px rounded left corners of .cs-scroller (eliminates 1px seam) */
+  /* Seamless backdrop extension behind the 40px rounded left corners of .cs-pane */
   .cs-reader.is-split-reader .cs-sidebar::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
     left: 100%;
-    width: 44px;
+    width: 56px;
     background: var(--cs-side-bg);
     pointer-events: none;
     transition: background-color 0.25s ease;
   }
 
-  /* Hero pane (Right Content Sheet): full slide from right + 32px left radius + soft drop shadow */
-  .cs-reader.is-split-reader .cs-scroller {
+  /* Hero pane (Right Content Sheet): clipped rounded outer frame (no scroll on transformed layer -> zero black corners) */
+  .cs-reader.is-split-reader .cs-pane {
     position: relative;
     z-index: 2;
+    overflow: hidden;
     background: var(--cs-bg);
-    scroll-behavior: auto;
-    border-radius: 32px 0 0 32px;
+    border-radius: 40px 0 0 40px;
     box-shadow:
       -16px 0 48px rgb(23 21 20 / 0.08),
       -2px 0 12px rgb(23 21 20 / 0.04);
     transform: translate3d(100%, 0, 0);
     transition:
-      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.72s cubic-bezier(0.16, 1, 0.3, 1),
       background-color 0.25s ease,
       box-shadow 0.25s ease;
     will-change: transform;
   }
-  :global(:root[data-theme='dark']) .cs-reader.is-split-reader .cs-scroller {
+  :global(:root[data-theme='dark']) .cs-reader.is-split-reader .cs-pane {
     box-shadow:
       -18px 0 56px rgb(0 0 0 / 0.45),
       -2px 0 14px rgb(0 0 0 / 0.24);
   }
-  .cs-reader.is-split-reader .cs-hero-banner {
-    border-top-left-radius: 32px;
+  .cs-reader.is-split-reader .cs-scroller {
+    height: 100%;
+    background: var(--cs-bg);
+    scroll-behavior: auto;
   }
 
   .cs-reader.is-split-reader.is-entered .cs-sidebar {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
-  .cs-reader.is-split-reader.is-entered .cs-scroller {
+  .cs-reader.is-split-reader.is-entered .cs-pane {
     transform: translate3d(0, 0, 0);
   }
 
-  /* Snappier exit (220ms–260ms, no delay) */
+  /* Smooth, unhurried exit (520ms pane / 420ms sidebar, no delay) */
   .cs-reader.is-split-reader.is-closing .cs-sidebar {
     transition-delay: 0s;
-    transition-duration: 0.22s;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.42s;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .cs-reader.is-split-reader.is-closing .cs-scroller {
+  .cs-reader.is-split-reader.is-closing .cs-pane {
     transition-delay: 0s;
-    transition-duration: 0.26s;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.52s;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   /* Inner content subtle stagger */
   .cs-reader.is-split-reader .cs-hero-banner,
   .cs-reader.is-split-reader .cs-article {
     opacity: 0;
-    transform: translate3d(0, 12px, 0);
+    transform: translate3d(0, 14px, 0);
     transition:
-      opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.08s,
-      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.14s,
+      transform 0.64s cubic-bezier(0.16, 1, 0.3, 1) 0.14s;
   }
   .cs-reader.is-split-reader .cs-article {
-    transition-delay: 0.11s;
+    transition-delay: 0.19s;
   }
   .cs-reader.is-split-reader.is-entered .cs-hero-banner,
   .cs-reader.is-split-reader.is-entered .cs-article {
@@ -1633,7 +1634,7 @@ const sybilCardItems = [
   .cs-reader.is-split-reader.is-closing .cs-hero-banner,
   .cs-reader.is-split-reader.is-closing .cs-article {
     transition-delay: 0s;
-    transition-duration: 0.16s;
+    transition-duration: 0.28s;
   }
 
   /* Seamless switch when navigating from another open case study */
@@ -1642,33 +1643,36 @@ const sybilCardItems = [
     transform: translate3d(0, 0, 0);
     transition: background-color 0.25s ease;
   }
-  .cs-reader.is-split-reader.is-switch-enter .cs-scroller {
-    transform: translate3d(28px, 0, 0);
+  .cs-reader.is-split-reader.is-switch-enter .cs-pane {
+    transform: translate3d(32px, 0, 0);
     opacity: 0;
     transition:
-      transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.28s ease,
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.42s ease,
       background-color 0.25s ease;
   }
-  .cs-reader.is-split-reader.is-switch-enter.is-entered .cs-scroller {
+  .cs-reader.is-split-reader.is-switch-enter.is-entered .cs-pane {
     transform: translate3d(0, 0, 0);
     opacity: 1;
   }
 
   /* Mobile slide-over from right edge */
   @media (max-width: 900px) {
+    .cs-pane {
+      height: calc(100dvh - 56px);
+    }
     .cs-reader.is-split-reader .cs-layout {
       background: var(--cs-bg);
       transform: translate3d(100%, 0, 0);
-      transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: transform;
     }
     .cs-reader.is-split-reader.is-entered .cs-layout {
       transform: translate3d(0, 0, 0);
     }
     .cs-reader.is-split-reader.is-closing .cs-layout {
-      transition-duration: 0.25s;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 0.46s;
+      transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     }
     .cs-reader.is-split-reader .cs-sidebar {
       opacity: 1;
@@ -1678,14 +1682,11 @@ const sybilCardItems = [
     .cs-reader.is-split-reader .cs-sidebar::after {
       display: none;
     }
-    .cs-reader.is-split-reader .cs-scroller {
+    .cs-reader.is-split-reader .cs-pane {
       transform: none;
       border-radius: 0;
       box-shadow: none;
       transition: background-color 0.25s ease;
-    }
-    .cs-reader.is-split-reader .cs-hero-banner {
-      border-top-left-radius: 0;
     }
   }
 
@@ -1693,7 +1694,7 @@ const sybilCardItems = [
     .cs-reader.is-split-reader::backdrop,
     .cs-reader.is-split-reader .cs-layout,
     .cs-reader.is-split-reader .cs-sidebar,
-    .cs-reader.is-split-reader .cs-scroller,
+    .cs-reader.is-split-reader .cs-pane,
     .cs-reader.is-split-reader .cs-hero-banner,
     .cs-reader.is-split-reader .cs-article {
       transition: none !important;
