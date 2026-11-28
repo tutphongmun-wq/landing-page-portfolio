@@ -1782,18 +1782,24 @@ const triptychCards = [
 
   /* Project 04 — 3-Card Layered Featured Triptych (content bg.mov reference) */
   .wr-media.is-triptych {
-    background-color: color-mix(in srgb, var(--c-bg) 45%, #ffffff);
+    background-color: #f6efe4;
     background-image:
-      radial-gradient(rgb(17 17 17 / 0.06) 1px, transparent 1px),
-      radial-gradient(ellipse 80% 70% at 50% 100%, rgb(0 0 0 / 0.045), transparent 72%);
-    background-size: 16px 16px, 100% 100%;
+      radial-gradient(rgb(17 17 17 / 0.055) 1px, transparent 1px),
+      radial-gradient(circle at 18% 22%, rgb(118 98 255 / 0.22), transparent 52%),
+      radial-gradient(circle at 84% 24%, rgb(255 59 78 / 0.2), transparent 52%),
+      radial-gradient(circle at 50% 88%, rgb(245 166 56 / 0.22), transparent 58%),
+      linear-gradient(135deg, #efe8ff 0%, #f8f1e6 48%, #fde8e6 100%);
+    background-size: 16px 16px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   }
   :global(:root[data-theme='dark']) .wr-media.is-triptych {
-    background-color: color-mix(in srgb, #ffffff 5.5%, var(--c-bg));
+    background-color: #1c1b20;
     background-image:
-      radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
-      radial-gradient(ellipse 80% 70% at 50% 100%, rgb(0 0 0 / 0.32), transparent 72%);
-    background-size: 16px 16px, 100% 100%;
+      radial-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1px),
+      radial-gradient(circle at 18% 22%, rgb(118 98 255 / 0.28), transparent 52%),
+      radial-gradient(circle at 84% 24%, rgb(255 59 78 / 0.24), transparent 52%),
+      radial-gradient(circle at 50% 88%, rgb(20 184 166 / 0.2), transparent 58%),
+      linear-gradient(135deg, #1d1a2c 0%, #1c1c1e 50%, #2a181c 100%);
+    background-size: 16px 16px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   }
   .vc-triptych {
     position: relative;
